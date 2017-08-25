@@ -25,7 +25,7 @@ class FollowState(State):
                 create_parallel_pipeline([
                     create_sequential_pipeline([
                         camera.ConvertColorspacePipeline(to='hsv'),
-                        camera.DetectColoredObjectPipeline(color='orange')
+                        camera.DetectColoredObjectPipeline(color='red')
                     ]),
                     camera.GetImageDimensionsPipeline()
                 ]),
@@ -60,18 +60,18 @@ class FollowState(State):
         dev_ok, dev = hist[-1]
 
         if dev_ok:
-            if dev < -0.8:
+            if dev < -0.6:
                 movement.right(30)
-            elif dev < -0.6:
-                movement.right(20)
             elif dev < -0.3:
+                movement.right(20)
+            elif dev < -0.2:
                 movement.right(10)
             elif dev > 0.2:
                 movement.left(10)
-            elif dev > 0.6:
+            elif dev > 0.3:
                 movement.left(20)
-            elif dev > 0.8:
-                movement.right(30)
+            elif dev > 0.6:
+                movement.left(30)
             else:
                 movement.forward(30)
         else:
