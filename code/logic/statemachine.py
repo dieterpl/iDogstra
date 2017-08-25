@@ -10,13 +10,17 @@ class StateMachine(object):
 
         self.__history = []
 
+    def run(self):
+        while True:
+            self.update()
+
     def update(self):
         pipeline_out = self.__current_state.pipeline.run_pipeline(None)
         self.__history.append(pipeline_out)
         next_state = self.__current_state.on_update(self.__history)
         self.set_state(next_state)
 
-    def set_state(self, state: State):
+    def set_state(self, state):
         if state is not self.__current_state:
             self.__current_state.on_exit()
             self.__current_state = state
@@ -26,16 +30,16 @@ class StateMachine(object):
 class State(object):
     """ Abstract superclass for all state machine states """
 
-    def on_enter(self) -> None:
+    def on_enter(self):
         """ Called when this state is entered"""
         pass
 
-    def on_exit(self) -> None:
+    def on_exit(self):
         """ Called when this state is exited"""
         pass
 
     @property
-    def pipeline(self) -> pipeline.Pipeline:
+    def pipeline(self):
         raise NotImplementedError()
 
     def on_update(self, hist):
@@ -45,16 +49,21 @@ class State(object):
 
 class _InitialState(State):
 
+    def __init__(self):
+        State.__init__(self)
+        self.first_state = self
+
     def on_enter(self):
-        pass  # todo
+        pass
 
     def on_exit(self):
-        pass  # todo
+        pass
 
     @property
     def pipeline(self):
-        raise NotImplementedError()  # todo
+        return pipeline.EmptyPipeline()
 
     @overrides(State)
-    def on_update(self, hist) -> State:
-        pass  # todo
+    def on_update(self, hist):
+        return self.first_state
+
