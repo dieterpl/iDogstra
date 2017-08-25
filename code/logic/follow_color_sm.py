@@ -59,11 +59,11 @@ class FollowState(State):
 
         if dev_ok:
             if dev > 0.2:
-                movement.right(255)
+                movement.right(30)
             elif dev < -0.2:
-                movement.left(255)
+                movement.left(30)
             else:
-                movement.forward(255)
+                movement.forward(30)
 
         return self
 
