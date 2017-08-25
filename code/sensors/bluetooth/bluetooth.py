@@ -68,10 +68,6 @@ def parse_events(sock, target_uuid, loop_count=100):
     return result
 
 
-DEFAULT_OLD_DATA_THRESHOLD = 10000
-DEFAULT_AVG_THRESHOLD = 2000
-
-
 # A named tuple that defines how the received rssi values are stored.
 # Note that the rssi value is negative, whereas the data in this
 # tuple will be positive.
@@ -96,7 +92,7 @@ class DataList:
         """Returns the average of all values"""
 
         s = 0
-        for _, strength in self.data_list
+        for _, strength in self.data_list:
             s += strength
         count = len(self)
         return s / count if count > 0 else 0
@@ -106,7 +102,7 @@ class DataList:
 
         s = 0
         avg = self.avg()
-        for _, strength in self.data_list
+        for _, strength in self.data_list:
             s += (strength - avg)**2
         count = len(self)
         return s / count if count > 0 else 0
@@ -116,6 +112,9 @@ class DataList:
         math.sqrt(self.variance())"""
 
         return math.sqrt(self.variance())
+
+
+DEFAULT_THRESHOLD = 2000
 
 
 class BTDongle:
@@ -143,11 +142,11 @@ class BTDongle:
         self.sock = bluez.hci_open_dev(self.dev_id)
         # Enable ble scan
         bluez.hci_send_cmd(
-            sock, OGF_LE_CTL, OCF_LE_SET_SCAN_ENABLE, struct.pack("<BB", enable, 0x00))
+            self.sock, OGF_LE_CTL, OCF_LE_SET_SCAN_ENABLE, struct.pack("<BB", 0x01, 0x00))
         # Start scanning in a new thread
         self.thread.start()
 
-    def remove_old_data(self, threshold=DEFAULT_OLD_DATA_THRESHOLD):
+    def remove_old_data(self, threshold=10000):
         """Removes data tuples from the queue that are older
         than threshold milliseconds"""
 
@@ -167,7 +166,7 @@ class BTDongle:
         # Remove old entries from the queue that are older than 10 sec
         self.remove_old_data()
         # Add the new rssi value to the data queue
-        self.data.append(self.DataTuple(
+        self.data.append(DataTuple(
             current_time_millis(), abs(rssi) + self.offset))
 
     def scan(self):
@@ -175,7 +174,7 @@ class BTDongle:
 
         result = parse_events(self.sock, self.target, loop_count=10)
         if result != None:
-            self.addData(result.rssi)
+            self.add_data(result.rssi)
 
     def scan_loop(self):
         """Scans in a loop for ble beacons. Simply calls self.scan() in a
@@ -184,7 +183,7 @@ class BTDongle:
         while True:
             self.scan()
 
-    def snapshot_data(self, threshold):
+    def snapshot_data(self, threshold=DEFAULT_THRESHOLD):
         """Returns a snapshot of the data in form of a DataList object.
         This contains all data that has been collected in the last threshold
         milliseconds"""
