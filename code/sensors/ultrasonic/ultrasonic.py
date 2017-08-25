@@ -19,7 +19,7 @@ class UltraSonic:
  
     def get_Distanz(self):
         if(self.initalized==False):
-            init()
+            self.init()
             self.initalized=True
         # setze Trigger auf HIGH
         GPIO.output(self.GPIO_TRIGGER, True)
