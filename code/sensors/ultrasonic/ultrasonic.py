@@ -1,78 +1,59 @@
+#Bibliotheken einbinden
+import RPi.GPIO as GPIO
 import time
-import brickpi3
-import getch
-import sys
 
-
-BP = brickpi3.BrickPi3()
-DEFAULT_SPEED = 100
-
-state = 'stop'
-
-
-def forward(speed):
-    BP.set_motor_power(BP.PORT_A + BP.PORT_D, speed)
-
-
-def backward(speed):
-    BP.set_motor_power(BP.PORT_A + BP.PORT_D, -speed)
-
-
-def left(speed):
-    BP.set_motor_power(BP.PORT_A, -speed)
-    BP.set_motor_power(BP.PORT_D, speed)
-
-
-def right(speed):
-    BP.set_motor_power(BP.PORT_A, speed)
-    BP.set_motor_power(BP.PORT_D, -speed)
-
-
-def stop():
-    BP.set_motor_power(BP.PORT_A + BP.PORT_D, 0)
-
-
-def leftspin(speed, duration):
-    left(speed)
-    time.sleep(duration)
-    stop()
-
-
-def rightspin(speed, duration):
-    right(speed)
-    time.sleep(duration)
-    stop()
-
-
-def keyMapping(key):
-    global state
-
-    if key == 'w':
-        forward(DEFAULT_SPEED)
-        state = 'forward'
-    elif key == 'a':
-        left(DEFAULT_SPEED)
-        state = 'left'
-    elif key == 's':
-        if state == 'stop':
-            backward(DEFAULT_SPEED)
-            state = 'backward'
-        else:
-            stop()
-            state = 'stop'
-    elif key == 'd':
-        right(DEFAULT_SPEED)
-        state = 'right'
-
-
+class UltraSonic:
+    def __init__(self):
+        self.MAX_VALUE = 300
+    
+    def init(self):
+        #GPIO Modus (BOARD / BCM)
+        GPIO.setmode(GPIO.BCM)
+    
+        #GPIO Pins zuweisen
+        GPIO_TRIGGER = 26
+        GPIO_ECHO = 20
+    
+        #Richtung der GPIO-Pins festlegen (IN / OUT)
+        GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
+        GPIO.setup(GPIO_ECHO, GPIO.IN)
+ 
+    def get_Distanz():
+        # setze Trigger auf HIGH
+        GPIO.output(GPIO_TRIGGER, True)
+    
+        # setze Trigger nach 0.01ms aus LOW
+        time.sleep(0.00001)
+        GPIO.output(GPIO_TRIGGER, False)
+ 
+        StartZeit = time.time()
+        StopZeit = time.time()
+ 
+        # speichere Startzeit
+        while GPIO.input(GPIO_ECHO) == 0:
+            StartZeit = time.time()
+ 
+        # speichere Ankunftszeit
+        while GPIO.input(GPIO_ECHO) == 1:
+            StopZeit = time.time()
+ 
+        # Zeit Differenz zwischen Start und Ankunft
+        TimeElapsed = StopZeit - StartZeit
+        # mit der Schallgeschwindigkeit (34300 cm/s) multiplizieren
+        # und durch 2 teilen, da hin und zurueck
+        distanz = (TimeElapsed * 34300) / 2
+ 
+        return distanz
+ 
 if __name__ == '__main__':
-    args = sys.argv
-    setSpeed = int(args[1])
-
-    rightspin(setSpeed, 1)
-
-
-    # while True:
-    #     char = getch.getch()
-    #     keyMapping(char)
-    #     time.sleep(0.01)
+    try:
+        us = UltraSonic()
+        while True:
+            
+            print ("Gemessene Entfernung = %.1f cm" % us.get_Distanz())
+            time.sleep(1)
+ 
+        # Beim Abbruch durch STRG+C resetten
+    except KeyboardInterrupt:
+        print("Messung vom User gestoppt")
+        GPIO.cleanup()
