@@ -57,8 +57,8 @@ class DetectColoredObjectPipeline(Pipeline):
 
         if type(color) == str:
             if color == 'red':
-                self.__threshold_lower = np.array([0, 50, 50])
-                self.__threshold_upper = np.array([10, 255, 255])
+                self.__threshold_lower = np.array([140, 50, 50])
+                self.__threshold_upper = np.array([160, 255, 255])
             elif color == 'yellow':
                 self.__threshold_lower = np.array([30, 50, 50])
                 self.__threshold_upper = np.array([70, 255, 255])
@@ -144,7 +144,7 @@ if __name__ == '__main__':
             create_parallel_pipeline([
                 create_sequential_pipeline([
                     ConvertColorspacePipeline(to='hsv'),
-                    DetectColoredObjectPipeline(color='orange')
+                    DetectColoredObjectPipeline(color='red')
                 ]),
                 GetImageDimensionsPipeline()
             ]),
