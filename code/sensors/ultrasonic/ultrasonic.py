@@ -17,21 +17,21 @@ class UltraSonic:
  
     def get_Distanz(self):
         # setze Trigger auf HIGH
-        GPIO.output(GPIO_TRIGGER, True)
+        GPIO.output(self.GPIO_TRIGGER, True)
     
         # setze Trigger nach 0.01ms aus LOW
         time.sleep(0.00001)
-        GPIO.output(GPIO_TRIGGER, False)
+        GPIO.output(self.GPIO_TRIGGER, False)
  
         StartZeit = time.time()
         StopZeit = time.time()
  
         # speichere Startzeit
-        while GPIO.input(GPIO_ECHO) == 0:
+        while GPIO.input(self.GPIO_ECHO) == 0:
             StartZeit = time.time()
  
         # speichere Ankunftszeit
-        while GPIO.input(GPIO_ECHO) == 1:
+        while GPIO.input(self.GPIO_ECHO) == 1:
             StopZeit = time.time()
  
         # Zeit Differenz zwischen Start und Ankunft
