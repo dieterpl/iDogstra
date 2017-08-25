@@ -4,6 +4,7 @@ from sensors.camera import camera
 from motor import movement
 import cv2
 from utils.config import *
+from sensors.bluetooth.bluetooth import BTDongle
 
 
 class FollowColorSM(StateMachine):
@@ -52,12 +53,25 @@ class FollowState(State):
 
             self.__pipeline.execute_callbacks = [show_result]
 
+            # todo port to pipelines
+            uuid = '6951e12f049945d2930e1fc462c721c8'
+            self.btdongles = [BTDongle(i, uuid) for i in range(2)]
+            for dongle in self.btdongles:
+                dongle.start()
+
     @property
     def pipeline(self):
         return self.__pipeline
 
     def on_update(self, hist):
         dev_ok, dev = hist[-1]
+
+        _sum = sum(dongle.snapshot_data().avg() for dongle in self.btdongles)
+        _avg = _sum / len(self.btdongles)
+        if _avg < 60:
+            speed = 0
+        else:
+            speed = round(min(100.0, 15 + 4 * (_avg - 60)))
 
         if dev_ok:
             if dev < -0.6:
@@ -73,7 +87,7 @@ class FollowState(State):
             elif dev > 0.2:
                 movement.left(10)
             else:
-                movement.forward(60)
+                movement.forward(speed)
         else:
             movement.stop()
 
