@@ -4,6 +4,7 @@ import sys
 import time
 
 from sensors.bluetooth.bluetooth import BTDongle
+from motor import movement
 
 
 DEV_COUNT = 2
@@ -30,6 +31,15 @@ def main():
     dongles = [BTDongle(id, target) for id in ids]
     for dongle in dongles:
         dongle.start()
+
+    while True:
+        a = avg(dongles)
+        print("%02.2f" % a)
+        if a < 60:
+            movement.stop()
+        else:
+            movement.forward(min(100, 15 + 4 * (a - 60)))
+        time.sleep(0.4)
 
     while True:
         # for dongle in dongles:
