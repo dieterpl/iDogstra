@@ -1,7 +1,6 @@
 import time     # import the time library for the sleep function
 import brickpi3 # import the BrickPi3 drivers
 import math
-hd = HEAD()
 class Head:
     def __init__(self):
         self.MAX_RANGE = 80
@@ -16,21 +15,21 @@ class Head:
     def doFullScan(self):
         self.BP.set_motor_power(self.BP.PORT_C, self.BP.MOTOR_FLOAT)
         self.BP.set_motor_limits(self.BP.PORT_C, 0, 0)          # optionally set a power limit (in percent) and a speed limit (in Degrees Per Second)
-        goToPosition(self.BP.PORT_C,0)
+        self.goToPosition(self.BP.PORT_C,0)
         while True:
             for i in range(0,self.MAX_RANGE,1):
-                goToPosition(self.BP.PORT_C,i)
+                self.goToPosition(self.BP.PORT_C,i)
 
             for i in range(self.MAX_RANGE,0,-1):
-                goToPosition(self.BP.PORT_C,i)
+                self.goToPosition(self.BP.PORT_C,i)
 
-
+hd = Head()
 
 if __name__ == '__main__':
     try:
        
         while True:
-            print ("Gemessene Entfernung = %.1f cm" % us.doFullScan())
+            hd.doFullScan()
             time.sleep(1)
  
         # Beim Abbruch durch STRG+C resetten
