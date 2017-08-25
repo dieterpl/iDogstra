@@ -89,7 +89,8 @@ class FollowState(State):
             elif dev > 0.2:
                 movement.left(10)
             else:
-                movement.forward(self.current_speed)
+                self.current_speed = speed
+                movement.forward(speed)
         else:
             self.current_speed = max(0, self.current_speed - 1)
             movement.stop()
