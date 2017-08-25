@@ -4,6 +4,7 @@ from sensors.camera import camera
 from motor import movement
 import cv2
 from utils.config import *
+from sensors.bluetooth.bluetooth import BTDongle
 
 
 class FollowColorSM(StateMachine):
@@ -25,7 +26,7 @@ class FollowState(State):
                 create_parallel_pipeline([
                     create_sequential_pipeline([
                         camera.ConvertColorspacePipeline(to='hsv'),
-                        camera.DetectColoredObjectPipeline(color='orange')
+                        camera.DetectColoredObjectPipeline(color='magenta')
                     ]),
                     camera.GetImageDimensionsPipeline()
                 ]),
@@ -52,6 +53,14 @@ class FollowState(State):
 
             self.__pipeline.execute_callbacks = [show_result]
 
+        # todo port to pipelines
+        uuid = '6951e12f049945d2930e1fc462c721c8'
+        self.btdongles = [BTDongle(i, uuid) for i in range(2)]
+        for dongle in self.btdongles:
+            dongle.start()
+
+        self.current_speed = 0
+
     @property
     def pipeline(self):
         return self.__pipeline
@@ -59,20 +68,41 @@ class FollowState(State):
     def on_update(self, hist):
         dev_ok, dev = hist[-1]
 
-        if dev_ok:
-            if dev < -0.2:
-                movement.right(30)
-            elif dev > 0.2:
-                movement.left(30)
-            else:
-                pass  # movement.forward(30)
+        _sum = sum(dongle.snapshot_data().avg() for dongle in self.btdongles)
+        _avg = _sum / len(self.btdongles)
+        if _avg < 65:
+            speed = 0
         else:
+            speed = round(min(100.0, 15 + 4 * (_avg - 65)))
+
+        if dev_ok:
+            if dev < -0.6:
+                movement.right(50)
+            elif dev < -0.3:
+                movement.right(30)
+            elif dev < -0.2:
+                movement.right(10)
+            elif dev > 0.6:
+                movement.left(50)
+            elif dev > 0.3:
+                movement.left(30)
+            elif dev > 0.2:
+                movement.left(10)
+            else:
+                self.current_speed = speed
+                movement.forward(speed)
+        else:
+            self.current_speed = max(0, self.current_speed - 1)
             movement.stop()
 
         return self
 
+    def on_exit(self):
+        movement.stop()
+
 if __name__ == '__main__':
-    cv2.namedWindow('camtest')
+    if DEBUG_MODE:
+        cv2.namedWindow('camtest')
 
     FollowColorSM().run()
 

@@ -22,7 +22,7 @@ def test_camera(show=True):
     try:
         while True:
             start = utils.functions.current_time_millis()
-            image, _ = get_video_frame(video)
+            image, _, _ = get_video_frame(video, color_space='hsv')
             if picamera is None:
                 show_pixel_value(image)
             if show:
@@ -229,6 +229,6 @@ if __name__ == '__main__':
     window = cv2.namedWindow('camtest')
     cv2.setMouseCallback('camtest', mouse_callback)
 
-    # test_camera(False)
+    test_camera(True)
     # test_person_tracking()
-    test_color_detection('orange paper', show=True)
+    # test_color_detection('orange paper', show=True)
