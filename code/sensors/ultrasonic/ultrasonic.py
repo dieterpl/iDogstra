@@ -7,8 +7,8 @@ class UltraSonic:
         self.MAX_VALUE = 300
         self.GPIO_TRIGGER = 26
         self.GPIO_ECHO = 20
-        init()
-        
+        self.initalized = False
+
     def init(self):
         #GPIO Modus (BOARD / BCM)
         GPIO.setmode(GPIO.BCM)
@@ -18,6 +18,9 @@ class UltraSonic:
         GPIO.setup(GPIO_ECHO, GPIO.IN)
  
     def get_Distanz(self):
+        if(self.initalized==False):
+            init()
+            self.initalized=True
         # setze Trigger auf HIGH
         GPIO.output(self.GPIO_TRIGGER, True)
     
