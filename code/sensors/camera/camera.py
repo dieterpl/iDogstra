@@ -89,7 +89,7 @@ class DetectColoredObjectPipeline(Pipeline):
         if len(cnts) > 0:
             largest_contour = max(cnts, key=cv2.contourArea)
 
-            if cv2.contourArea(largest_contour) > self.__min_contour_size:
+            if cv2.contourArea(largest_contour) > inp.shape[0] * inp.shape[1] * self.__min_contour_size:
                 bbox = tuple(cv2.boundingRect(largest_contour))
                 return True, bbox
 
