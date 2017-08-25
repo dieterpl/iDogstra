@@ -1,6 +1,5 @@
 from sensors import pipeline
 from utils.functions import overrides
-from motor import movement
 
 
 class StateMachine(object):
@@ -21,7 +20,7 @@ class StateMachine(object):
         next_state = self.__current_state.on_update(self.__history)
         self.set_state(next_state)
 
-    def set_state(self, state: State):
+    def set_state(self, state):
         if state is not self.__current_state:
             self.__current_state.on_exit()
             self.__current_state = state
