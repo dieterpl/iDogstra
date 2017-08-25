@@ -2,6 +2,7 @@ from logic.statemachine import *
 from sensors.pipeline import create_parallel_pipeline, create_sequential_pipeline
 from sensors.camera import camera
 from motor import movement
+import cv2
 
 
 class FollowColorSM(StateMachine):
@@ -30,6 +31,25 @@ class FollowState(State):
                 camera.FindYDeviationPipeline()
             ])
 
+        self.__pipeline.execute_callbacks = [self.__show_result]
+
+    def __show_result(self, *_):
+        _, _, (bbox_ok, bbox) = self.__pipeline.steps[1].pipelines[0].step_results
+        _, (image_ok, image), _, (dev_ok, dev) = self.__pipeline.step_results
+
+        # draw bounding box
+        if bbox_ok:
+            p1 = (int(bbox[0]), int(bbox[1]))
+            p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+            cv2.rectangle(image, p1, p2, (0, 0, 255))
+
+        # add deviation as text
+        if dev_ok:
+            cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
+
+        cv2.imshow('camtest', image)
+        cv2.waitKey(1)
+
     @property
     def pipeline(self):
         return self.__pipeline
@@ -48,6 +68,8 @@ class FollowState(State):
         return self
 
 if __name__ == '__main__':
+    cv2.namedWindow('camtest')
+
     FollowColorSM().run()
 
 
