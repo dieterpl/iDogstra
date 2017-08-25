@@ -6,7 +6,7 @@ class StateMachine(object):
     """ The interface to the state machine. """
 
     def __init__(self):
-        self.__current_state = _InitialState()
+        self._current_state = _InitialState()
 
         self.__history = []
 
