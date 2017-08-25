@@ -1,0 +1,5 @@
+Host pi
+	HostName 192.168.168.255
+	User pi
+	IdentityFile ~/.ssh/pi
+	ForwardX11 yes

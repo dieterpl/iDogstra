@@ -1,0 +1,34 @@
+#Bluetooth hcitool 
+
+#searches for low energy signals from all devices
+sudo hcitool -i hci[0|1] lescan 
+
+# adds mac-address to whitelist for each bt-interface
+# --random necessary for my phone, not needed for beacon
+sudo hcitool -i hci[0|1] lewladd --random <Baddr>
+
+#searches for low energy signals from all devices in the whitelist
+sudo hcitool -i hci[0|1] lescan --whitelist
+
+#prints meta information for all BT interactions, including RSSI
+sudo btmon -i hci[0|1]
+
+
+#Raspberry Pi:
+#be carefull, if RAM and swap is full, the Pi will stop working
+#camera
+raspistill -o image.jpg
+
+#temperature
+vcgencmd measure_temp
+
+#BrickPi 3
+#Software examples for motor controll in /home/pi/Desktop/BrickPi3/Software
+
+#SSH-connection to Pi
+#copy ssh-config.txt into ~/.ssh/config
+#create ssh key
+ssh-keygen
+ssh pi
+#Passwort: robots1234
+#copy public-key into (remote) ~/.ssh/authorized_keys
