@@ -66,12 +66,12 @@ class FollowState(State):
                 movement.right(20)
             elif dev < -0.2:
                 movement.right(10)
-            elif dev > 0.2:
-                movement.left(10)
-            elif dev > 0.3:
-                movement.left(20)
             elif dev > 0.6:
                 movement.left(30)
+            elif dev > 0.3:
+                movement.left(20)
+            elif dev > 0.2:
+                movement.left(10)
             else:
                 movement.forward(30)
         else:
