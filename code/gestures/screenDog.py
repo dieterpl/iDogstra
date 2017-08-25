@@ -25,18 +25,19 @@ class FullScreenApp(object):
 if __name__ == '__main__':
     try:
         root = tk.Tk()
+        # set the dimensions of the screen 
+        # and where it is placed
+        root.geometry('%dx%d+%d+%d' % (800, 480, 0, 0))
         root.attributes('-alpha', 0.0) #For icon
         root.lower()
         root.iconify()
         window = tk.Toplevel(root)
-        window.geometry("1024x800") #Whatever size
+        window.geometry("800x480") #Whatever size
         window.overrideredirect(1) #Remove border
         window.attributes('-topmost', 1)
         #Whatever buttons, etc 
-        close = tk.Button(window, text = "Close Window", command = lambda: root.destroy())
-        close.pack(fill = tk.BOTH, expand = 1)
 
-        #app=FullScreenApp(root)
+
         imgPath = r"neutral.gif"
         photo = tk.PhotoImage(file = imgPath)
         label = tk.Label(window,image = photo)
