@@ -25,7 +25,7 @@ class FollowState(State):
                 create_parallel_pipeline([
                     create_sequential_pipeline([
                         camera.ConvertColorspacePipeline(to='hsv'),
-                        camera.DetectColoredObjectPipeline(color='orange')
+                        camera.DetectColoredObjectPipeline(color='magenta')
                     ]),
                     camera.GetImageDimensionsPipeline()
                 ]),
