@@ -11,6 +11,7 @@ import time
 from collections import deque
 from collections import namedtuple
 from threading import Thread
+from threading import Lock
 from utils.functions import current_time_millis
 
 
@@ -130,6 +131,7 @@ class BTDongle:
 
         self.sock = None
         self.data = deque()
+        self.lock = Lock()
         self.current = 0
         self.thread = Thread(target=self.scan_loop)
         self.offset = 0
@@ -151,8 +153,10 @@ class BTDongle:
         than threshold milliseconds"""
 
         threshold = current_time_millis() - threshold
+        self.lock.acquire()
         while(len(self.data) > 0 and self.data[0].time < threshold):
             self.data.popleft()
+        self.lock.release()
 
     def add_data(self, rssi):
         """Adds a new rssi value. This also calls self.remove_old_data()"""
@@ -166,8 +170,10 @@ class BTDongle:
         # Remove old entries from the queue that are older than 10 sec
         self.remove_old_data()
         # Add the new rssi value to the data queue
+        self.lock.acquire()
         self.data.append(DataTuple(
             current_time_millis(), abs(rssi) + self.offset))
+        self.lock.release()
 
     def scan(self):
         """Scans a single time for ble beacons"""
@@ -190,9 +196,11 @@ class BTDongle:
         threshold = current_time_millis() - threshold
 
         data_list = []
+        self.lock.acquire()
         for t in reversed(self.data):
             # Stop when data is too old
             if t.time < threshold:
                 break
             data_list.append(t)
+        self.lock.release()
         return DataList(threshold, data_list)
