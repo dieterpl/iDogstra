@@ -7,26 +7,39 @@ import sys
 class Robot (brickpi3.BrickPi3):
 
     def __init__(self, speed=100):
-        super(Robot, self)
+        super(Robot, self).__init__()
         self.movement_state = 'stop'
         self.speed = 100
 
-    def forward(self, speed):
+    def forward(self, speed=None):
+        if speed is None:
+            speed = self.speed
         self.set_motor_power(self.PORT_A + self.PORT_D, speed)
+        self.state = 'forward'
 
-    def backward(self, speed):
+    def backward(self, speed=None):
+        if speed is None:
+            speed = self.speed
         self.set_motor_power(self.PORT_A + self.PORT_D, -speed)
+        self.state = 'backward'
 
-    def left(self, speed):
-        self.set_motor_power(self.PORT_A, -speed)
-        self.set_motor_power(self.PORT_D, speed)
-
-    def right(self, speed):
+    def left(self, speed=None):
+        if speed is None:
+            speed = self.speed
         self.set_motor_power(self.PORT_A, speed)
         self.set_motor_power(self.PORT_D, -speed)
+        self.state = 'left'
+
+    def right(self, speed=None):
+        if speed is None:
+            speed = self.speed
+        self.set_motor_power(self.PORT_A, -speed)
+        self.set_motor_power(self.PORT_D, speed)
+        self.state = 'right'
 
     def stop(self):
         self.set_motor_power(self.PORT_A + self.PORT_D, 0)
+        self.state = 'stop'
 
     def left_by_angle(self, angle):
         pass  # todo
@@ -34,20 +47,22 @@ class Robot (brickpi3.BrickPi3):
     def right_by_angle(self, angle):
         pass  # todo
 
-    def move_for_duration(self, move_func, speed=DEFAULT_SPEED, duration):
+    def __move_for_duration(self, move_func, duration, speed=None):
+        if speed is None:
+            speed = self.speed
         move_func(speed)
         time.sleep(duration)
-        stop()
+        self.stop()
 
-    def move_in_direction(self, direction, speed, duration):
+    def move(self, direction, speed, duration):
         if direction == 'left':
-            move_for_duration(left, speed, duration)
+            self.__move_for_duration(self.left, duration, speed)
         elif direction == 'right':
-            move_for_duration(right, speed, duration)
+            self.__move_for_duration(self.right, duration, speed)
         elif direction == 'forward':
-            move_for_duration(forward, speed, duration)
+            self.__move_for_duration(self.forward, duration, speed)
         elif direction == 'backward':
-            move_for_duration(backward, speed, duration)
+            self.__move_for_duration(self.backward, duration, speed)
 
     def angleToTime(self, degree):
         pass
@@ -57,25 +72,19 @@ class Robot (brickpi3.BrickPi3):
 
         if key == '' and self.state != 'stop':
             self.stop()
-            self.state = 'stop'
         elif key == 'w':
-            self.forward(DEFAULT_SPEED)
-            self.state = 'forward'
+            self.forward()
         elif key == 'a':
-            self.left(DEFAULT_SPEED)
-            self.state = 'left'
+            self.left()
         elif key == 'd':
-            self.right(DEFAULT_SPEED)
-            self.state = 'right'
+            self.right()
         elif key == 's':
             if self.state == 'stop':
-                self.backward(DEFAULT_SPEED)
-                self.state = 'backward'
+                self.backward()
             else:
                 self.stop()
-                self.state = 'stop'
 
-    def __drive_with_keys(self):
+    def drive_with_keys(self):
         try:
             while True:
                 char = getch.getch()
@@ -84,22 +93,22 @@ class Robot (brickpi3.BrickPi3):
         except KeyboardInterrupt:
             self.reset_all()
 
-    def __cli(self):
+    def cli(self):
         directions = ['left', 'right', 'forward', 'backward']
         try:
             while True:
                 left_motor = self.get_motor_encoder(self.PORT_A)
                 right_motor = self.get_motor_encoder(self.PORT_D)
-                print("Left motor: %6d - Right motor: %6d", % (left_motor, right_motor))
-                inp = raw_input("> ")
+                print("Left motor: %6d - Right motor: %6d" % (left_motor, right_motor))
+                inp = input("> ")
 
                 operation = inp.split(' ')
                 command = operation[0]
-                speed = operation[1]
-                duration = operation[2]
+                speed = int(operation[1])
+                duration = float(operation[2])
 
                 if command in directions:
-                    move(command, speed, duration)
+                    self.move(command, speed, duration)
                 else:
                     print('No such action')
 
@@ -113,9 +122,9 @@ if __name__ == '__main__':
     if len(args) >= 2:
         speed = int(args[1])
         BP = Robot(speed)
-        BP.__drive_with_keys()
+        BP.drive_with_keys()
 
     else:
-        speed = DEFAULT_SPEED
+        speed = 80
         BP = Robot(speed)
-        BP.__cli()
+        BP.cli()
