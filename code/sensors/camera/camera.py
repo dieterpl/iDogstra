@@ -65,6 +65,9 @@ class DetectColoredObjectPipeline(Pipeline):
             elif color == 'orange':
                 self.__threshold_lower = np.array([15, 50, 50])
                 self.__threshold_upper = np.array([25, 255, 255])
+            elif color == 'magenta':
+                self.__threshold_lower = np.array([160, 50, 50])
+                self.__threshold_upper = np.array([170, 255, 255])
             else:
                 raise ValueError('Unsupported color', color)
         elif type(color) == tuple:
