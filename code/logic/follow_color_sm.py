@@ -53,11 +53,11 @@ class FollowState(State):
 
             self.__pipeline.execute_callbacks = [show_result]
 
-            # todo port to pipelines
-            uuid = '6951e12f049945d2930e1fc462c721c8'
-            self.btdongles = [BTDongle(i, uuid) for i in range(2)]
-            for dongle in self.btdongles:
-                dongle.start()
+        # todo port to pipelines
+        uuid = '6951e12f049945d2930e1fc462c721c8'
+        self.btdongles = [BTDongle(i, uuid) for i in range(2)]
+        for dongle in self.btdongles:
+            dongle.start()
 
     @property
     def pipeline(self):
