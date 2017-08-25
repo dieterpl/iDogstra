@@ -22,8 +22,8 @@
       <file leaf-file-name="follow_color_sm.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/code/logic/follow_color_sm.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="195">
-              <caret line="58" column="37" lean-forward="true" selection-start-line="58" selection-start-column="37" selection-end-line="58" selection-end-column="37" />
+            <state relative-caret-position="363">
+              <caret line="94" column="12" lean-forward="false" selection-start-line="94" selection-start-column="12" selection-end-line="94" selection-end-column="12" />
               <folding>
                 <element signature="e#0#32#0" expanded="true" />
               </folding>
@@ -531,7 +531,14 @@
       <option name="project" value="LOCAL" />
       <updated>1503667855154</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Quick fix">
+      <created>1503670537827</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1503670537827</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -576,7 +583,8 @@
     <MESSAGE value="Value tweaking" />
     <MESSAGE value="More tweaking" />
     <MESSAGE value="More value tweaks" />
-    <option name="LAST_COMMIT_MESSAGE" value="More value tweaks" />
+    <MESSAGE value="Quick fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Quick fix" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -677,8 +685,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/code/logic/follow_color_sm.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="58" column="37" lean-forward="true" selection-start-line="58" selection-start-column="37" selection-end-line="58" selection-end-column="37" />
+        <state relative-caret-position="363">
+          <caret line="94" column="12" lean-forward="false" selection-start-line="94" selection-start-column="12" selection-end-line="94" selection-end-column="12" />
           <folding>
             <element signature="e#0#32#0" expanded="true" />
           </folding>

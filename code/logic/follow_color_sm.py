@@ -59,6 +59,8 @@ class FollowState(State):
         for dongle in self.btdongles:
             dongle.start()
 
+        self.current_speed = 0
+
     @property
     def pipeline(self):
         return self.__pipeline
@@ -68,7 +70,7 @@ class FollowState(State):
 
         _sum = sum(dongle.snapshot_data().avg() for dongle in self.btdongles)
         _avg = _sum / len(self.btdongles)
-        if _avg < 60:
+        if _avg < 65:
             speed = 0
         else:
             speed = round(min(100.0, 15 + 4 * (_avg - 60)))
@@ -87,7 +89,8 @@ class FollowState(State):
             elif dev > 0.2:
                 movement.left(10)
             else:
-                movement.forward(speed)
+                self.current_speed = min(speed, self.current_speed + 5)
+                movement.forward(self.current_speed)
         else:
             movement.stop()
 
@@ -97,7 +100,8 @@ class FollowState(State):
         movement.stop()
 
 if __name__ == '__main__':
-    cv2.namedWindow('camtest')
+    if DEBUG_MODE:
+        cv2.namedWindow('camtest')
 
     FollowColorSM().run()
 
