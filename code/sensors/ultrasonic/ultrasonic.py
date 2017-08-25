@@ -14,8 +14,8 @@ class UltraSonic:
         GPIO.setmode(GPIO.BCM)
     
         #Richtung der GPIO-Pins festlegen (IN / OUT)
-        GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
-        GPIO.setup(GPIO_ECHO, GPIO.IN)
+        GPIO.setup(self.GPIO_TRIGGER, GPIO.OUT)
+        GPIO.setup(self.GPIO_ECHO, GPIO.IN)
  
     def get_Distanz(self):
         if(self.initalized==False):
