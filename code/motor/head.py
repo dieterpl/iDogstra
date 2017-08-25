@@ -8,7 +8,7 @@ class Head:
         self.BP = brickpi3.BrickPi3()
 
     def goToPosition(self,motor, position):
-        while self.self.BP.get_motor_encoder(self.BP.PORT_C) not in range(position-8,position+8):
+        while self.BP.get_motor_encoder(self.BP.PORT_C) not in range(position-8,position+8):
             self.BP.set_motor_position(self.BP.PORT_C, position)
             print (self.BP.get_motor_encoder(self.BP.PORT_C))
         return
