@@ -60,12 +60,14 @@ class FollowState(State):
         dev_ok, dev = hist[-1]
 
         if dev_ok:
-            if dev > 0.2:
+            if dev < -0.2:
                 movement.right(30)
-            elif dev < -0.2:
+            elif dev > 0.2:
                 movement.left(30)
             else:
-                movement.forward(30)
+                pass  # movement.forward(30)
+        else:
+            movement.stop()
 
         return self
 
