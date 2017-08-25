@@ -1,5 +1,8 @@
 # BLE Scanner based on https://github.com/switchdoclabs/iBeacon-Scanner-/blob/master/blescan.py
 
+# THIS FILE IS DEPRECATED
+# USE bluetooth.py instead!
+
 import os
 import sys
 import struct
