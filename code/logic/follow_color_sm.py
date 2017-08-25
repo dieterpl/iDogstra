@@ -73,7 +73,7 @@ class FollowState(State):
         if _avg < 65:
             speed = 0
         else:
-            speed = round(min(100.0, 15 + 4 * (_avg - 60)))
+            speed = round(min(100.0, 15 + 4 * (_avg - 65)))
 
         if dev_ok:
             if dev < -0.6:
@@ -89,9 +89,9 @@ class FollowState(State):
             elif dev > 0.2:
                 movement.left(10)
             else:
-                self.current_speed = min(speed, self.current_speed + 5)
                 movement.forward(self.current_speed)
         else:
+            self.current_speed = max(0, self.current_speed - 1)
             movement.stop()
 
         return self
