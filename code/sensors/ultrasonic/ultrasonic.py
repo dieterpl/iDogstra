@@ -18,7 +18,7 @@ class UltraSonic:
         GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
         GPIO.setup(GPIO_ECHO, GPIO.IN)
  
-    def get_Distanz():
+    def get_Distanz(self):
         # setze Trigger auf HIGH
         GPIO.output(GPIO_TRIGGER, True)
     
@@ -49,7 +49,6 @@ if __name__ == '__main__':
     try:
         us = UltraSonic()
         while True:
-            
             print ("Gemessene Entfernung = %.1f cm" % us.get_Distanz())
             time.sleep(1)
  
