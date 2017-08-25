@@ -11,8 +11,11 @@ class StateMachine(object):
         self.__history = []
 
     def run(self):
-        while True:
-            self.update()
+        try:
+            while True:
+                self.update()
+        except KeyboardInterrupt:
+            self._current_state.on_exit()
 
     def update(self):
         pipeline_out = self._current_state.pipeline.run_pipeline(None)

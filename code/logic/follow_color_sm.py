@@ -60,16 +60,27 @@ class FollowState(State):
         dev_ok, dev = hist[-1]
 
         if dev_ok:
-            if dev < -0.2:
+            if dev < -0.8:
                 movement.right(30)
+            elif dev < -0.6:
+                movement.right(20)
+            elif dev < -0.3:
+                movement.right(10)
             elif dev > 0.2:
-                movement.left(30)
+                movement.left(10)
+            elif dev > 0.6:
+                movement.left(20)
+            elif dev > 0.8:
+                movement.right(30)
             else:
-                pass  # movement.forward(30)
+                movement.forward(30)
         else:
             movement.stop()
 
         return self
+
+    def on_exit(self):
+        movement.stop()
 
 if __name__ == '__main__':
     cv2.namedWindow('camtest')
