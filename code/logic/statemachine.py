@@ -15,15 +15,15 @@ class StateMachine(object):
             self.update()
 
     def update(self):
-        pipeline_out = self.__current_state.pipeline.run_pipeline(None)
+        pipeline_out = self._current_state.pipeline.run_pipeline(None)
         self.__history.append(pipeline_out)
-        next_state = self.__current_state.on_update(self.__history)
+        next_state = self._current_state.on_update(self.__history)
         self.set_state(next_state)
 
     def set_state(self, state):
-        if state is not self.__current_state:
-            self.__current_state.on_exit()
-            self.__current_state = state
+        if state is not self._current_state:
+            self._current_state.on_exit()
+            self._current_state = state
             state.on_enter()
 
 
