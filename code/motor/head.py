@@ -15,23 +15,25 @@ class Head:
 
 
 
-    def goToPosition(self,motor, position):
+    def goToPosition(self,motor, position, degree):
+        self.BP.set_motor_limits(hd.PORT, 0, degree)
+
         oldValue = 99999
         while self.BP.get_motor_encoder(self.PORT) != oldValue:
         #while self.BP.get_motor_encoder(self.PORT) not in range(position-10,position+10):
             oldValue = self.BP.get_motor_encoder(self.PORT)
             self.BP.set_motor_position(self.PORT, position)
-            time.sleep(1)
+            time.sleep(degree/self.MAX_RANGE)
             print (self.BP.get_motor_encoder(self.PORT))
         return
 
-    def doFullScan(self):
-        self.goToPosition(self.BP.PORT,0)
-        while True:
-            for i in range(0,self.MAX_RANGE,1):
-                self.goToPosition(self.PORT,i)
-            for i in range(self.MAX_RANGE,0,-1):
-                self.goToPosition(self.PORT,i)
+ #   def doFullScan(self):
+  #      self.goToPosition(self.BP.PORT,0)
+   #     while True:
+    #        for i in range(0,self.MAX_RANGE,1):
+     #           self.goToPosition(self.PORT,i)
+      #      for i in range(self.MAX_RANGE,0,-1):
+        #        self.goToPosition(self.PORT,i)
 
     def headshake(self):
         """
@@ -54,15 +56,13 @@ if __name__ == '__main__':
 
         #examples
         #Robot looks around carefully
-        hd.BP.set_motor_limits(hd.PORT, 0, hd.MAX_RANGE/4)
-        hd.headshake()
+        hd.headshake(hd.MAX_RANGE/4)
 
 
 
         time.sleep(2)
 
         #visual presentation of "No"
-        hd.BP.set_motor_limits(hd.PORT, 0, hd.MAX_RANGE*5)
-        hd.headshake()
+        hd.headshake(hd.MAX_RANGE)
 
 
