@@ -81,14 +81,14 @@ class ScreenDog:
         self.current_state = gesture
 
 
-if __name__ == '__main__':
-    try:
-        sd = ScreenDog()
-        while True:
-            time.sleep(2.5)
-            sd.change_gesture(sd.Gesture.neutral)
-            time.sleep(5.5)
-            sd.change_gesture(sd.Gesture.confused)
-            # Beim Abbruch durch STRG+C resetten
-    except KeyboardInterrupt:
-        print("Messung vom User gestoppt")
+#if __name__ == '__main__':
+#    try:
+#        sd = ScreenDog()
+#        while True:
+#            time.sleep(2.5)
+#            sd.change_gesture(sd.Gesture.neutral)
+#            time.sleep(5.5)
+#            sd.change_gesture(sd.Gesture.confused)
+#            # Beim Abbruch durch STRG+C resetten
+#    except KeyboardInterrupt:
+#        print("Messung vom User gestoppt")
