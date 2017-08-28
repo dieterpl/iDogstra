@@ -68,7 +68,10 @@ class Robot (brickpi3.BrickPi3):
         self.movement_state = 'stop'
 
     def left_by_angle(self, angle):
-        pass  # todo
+        self.set_motor_position(self.PORT_A, angle)
+        self.set_motor_position(self.PORT_D, -angle)
+        self.movment_state = 'left'
+        self.stop()
 
     def right_by_angle(self, angle):
         pass  # todo
@@ -90,6 +93,12 @@ class Robot (brickpi3.BrickPi3):
             self.__move_for_duration(self.forward, duration, speed)
         elif direction == 'backward':
             self.__move_for_duration(self.backward, duration, speed)
+
+    def move_by_angle(self, direction, angle):
+        if direction == 'left_by_angle':
+            self.left_by_angle(angle)
+        elif direction == 'right_by_angle':
+            self.right_by_angle(angle)
 
     def angleToTime(self, degree):
         pass
@@ -120,6 +129,7 @@ class Robot (brickpi3.BrickPi3):
 
     def cli(self):
         directions = ['left', 'right', 'forward', 'backward']
+        directions_by_angle = ['left_by_angle', 'right_by_angle']
 
         try:
             while True:
@@ -130,11 +140,14 @@ class Robot (brickpi3.BrickPi3):
 
                 operation = inp.split(' ')
                 command = operation[0]
-                speed = int(operation[1])
-                duration = float(operation[2])
 
                 if command in directions:
+                    speed = int(operation[1])
+                    duration = float(operation[2])
                     self.move(command, speed, duration)
+                elif command in directions_by_angle:
+                    angle = int(operation[1])
+                    self.move_by_angle(command, angle)
                 else:
                     print('No such action')
 
