@@ -5,7 +5,7 @@ import math
 class Head:
 
     def __enter__(self):
-        self.MAX_RANGE = 60
+        self.MAX_RANGE = 80
         self.BP = brickpi3.BrickPi3()
         self.PORT = self.BP.PORT_C
         self.BP.set_motor_power(self.PORT, self.BP.MOTOR_FLOAT)
@@ -16,7 +16,7 @@ class Head:
 
 
     def goToPosition(self,motor, position):
-        while self.BP.get_motor_encoder(self.PORT) not in range(position-3,position+3):
+        while self.BP.get_motor_encoder(self.PORT) not in range(position-10,position+10):
             self.BP.set_motor_position(self.PORT, position)
             print (self.BP.get_motor_encoder(self.PORT))
         return
