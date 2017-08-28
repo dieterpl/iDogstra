@@ -31,8 +31,7 @@ class Head:
 
     def headshake(self):
         """
-        rotates the head of the robot between (-80,80)<-Degrees of Head Movement possible
-        :param degree: set up how fast the robot turns in degrees per 1s
+        rotates the head of the robot between (-MAX,MAX)<-Degrees of Head Movement possible
         :return: -
         """
         self.goToPosition(self.PORT)
@@ -48,8 +47,7 @@ if __name__ == '__main__':
 
         #examples
         #Robot looks around carefully
-        self.BP.set_motor_limits(self.PORT, 0, hd.MAX_RANGE/4)
-
+        hd.BP.set_motor_limits(self.PORT, 0, hd.MAX_RANGE/4)
         hd.headshake()
 
 
@@ -57,7 +55,7 @@ if __name__ == '__main__':
         time.sleep(2)
 
         #visual presentation of "No"
-        self.BP.set_motor_limits(self.PORT, 0, hd.MAX_RANGE)
+        hd.BP.set_motor_limits(self.PORT, 0, hd.MAX_RANGE)
         hd.headshake()
 
 
