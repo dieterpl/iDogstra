@@ -62,14 +62,11 @@ if __name__ == '__main__':
 
         sd = ScreenDog()
         sd.start()
-        print ("test1")
-        time.sleep(5.5)
-        sd.changeState(sd.Gesture.neutral)
-        print ("test")
-
-
-
-
+        while True:
+            time.sleep(5.5)
+            sd.changeState(sd.Gesture.neutral)
+            time.sleep(5.5)
+            sd.changeState(sd.Gesture.confused)
         # Beim Abbruch durch STRG+C resetten
     except KeyboardInterrupt:
         print("Messung vom User gestoppt")
