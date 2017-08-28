@@ -34,8 +34,8 @@ class InfraRed:
         return -1
 
 
-def __exit__(self, exc_type, exc_value, traceback):
-    self.BP.reset_all()
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.BP.reset_all()
 
 
 if __name__ == '__main__':
