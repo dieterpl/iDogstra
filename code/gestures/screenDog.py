@@ -2,13 +2,16 @@ import tkinter as tk
 import time
 from threading import Thread
 
-class Gesture():
-    neutral = r"neutral.gif"
-    confused = r"confused.gif"
+
 
 class ScreenDog:
+
+    class Gesture():
+        neutral = r"neutral.gif"
+        confused = r"confused.gif"
+
     def __init__(self):
-        self.DEFAULT = Gesture.confused
+        self.DEFAULT = self.Gesture.confused
         self.current_state = self.DEFAULT
         self.window = None
         self.root = None
@@ -27,8 +30,7 @@ class ScreenDog:
         self.window.attributes('-topmost', 1)
         #Whatever buttons, etc
 
-        print(Gesture.confused)
-        self.imgPath = Gesture.confused
+        self.imgPath = self.DEFAULT
         self.photo = tk.PhotoImage(file = self.imgPath)
         self.label = tk.Label(self.window,image = self.photo)
         self.label.image = self.photo # keep a reference!
@@ -44,15 +46,18 @@ class ScreenDog:
 
     def task(self):
         #print("hello")
-        self.root.after(1, self.task)  # reschedule event in 2 seconds
+        self.root.after(10, self.task)  # reschedule event in 2 seconds
 
 
     def changeState(self, gesture):
         self.imgPath = gesture
         self.photo = tk.PhotoImage(file=self.imgPath)
+        self.label = tk.Label(self.window, image=self.photo)
         self.label.image = self.photo
         self.label.grid(row=3, column=1, padx=5, pady=5)
         self.label.pack(fill=tk.BOTH, expand=1)
+        self.window.update()
+        self.root.update()
         return 0
 
 
@@ -63,7 +68,7 @@ if __name__ == '__main__':
         sd.start()
         print ("test1")
         time.sleep(10.5)
-        sd.changeState(Gesture.neutral)
+        sd.changeState(sd.Gesture.neutral)
         print ("test")
 
 
