@@ -5,7 +5,7 @@ import math
 class Head:
 
     def __enter__(self):
-        self.MAX_RANGE = 70
+        self.MAX_RANGE = 60
         self.BP = brickpi3.BrickPi3()
         self.PORT = self.BP.PORT_C
         self.BP.set_motor_power(self.PORT, self.BP.MOTOR_FLOAT)
