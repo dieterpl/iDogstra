@@ -32,10 +32,13 @@ class Head:
     def headshake(self):
         """
         rotates the head of the robot between (-MAX,MAX)<-Degrees of Head Movement possible
+        after that returns to neutral position
         :return: -
         """
         self.goToPosition(self.PORT, self.MAX_RANGE)
         self.goToPosition(self.PORT, -self.MAX_RANGE)
+        time.sleep(0.1)
+        self.goToPosition(self.PORT, 0)
 
     def __exit__(self, exc_type, exc_value, traceback):
         # self.BP.reset_all() Kills BrickPi
