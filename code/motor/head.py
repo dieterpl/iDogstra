@@ -10,7 +10,7 @@ class Head:
         self.PORT = self.BP.PORT_C
         self.BP.set_motor_power(self.PORT, self.BP.MOTOR_FLOAT)
         # optionally set a power limit (in percent) and a speed limit (in Degrees Per Second)
-        self.BP.set_motor_limits(self.PORT, 0, 20)
+        self.BP.set_motor_limits(self.PORT, 0, 0)
         return self
 
 
@@ -29,14 +29,14 @@ class Head:
             for i in range(self.MAX_RANGE,0,-1):
                 self.goToPosition(self.PORT,i)
 
-    def headshake(self, speed):
+    def headshake(self):
         """
         rotates the head of the robot between (-80,80)<-Degrees of Head Movement possible
-        :param speed: set up how fast the robot turns in degrees per 1s
+        :param degree: set up how fast the robot turns in degrees per 1s
         :return: -
         """
-        self.goToPosition(self.PORT, self.MAX_RANGE)
-        self.goToPosition(self.PORT, -self.MAX_RANGE)
+        self.goToPosition(self.PORT)
+        self.goToPosition(self.PORT)
 
     def __exit__(self, exc_type, exc_value, traceback):
         # self.BP.reset_all() Kills BrickPi
@@ -48,11 +48,16 @@ if __name__ == '__main__':
 
         #examples
         #Robot looks around carefully
-        hd.headshake(hd.MAX_RANGE/4)
+        self.BP.set_motor_limits(self.PORT, 0, hd.MAX_RANGE/4)
+
+        hd.headshake()
+
+
 
         time.sleep(2)
 
         #visual presentation of "No"
-        hd.headshake(hd.MAX_RANGE)
+        self.BP.set_motor_limits(self.PORT, 0, hd.MAX_RANGE)
+        hd.headshake()
 
 
