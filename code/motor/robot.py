@@ -68,13 +68,34 @@ class Robot (brickpi3.BrickPi3):
         self.movement_state = 'stop'
 
     def left_by_angle(self, angle):
-        self.set_motor_position(self.PORT_A, angle)
-        self.set_motor_position(self.PORT_D, -angle)
+        port_A_pos = self.get_motor_encoder(self.PORT_A)
+        port_D_pos = self.get_motor_encoder(self.PORT_D)
+
+        print(port_A_pos)
+        print(port_D_pos)
+
+        offset = 0
+
+        port_A_new_pos = port_A_pos + angle + offset
+        port_D_new_pos = port_D_pos - angle - offset
+
+        self.set_motor_position(self.PORT_A, port_A_new_pos)
+        self.set_motor_position(self.PORT_D, -port_D_new_pos)
         self.movement_state = 'left'
 
     def right_by_angle(self, angle):
-        self.set_motor_position(self.PORT_A, -angle)
-        self.set_motor_position(self.PORT_D, angle)
+        port_A_pos = self.get_motor_encoder(self.PORT_A)
+        port_D_pos = self.get_motor_encoder(self.PORT_D)
+
+        print(port_A_pos)
+        print(port_D_pos)
+
+        offset = 0
+
+        port_A_new_pos = port_A_pos - angle - offset
+        port_D_new_pos = port_D_pos + angle + offset
+        self.set_motor_position(self.PORT_A, port_A_new_pos)
+        self.set_motor_position(self.PORT_D, -port_D_new_pos)
         self.movement_state = 'right'
 
     def __move_for_duration(self, move_func, duration, speed=None):
