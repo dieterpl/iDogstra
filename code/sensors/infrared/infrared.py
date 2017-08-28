@@ -4,6 +4,10 @@ import brickpi3  # import the BrickPi3 drivers
 
 class InfraRed:
     def __enter__(self):
+        """
+        setting up pi and brickpi for ir sensor
+        :return: -
+        """
         self.BP = brickpi3.BrickPi3()
         self.PORT = self.BP.PORT_1
         # Configure for an EV3 color sensor.
@@ -15,6 +19,10 @@ class InfraRed:
         return self
 
     def init_sensor(self):
+        """
+        initalizing sensor because it need 2 seconds to boot up
+        :return: -
+        """
         value = None
         for var in range(0, 20):
             try:
@@ -25,10 +33,14 @@ class InfraRed:
                 break
 
     def get_distance(self):
+        """
+        return the distance to the object in cm by avg the last 5 values
+        :return: distance in cm
+        """
         mean = 0
         mean_counter = 0
         value = None
-        for var in range(0, 4):
+        for var in range(0, 5):
             try:
                 value = self.BP.get_sensor(self.PORT)
             except brickpi3.SensorError as error:
