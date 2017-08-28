@@ -127,7 +127,6 @@ class Robot (brickpi3.BrickPi3):
         return (bpdegree * 1.6) / 10
 
     def degree_to_bpdegree(self, degree):
-        if
         return (degree * 0.625) * 10
 
     def __move_with_key(self, key):
