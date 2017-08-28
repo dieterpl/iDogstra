@@ -11,7 +11,8 @@ class ScreenDog:
     def __init__(self):
         self.DEFAULT = Gesture.confused
         self.current_state = self.DEFAULT
-
+        self.window
+        self.root
 
     def open_window(self):
         self.root = tk.Tk()
