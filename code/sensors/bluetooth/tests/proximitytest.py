@@ -3,7 +3,9 @@
 import sys
 import time
 
-from sensors.bluetooth.bluetooth import BTDongle
+from sensors.bluetooth.bluetooth import BTDongle, SnapshotBTDataPipeline, \
+        RecommendedSpeedPipeline
+from sensors.pipeline import create_sequential_pipeline
 from motor import movement
 
 
@@ -32,13 +34,19 @@ def main():
     for dongle in dongles:
         dongle.start()
 
+    pipeline = create_sequential_pipeline([
+            SnapshotBTDataPipeline(),
+            RecommendedSpeedPipeline(threshold=50)
+        ])
+
+
     while True:
-        a = avg(dongles)
-        print("%02.2f" % a)
-        if a < 60:
+        succ, speed = pipeline.run_pipeline(dongles)
+        print(succ, speed)
+        if speed == 0:
             movement.stop()
         else:
-            movement.forward(min(100, 15 + 4 * (a - 60)))
+            movement.forward(speed)
         time.sleep(0.4)
 
     while True:

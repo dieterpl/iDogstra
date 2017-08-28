@@ -9,41 +9,63 @@ class Robot (brickpi3.BrickPi3):
     def __init__(self, speed=100):
         super(Robot, self).__init__()
         self.movement_state = 'stop'
-        self.speed = 100
+        self.default_speed = speed
+        self.current_speed = 0
 
     def forward(self, speed=None):
         if speed is None:
-            speed = self.speed
+            print('using default speed')
+            speed = self.default_speed
 
         self.set_motor_power(self.PORT_A + self.PORT_D, speed)
-        self.state = 'forward'
+        self.current_speed = speed
+        self.movement_state = 'forward'
 
     def backward(self, speed=None):
         if speed is None:
-            speed = self.speed
+            print('using default speed')
+            speed = self.default_speed
 
         self.set_motor_power(self.PORT_A + self.PORT_D, -speed)
-        self.state = 'backward'
+        self.current_speed = speed
+        self.movement_state = 'backward'
 
     def left(self, speed=None):
         if speed is None:
-            speed = self.speed
+            print('using default speed')
+            speed = self.default_speed
 
         self.set_motor_power(self.PORT_A, speed)
         self.set_motor_power(self.PORT_D, -speed)
-        self.state = 'left'
+        self.current_speed = speed
+        self.movement_state = 'left'
 
     def right(self, speed=None):
         if speed is None:
-            speed = self.speed
+            print('using default speed')
+            speed = self.default_speed
 
         self.set_motor_power(self.PORT_A, -speed)
         self.set_motor_power(self.PORT_D, speed)
-        self.state = 'right'
+        self.current_speed = speed
+        self.movement_state = 'right'
 
     def stop(self):
-        self.set_motor_power(self.PORT_A + self.PORT_D, 0)
-        self.state = 'stop'
+        while(self.current_speed > 0):
+            self.current_speed -= 1
+
+            if self.movement_state == 'forward':
+                self.forward(self.current_speed)
+            elif self.movement_state == 'backward':
+                self.backward(self.current_speed)
+            elif self.movement_state == 'left':
+                self.left(self.current_speed)
+            elif self.movement_state == 'right':
+                self.right(self.current_speed)
+
+            time.sleep(0.01)
+
+        self.movement_state = 'stop'
 
     def left_by_angle(self, angle):
         pass  # todo
@@ -53,7 +75,7 @@ class Robot (brickpi3.BrickPi3):
 
     def __move_for_duration(self, move_func, duration, speed=None):
         if speed is None:
-            speed = self.speed
+            speed = self.default_speed
 
         move_func(speed)
         time.sleep(duration)
@@ -73,9 +95,7 @@ class Robot (brickpi3.BrickPi3):
         pass
 
     def __move_with_key(self, key):
-        global state
-
-        if key == '' and self.state != 'stop':
+        if key == '' and self.movement_state != 'stop':
             self.stop()
         elif key == 'w':
             self.forward()
@@ -84,7 +104,7 @@ class Robot (brickpi3.BrickPi3):
         elif key == 'd':
             self.right()
         elif key == 's':
-            if self.state == 'stop':
+            if self.movement_state == 'stop':
                 self.backward()
             else:
                 self.stop()
