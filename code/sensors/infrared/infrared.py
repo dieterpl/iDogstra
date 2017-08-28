@@ -15,10 +15,14 @@ class InfraRed:
     def get_distance(self):
 
         try:
-            return (self.BP.get_sensor(self.PORT))
-
+            value = self.BP.get_sensor(self.PORT)
+            if value is not None:
+                return (self.BP.get_sensor(self.PORT))
+            else:
+                return -1
         except brickpi3.SensorError as error:
             print(error)
+        return -1
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.BP.reset_all()
