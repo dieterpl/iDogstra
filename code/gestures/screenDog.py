@@ -35,7 +35,6 @@ class ScreenDog:
         self.label.grid(row = 3, column = 1, padx = 5, pady = 5)
         self.label.pack(fill = tk.BOTH, expand = 1)
         self.root.after(10, self.task)
-        self.root.after(1000, self.root.destroy)
         self.window.mainloop()
 
     def start(self):
