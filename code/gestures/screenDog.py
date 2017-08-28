@@ -50,9 +50,8 @@ class ScreenDog:
 
     def changeState(self, gesture):
         self.imgPath =gesture
-        self.label.update()
-        self.window.update()
-        self.root.update()
+        self.photo = tk.PhotoImage(file=self.imgPath)
+        self.label.image = self.photo
         return 0
 
 
