@@ -1,9 +1,8 @@
 import tkinter as tk
 import time
-from enum import Enum
 from threading import Thread
 
-class Gesture(Enum):
+class Gesture():
     neutral = r"neutral.gif"
     confused = r"confused.gif"
 
@@ -28,7 +27,7 @@ class ScreenDog:
         self.window.attributes('-topmost', 1)
         #Whatever buttons, etc
 
-
+        print(Gesture.confused)
         self.imgPath = Gesture.confused
         self.photo = tk.PhotoImage(file = self.imgPath)
         self.label = tk.Label(self.window,image = self.photo)
@@ -49,7 +48,7 @@ class ScreenDog:
 
 
     def changeState(self, gesture):
-        self.imgPath =gesture
+        self.imgPath = gesture
         self.photo = tk.PhotoImage(file=self.imgPath)
         self.label.image = self.photo
         return 0
