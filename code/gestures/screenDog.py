@@ -10,6 +10,7 @@ class Gesture(Enum):
 class ScreenDog:
     def __init__(self):
         self.DEFAULT=Gesture.neutral
+        print Gesture.neutral
         self.current_state = self.DEFAULT
         self.root = tk.Tk()
         # set the dimensions of the screen
