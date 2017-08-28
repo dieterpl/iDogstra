@@ -18,7 +18,7 @@ class ScreenDog:
         self.root.attributes('-alpha', 0.0) #For icon
         self.root.lower()
         self.root.iconify()
-        self.window = tk.Toplevel(root)
+        self.window = tk.Toplevel(self.root)
         self.window.geometry("800x480") #Whatever size
         self.window.overrideredirect(1) #Remove border
         self.window.attributes('-topmost', 1)
@@ -26,9 +26,9 @@ class ScreenDog:
 
 
         self.imgPath = self.current_state
-        self.photo = tk.PhotoImage(file = imgPath)
-        self.label = tk.Label(window,image = photo)
-        self.label.image = photo # keep a reference!
+        self.photo = tk.PhotoImage(file = self.imgPath)
+        self.label = tk.Label(self.window,image = self.photo)
+        self.label.image = self.photo # keep a reference!
         self.label.grid(row = 3, column = 1, padx = 5, pady = 5)
         self.label.pack(fill = tk.BOTH, expand = 1)
         self.window.mainloop()
