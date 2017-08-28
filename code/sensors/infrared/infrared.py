@@ -6,7 +6,7 @@ class InfraRed:
     def __enter__(self):
         self.BP = brickpi3.BrickPi3()
         self.PORT = self.BP.PORT_1
-        self.TIME = 0.1
+        self.TIME = 0.5
         # Configure for an EV3 color sensor.
         # BP.set_sensor_type configures the BrickPi3 for a specific sensor.
         # BP.PORT_1 specifies that the sensor will be on sensor port 1.
@@ -18,7 +18,7 @@ class InfraRed:
         mean = 0
         mean_counter = 0
         value = None
-        for var in range(0, 10):
+        for var in range(0, 4):
             try:
                 value = self.BP.get_sensor(self.PORT)
             except brickpi3.SensorError as error:
