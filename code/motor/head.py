@@ -17,6 +17,7 @@ class Head:
 
     def goToPosition(self, motor, position, degree):
         self.BP.set_motor_limits(hd.PORT, 0, degree)
+        time.sleep(0.1)
 
         oldValue = 99999
         while self.BP.get_motor_encoder(self.PORT) != oldValue:
