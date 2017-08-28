@@ -34,8 +34,16 @@ class ScreenDog:
         self.label.image = self.photo  # keep a reference!
         self.label.grid(row=3, column=1, padx=5, pady=5)
         self.label.pack(fill=tk.BOTH, expand=1)
-        self.root.after(100, self.task)
+        self.root.after(100, self.change_picture_callback)
         self.window.mainloop()
+
+
+    def change_picture_callback(self):
+        self.imgPath = self.current_state
+        self.photo = tk.PhotoImage(file=self.imgPath)
+        self.label.configure(image=self.photo)
+        self.image = self.photo
+        self.root.after(100, self.change_picture_callback)  # reschedule event in 2 seconds
 
     def show_window(self):
         self.t = Thread(target=self.open_window)
@@ -43,12 +51,7 @@ class ScreenDog:
         # time to start thread
         time.sleep(2)
 
-    def changePicture(self):
-        self.imgPath = self.current_state
-        self.photo = tk.PhotoImage(file=self.imgPath)
-        self.label.configure(image=self.photo)
-        self.image = self.photo
-        self.root.after(100, self.task)  # reschedule event in 2 seconds
+
 
     def changeState(self, gesture):
         self.current_state = gesture
