@@ -63,6 +63,7 @@ if __name__ == '__main__':
         sd = ScreenDog()
         sd.show_window()
         while True:
+            time.sleep(2.5)
             sd.changeState(sd.Gesture.neutral)
             time.sleep(5.5)
             sd.changeState(sd.Gesture.confused)
