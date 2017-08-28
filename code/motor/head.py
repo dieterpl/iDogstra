@@ -16,7 +16,7 @@ class Head:
 
 
     def goToPosition(self,motor, position):
-        oldValue = 0
+        oldValue = 99999
         while self.BP.get_motor_encoder(self.PORT) != oldValue:
         #while self.BP.get_motor_encoder(self.PORT) not in range(position-10,position+10):
             oldValue = self.BP.get_motor_encoder(self.PORT)
