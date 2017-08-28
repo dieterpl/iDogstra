@@ -1,6 +1,7 @@
 import time  # import the time library for the sleep function
 import brickpi3  # import the BrickPi3 drivers
 
+
 class InfraRed:
     def __enter__(self):
         self.BP = brickpi3.BrickPi3()
@@ -15,21 +16,26 @@ class InfraRed:
     def get_distance(self):
         mean = 0
         mean_counter = 0
-        try:
-            for var in range(0,10):
+        value = None
+        for var in range(0, 10):
+            try:
+
                 value = self.BP.get_sensor(self.PORT)
+
+            except brickpi3.SensorError as error:
+                value = None
             if value is not None:
                 mean += value
                 mean_counter += 1
             time.sleep(1)
-        except brickpi3.SensorError as error:
-            print(error)
+
         if mean_counter != 0:
-            return mean/mean_counter
+            return mean / mean_counter
         return -1
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.BP.reset_all()
+
+def __exit__(self, exc_type, exc_value, traceback):
+    self.BP.reset_all()
 
 
 if __name__ == '__main__':
