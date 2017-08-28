@@ -55,7 +55,6 @@ class ScreenDog:
         self.label = tk.Label(self.window, image=self.photo)
         self.label.image = self.photo
         self.label.grid(row=3, column=1, padx=5, pady=5)
-        self.label.pack(fill=tk.BOTH, expand=1)
         self.window.update()
         self.root.update()
         return 0
@@ -67,7 +66,7 @@ if __name__ == '__main__':
         sd = ScreenDog()
         sd.start()
         print ("test1")
-        time.sleep(10.5)
+        time.sleep(5.5)
         sd.changeState(sd.Gesture.neutral)
         print ("test")
 
