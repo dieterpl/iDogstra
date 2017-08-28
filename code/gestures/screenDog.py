@@ -66,6 +66,7 @@ if __name__ == '__main__':
 
         sd = ScreenDog()
         sd.start()
+        sd.changeState(Gesture.neutral)
         print ("test")
 
 
