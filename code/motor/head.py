@@ -29,10 +29,6 @@ class Head:
         self.goToPosition(self.MAX_RANGE)
         self.goToPosition(-self.MAX_RANGE)
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        # self.BP.reset_all() Kills BrickPi
-        self.BP.set_motor_power(self.BP.PORT, 0)
-        return None
 
 if __name__ == '__main__':
     with Head() as hd:
