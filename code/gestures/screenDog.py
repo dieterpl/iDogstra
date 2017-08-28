@@ -1,17 +1,23 @@
 import Tkinter as tk
 import time
 from enum import Enum
-
+import threading
 class Gesture(Enum):
     neutral = r"neutral.gif"
     confused = r"confused.gif"
 
+def threaded(fn):
+    def wrapper(*args, **kwargs):
+        threading.Thread(target=fn, args=args, kwargs=kwargs).start()
+    return wrapper
 
 class ScreenDog:
     def __init__(self):
-        self.DEFAULT=Gesture.neutral
-        print Gesture.neutral
+        self.DEFAULT = Gesture.confused
         self.current_state = self.DEFAULT
+
+    @threaded
+    def open_window(self):
         self.root = tk.Tk()
         # set the dimensions of the screen
         # and where it is placed
@@ -35,14 +41,23 @@ class ScreenDog:
         self.window.mainloop()
 
     def changeState(self, gesture):
+        self.imgPath =gesture
 
+
+        self.label.update()
+        self.window.update()
+        self.root.update()
         return 0
 
 
 if __name__ == '__main__':
     try:
+
         sd = ScreenDog()
-        sd.changeState(Gesture.confused)
+        handle = sd.open_window()
+        print handle
+
+
         # Beim Abbruch durch STRG+C resetten
     except KeyboardInterrupt:
         print("Messung vom User gestoppt")
