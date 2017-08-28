@@ -3,6 +3,7 @@ from config import *
 import logging
 import time
 import logic.follow_color_sm
+import logic.find_threshold_sm
 from sensors.camera import camera
 
 
@@ -17,6 +18,8 @@ def main():
         logic.follow_color_sm.FollowColorSM().run()
     elif mode == "cameratest":
         camera.test()
+    elif mode == "find-threshold":
+        logic.find_threshold_sm.FindThresholdSM().run()
     else:
         logging.error("Unkown mode '{}'".format(mode))
 

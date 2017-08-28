@@ -1,4 +1,4 @@
-import os
+import logging
 import sys
 import time
 
@@ -16,8 +16,10 @@ else:
     picamera = None
 
 # create and setup the camera object
-if picamera is None:
-    camera = cv2.VideoCapture(1)
+if picamera is None or USE_USB_CAMERA:
+    camera = cv2.VideoCapture(1 if picamera is None else 0)
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_RESOLUTION[0])
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_RESOLUTION[1])
 else:
     camera = picamera.PiCamera()
     #camera.resolution = PYCAMERA_RESOLUTION
@@ -31,8 +33,8 @@ def read():
     if picamera is None:
         return camera.read()[1]
     else:
-        array = picamera.array.PiRGBArray(camera, size=PYCAMERA_RESOLUTION)
-        camera.capture(array, format='bgr', resize=PYCAMERA_RESOLUTION, use_video_port=True)
+        array = picamera.array.PiRGBArray(camera, size=CAMERA_RESOLUTION)
+        camera.capture(array, format='bgr', resize=CAMERA_RESOLUTION, use_video_port=True)
         return array.array
 
 
@@ -45,11 +47,44 @@ class ConvertColorspacePipeline(Pipeline):
 
     @overrides(Pipeline)
     def _execute(self, inp):
-        if self.__target_colorspace == 'hsv':
+        if self.__target_colorspace == "hsv":
             return True, cv2.cvtColor(inp, cv2.COLOR_BGR2HSV)
+        elif self.__target_colorspace == "grayscale":
+            return True, cv2.cvtColor(inp, cv2.COLOR_BGR2GRAY)
         else:
-            print('Warning: unsupported color space', self.__target_colorspace)
+            logging.warning('Unsupported color space', self.__target_colorspace)
             return False, None
+
+
+class ColorThresholdPipeline(Pipeline):
+
+    def __init__(self, color):
+        Pipeline.__init__(self)
+
+        if type(color) == str:
+            if color == 'red':
+                self.threshold_lower = np.array([140, 50, 50])
+                self.threshold_upper = np.array([160, 255, 255])
+            elif color == 'yellow':
+                self.threshold_lower = np.array([30, 50, 50])
+                self.threshold_upper = np.array([70, 255, 255])
+            elif color == 'orange':
+                self.threshold_lower = np.array([15, 50, 50])
+                self.threshold_upper = np.array([25, 255, 255])
+            elif color == 'magenta':
+                self.threshold_lower = np.array([150, 50, 20])
+                self.threshold_upper = np.array([170, 255, 255])
+            else:
+                raise ValueError('Unsupported color', color)
+        elif type(color) == tuple:
+            self.threshold_lower, self.threshold_upper = color
+        else:
+            raise ValueError('Unsupported argument type', type(color), '(must be str or tuple)')
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        colmask = cv2.inRange(inp, self.threshold_lower, self.threshold_upper)
+        return True, colmask
 
 
 class DetectColoredObjectPipeline(Pipeline):
@@ -182,7 +217,7 @@ def test():
             camera_pipeline.steps[2] = TrackBBOXPipeline(image, bbox, tracking_algorithm=TRACKING_ALGORITHM)
             camera_pipeline.execute_callbacks.remove(switch_detect_to_track)
 
-    cv2.namedWindow('camtest')
+    cv2.namedWindow('camtest', cv2.WINDOW_AUTOSIZE)
     camera_pipeline.execute_callbacks = [show_result]
     while True:
         camera_pipeline.run_pipeline(None)  # first input is irrelevant
