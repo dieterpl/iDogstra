@@ -1,48 +1,63 @@
-# This code is an example for reading an EV3 infrared sensor connected to PORT_1 of the BrickPi3
-# 
-# Hardware: Connect an EV3 infrared sensor to BrickPi3 sensor port 1.
-# 
-# Results:  When you run this program, the infrared proximity will be printed.
+import time  # import the time library for the sleep function
+import brickpi3  # import the BrickPi3 drivers
 
-from __future__ import print_function # use python 3 syntax but make it compatible with python 2
-from __future__ import division       #                           ''
 
-import time     # import the time library for the sleep function
-import brickpi3 # import the BrickPi3 drivers
-#import movement
-import setPos
+class InfraRed:
+    def __enter__(self):
+        """
+        setting up pi and brickpi for ir sensor
+        :return: -
+        """
+        self.BP = brickpi3.BrickPi3()
+        self.PORT = self.BP.PORT_1
+        # Configure for an EV3 color sensor.
+        # BP.set_sensor_type configures the BrickPi3 for a specific sensor.
+        # BP.PORT_1 specifies that the sensor will be on sensor port 1.
+        # BP.Sensor_TYPE.EV3_INFRARED_PROXIMITY specifies that the sensor will be an EV3 infrared sensor.
+        self.BP.set_sensor_type(self.BP.PORT_1, self.BP.SENSOR_TYPE.EV3_INFRARED_PROXIMITY)
+        self.init_sensor()
+        return self
 
-BP = brickpi3.BrickPi3() # Create an instance of the BrickPi3 class. BP will be the BrickPi3 object.
+    def init_sensor(self):
+        """
+        initalizing sensor because it need 2 seconds to boot up
+        :return: -
+        """
+        value = None
+        for var in range(0, 20):
+            try:
+                self.BP.get_sensor(self.PORT)
+            except brickpi3.SensorError as error:
+                time.sleep(0.1)
+            if value is not None:
+                break
 
-# Configure for an EV3 color sensor.
-# BP.set_sensor_type configures the BrickPi3 for a specific sensor.
-# BP.PORT_1 specifies that the sensor will be on sensor port 1.
-# BP.Sensor_TYPE.EV3_INFRARED_PROXIMITY specifies that the sensor will be an EV3 infrared sensor.
-BP.set_sensor_type(BP.PORT_1, BP.SENSOR_TYPE.EV3_INFRARED_PROXIMITY)
+    def get_distance(self):
+        """
+        return the distance to the object in cm by avg the last 5 values
+        :return: distance in cm
+        """
+        mean = 0
+        mean_counter = 0
+        value = None
+        for var in range(0, 5):
+            try:
+                value = self.BP.get_sensor(self.PORT)
+            except brickpi3.SensorError as error:
+                value = None
+            if value is not None:
+                mean += value
+                mean_counter += 1
+        if mean_counter != 0:
+            return mean / mean_counter
+        return -1
 
-def scanCollision():
-    try:
-        print(BP.get_sensor(BP.PORT_1))   # print the infrared value
-        if (BP.get_sensor(BP.PORT_1) <= 70):
-            print("DANGER DANGER")
-            #setPos.headshake()
-            
-    except brickpi3.SensorError as error:
-        print(error)
-            
+    def __exit__(self, exc_type, exc_value, traceback):
+        # self.BP.reset_all() Kills BrickPi
+        return None
 
-try:
-    while True:
-        # BP.get_sensor retrieves a sensor value.
-        # BP.PORT_1 specifies that we are looking for the value of sensor port 1.
-        # BP.get_sensor returns the sensor value (what we want to display).
-        try:
-            scanCollision()
-                
-        except brickpi3.SensorError as error:
-            print(error)
-        
-        time.sleep(0.5)  # delay for 0.02 seconds (20ms) to reduce the Raspberry Pi CPU load.
-
-except KeyboardInterrupt: # except the program gets interrupted by Ctrl+C on the keyboard.
-    BP.reset_all()        # Unconfigure the sensors, disable the motors, and restore the LED to the control of the BrickPi3 firmware.
+if __name__ == '__main__':
+    with InfraRed() as ir:
+        for i in range(0,100):
+            print ("Gemessene Entfernung = %.1f cm" % ir.get_distance())
+            time.sleep(0.1)
