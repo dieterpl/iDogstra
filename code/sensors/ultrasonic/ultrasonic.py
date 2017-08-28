@@ -52,7 +52,6 @@ class UltraSonic:
 if __name__ == '__main__':
     try:
         with UltraSonic() as us:
-        while True:
             print ("Gemessene Entfernung = %.1f cm" % us.get_distance())
             time.sleep(1)
 
