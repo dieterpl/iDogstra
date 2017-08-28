@@ -4,10 +4,13 @@ import math
 #TODO WORK IN PROGRESS
 class Head:
 
-    def __init__(self):
+    def __enter__(self):
         self.MAX_RANGE = 80
         self.BP = brickpi3.BrickPi3()
         self.PORT = self.BP.PORT_C
+        return self
+
+
 
     def goToPosition(self,motor, position):
         while self.BP.get_motor_encoder(self.PORT) not in range(position-8,position+8):
@@ -29,6 +32,10 @@ class Head:
         self.goToPosition(self.MAX_RANGE)
         self.goToPosition(-self.MAX_RANGE)
 
+    def __exit__(self, exc_type, exc_value, traceback):
+        # self.BP.reset_all() Kills BrickPi
+        self.BP.set_motor_power(self.BP.PORT, 0)
+        return None
 
 if __name__ == '__main__':
     with Head() as hd:
