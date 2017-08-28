@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
         #examples
         #Robot looks around carefully
-        hd.BP.set_motor_limits(self.PORT, 0, hd.MAX_RANGE/4)
+        hd.BP.set_motor_limits(hd.PORT, 0, hd.MAX_RANGE/4)
         hd.headshake()
 
 
@@ -55,7 +55,7 @@ if __name__ == '__main__':
         time.sleep(2)
 
         #visual presentation of "No"
-        hd.BP.set_motor_limits(self.PORT, 0, hd.MAX_RANGE)
+        hd.BP.set_motor_limits(hd.PORT, 0, hd.MAX_RANGE)
         hd.headshake()
 
 
