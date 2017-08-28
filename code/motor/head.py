@@ -6,6 +6,9 @@ class Head:
 
     def __enter__(self):
         self.MAX_RANGE = 80
+        self.BP.set_motor_power(self.PORT, self.BP.MOTOR_FLOAT)
+        # optionally set a power limit (in percent) and a speed limit (in Degrees Per Second)
+        self.BP.set_motor_limits(self.PORT, 10, 0)
         self.BP = brickpi3.BrickPi3()
         self.PORT = self.BP.PORT_C
         return self
@@ -19,8 +22,6 @@ class Head:
         return
 
     def doFullScan(self):
-        self.BP.set_motor_power(self.PORT, self.BP.MOTOR_FLOAT)
-        self.BP.set_motor_limits(self.PORT, 0, 0)          # optionally set a power limit (in percent) and a speed limit (in Degrees Per Second)
         self.goToPosition(self.BP.PORT,0)
         while True:
             for i in range(0,self.MAX_RANGE,1):
