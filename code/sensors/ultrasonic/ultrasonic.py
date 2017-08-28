@@ -4,7 +4,6 @@ import time
 
 
 class UltraSonic:
-
     def __enter__(self):
         self.MAX_VALUE = 300
         self.GPIO_TRIGGER = 26
@@ -16,7 +15,7 @@ class UltraSonic:
         GPIO.setup(self.GPIO_TRIGGER, GPIO.OUT)
         GPIO.setup(self.GPIO_ECHO, GPIO.IN)
         return self
-    
+
     def get_distance(self):
 
         # setze Trigger auf HIGH
@@ -47,14 +46,6 @@ class UltraSonic:
         GPIO.cleanup()
 
 
-
 if __name__ == '__main__':
-    try:
-        with UltraSonic() as us:
-            print ("Gemessene Entfernung = %.1f cm" % us.get_distance())
-            time.sleep(1)
-
-            # Beim Abbruch durch STRG+C resetten
-    except KeyboardInterrupt:
-        print("Messung vom User gestoppt")
-
+    with UltraSonic() as us:
+        print ("Gemessene Entfernung = %.1f cm" % us.get_distance())
