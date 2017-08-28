@@ -15,7 +15,8 @@ class UltraSonic:
         # Richtung der GPIO-Pins festlegen (IN / OUT)
         GPIO.setup(self.GPIO_TRIGGER, GPIO.OUT)
         GPIO.setup(self.GPIO_ECHO, GPIO.IN)
-
+        return self
+    
     def get_distance(self):
 
         # setze Trigger auf HIGH
