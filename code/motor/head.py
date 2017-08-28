@@ -18,13 +18,16 @@ class Head:
     def goToPosition(self,motor, position):
         oldValue = 0
 
-        while self.BP.get_motor_encoder != oldValue:
-            print ("OLDV: " + str(oldValue))
-        #while self.BP.get_motor_encoder(self.PORT) not in range(position-10,position+10):
-            oldValue = self.BP.get_motor_encoder(self.PORT)
-            self.BP.set_motor_position(self.PORT, position)
-            time.sleep(0.1)
-            print (self.BP.get_motor_encoder(self.PORT))
+        while True:
+            if self.BP.get_motor_encoder != oldValue
+                print ("OLDV: " + str(oldValue))
+                #while self.BP.get_motor_encoder(self.PORT) not in range(position-10,position+10):
+                oldValue = self.BP.get_motor_encoder(self.PORT)
+                self.BP.set_motor_position(self.PORT, position)
+                time.sleep(0.1)
+                print (self.BP.get_motor_encoder(self.PORT))
+            else
+                break
         return
 
     def doFullScan(self):
