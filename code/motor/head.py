@@ -24,7 +24,7 @@ class Head:
         #while self.BP.get_motor_encoder(self.PORT) not in range(position-10,position+10):
             oldValue = self.BP.get_motor_encoder(self.PORT)
             self.BP.set_motor_position(self.PORT, position)
-            time.sleep(max(0.2, degree/self.MAX_RANGE))
+            time.sleep(max(0.2, degree/self.MAX_RANGE*4))
             print (self.BP.get_motor_encoder(self.PORT))
         return
 
