@@ -15,7 +15,7 @@ class Head:
 
 
 
-    def goToPosition(self,motor, position, degree):
+    def goToPosition(self, motor, position, degree):
         self.BP.set_motor_limits(hd.PORT, 0, degree)
 
         oldValue = 99999
@@ -44,7 +44,7 @@ class Head:
         self.goToPosition(self.PORT, self.MAX_RANGE, degree)
         self.goToPosition(self.PORT, -self.MAX_RANGE, degree)
         time.sleep(0.1)
-        self.goToPosition(self.PORT, degree)
+        self.goToPosition(self.PORT, 0, degree)
 
     def __exit__(self, exc_type, exc_value, traceback):
         # self.BP.reset_all() Kills BrickPi
