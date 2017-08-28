@@ -1,12 +1,13 @@
+import os
+import time
+
 import cv2
 import numpy as np
-import time
+
 import utils.functions
-#from typing import Tuple
-from utils.config import *
+# from typing import Tuple
+from config.config import *
 
-
-import os
 if os.uname().machine == 'armv7l':  # probably runnig on RaspPi
     import picamera
     import picamera.array

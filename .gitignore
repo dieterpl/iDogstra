@@ -3,6 +3,9 @@
 # pycharm folder
 .idea
 
+# logs folder
+code/logs/
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
