@@ -58,7 +58,7 @@ if __name__ == '__main__':
         time.sleep(2)
 
         #visual presentation of "No"
-        hd.BP.set_motor_limits(hd.PORT, 0, hd.MAX_RANGE*10)
+        hd.BP.set_motor_limits(hd.PORT, 0, hd.MAX_RANGE*100)
         hd.headshake()
 
 
