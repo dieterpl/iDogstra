@@ -64,5 +64,5 @@ if __name__ == '__main__':
             time.sleep(5.5)
             sd.changeState(sd.Gesture.confused)
             # Beim Abbruch durch STRG+C resetten
-except KeyboardInterrupt:
-print("Messung vom User gestoppt")
+    except KeyboardInterrupt:
+        print("Messung vom User gestoppt")
