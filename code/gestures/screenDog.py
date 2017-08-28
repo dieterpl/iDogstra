@@ -29,7 +29,7 @@ class ScreenDog:
         #Whatever buttons, etc
 
 
-        self.imgPath = r"confused.gif"
+        self.imgPath = Gesture.confused
         self.photo = tk.PhotoImage(file = self.imgPath)
         self.label = tk.Label(self.window,image = self.photo)
         self.label.image = self.photo # keep a reference!
