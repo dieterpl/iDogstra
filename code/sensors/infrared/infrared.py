@@ -43,10 +43,9 @@ class InfraRed:
             return mean / mean_counter
         return -1
 
-
     def __exit__(self, exc_type, exc_value, traceback):
-        #self.BP.reset_all() Kills BrickPi
-
+        # self.BP.reset_all() Kills BrickPi
+        return None
 
 if __name__ == '__main__':
     with InfraRed() as ir:
