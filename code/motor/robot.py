@@ -48,8 +48,17 @@ class Robot (brickpi3.BrickPi3):
 
     def stop(self):
         while(self.current_speed > 0):
-            self.set_motor_power(self.PORT_A + self.PORT_D, self.current_speed)
             self.current_speed -= 1
+
+            if self.movement_state == 'forward':
+                forward(self.current_speed)
+            elif self.movement_state == 'backward':
+                backward(self.current_speed)
+            elif self.movement_state == 'left':
+                left(self.current_speed)
+            elif self.movement_state == 'right':
+                right(self.current_speed)
+
             time.sleep(0.01)
 
         self.state = 'stop'
