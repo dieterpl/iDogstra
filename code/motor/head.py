@@ -29,7 +29,12 @@ class Head:
             for i in range(self.MAX_RANGE,0,-1):
                 self.goToPosition(self.PORT,i)
 
-    def headshake(self):
+    def headshake(self, speed):
+        """
+        rotates the head of the robot between (-80,80)<-Degrees of Head Movement possible
+        :param speed: set up how fast the robot turns in degrees per 1s
+        :return: -
+        """
         self.goToPosition(self.PORT, self.MAX_RANGE)
         self.goToPosition(self.PORT, -self.MAX_RANGE)
 
@@ -41,6 +46,13 @@ class Head:
 if __name__ == '__main__':
     with Head() as hd:
 
-        #hd.doFullScan()
-        hd.headshake()
- 
+        #examples
+        #Robot looks around carefully
+        hd.headshake(20)
+
+        time.sleep(2)
+
+        #visual presentation of "No"
+        hd.headshake(40)
+
+
