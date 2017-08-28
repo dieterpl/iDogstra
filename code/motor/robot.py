@@ -173,7 +173,7 @@ class Robot (brickpi3.BrickPi3):
                     self.move(command, speed, duration)
                 elif command in directions_by_angle:
                     angle = int(operation[1])
-                    self.move_by_angle(command, angle)
+                    self.move_by_degree(command, angle)
                 elif command == 'info':
                     self.get_info()
 
