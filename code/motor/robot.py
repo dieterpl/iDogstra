@@ -9,11 +9,12 @@ class Robot (brickpi3.BrickPi3):
     def __init__(self, speed=100):
         super(Robot, self).__init__()
         self.movement_state = 'stop'
-        self.default_speed = 100
+        self.default_speed = speed
         self.current_speed = 0
 
     def forward(self, speed=None):
         if speed is None:
+            print('using default speed')
             speed = self.default_speed
 
         self.set_motor_power(self.PORT_A + self.PORT_D, speed)
@@ -22,6 +23,7 @@ class Robot (brickpi3.BrickPi3):
 
     def backward(self, speed=None):
         if speed is None:
+            print('using default speed')
             speed = self.default_speed
 
         self.set_motor_power(self.PORT_A + self.PORT_D, -speed)
@@ -30,6 +32,7 @@ class Robot (brickpi3.BrickPi3):
 
     def left(self, speed=None):
         if speed is None:
+            print('using default speed')
             speed = self.default_speed
 
         self.set_motor_power(self.PORT_A, speed)
@@ -39,6 +42,7 @@ class Robot (brickpi3.BrickPi3):
 
     def right(self, speed=None):
         if speed is None:
+            print('using default speed')
             speed = self.default_speed
 
         self.set_motor_power(self.PORT_A, -speed)
