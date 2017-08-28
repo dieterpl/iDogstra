@@ -1,5 +1,5 @@
-from utils.functions import current_time_millis, overrides, get_class_name
-from utils.config import *
+from utils.functions import current_time_millis, overrides, get_class_name, deprecated
+import logging
 
 
 class Pipeline(object):
@@ -18,8 +18,7 @@ class Pipeline(object):
             cb(inp, out)
         callbacktime = current_time_millis() - start
 
-        if DEBUG_MODE:
-            print('Executing pipeline {} took {}ms (callbacktime: {}ms)'.format(self, exectime, callbacktime))
+        logging.debug("Executing pipeline {} took {}ms (callbacktime: {}ms)".format(self, exectime, callbacktime))
 
         return succ, out
 
@@ -27,7 +26,7 @@ class Pipeline(object):
         raise NotImplementedError()
 
     def __str__(self):
-        return '[{}]'.format(get_class_name(self))
+        return "[{}]".format(get_class_name(self))
 
 
 class EmptyPipeline(Pipeline):
@@ -41,10 +40,10 @@ class EmptyPipeline(Pipeline):
 class PipelineSequence(Pipeline):
     """ Chains several pipelines and executes them sequentially"""
 
-    def __init__(self, pipelines):
+    def __init__(self, *pipelines):
         Pipeline.__init__(self)
 
-        self.steps = pipelines
+        self.steps = [s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in pipelines]
         self.step_results = None
 
     @overrides(Pipeline)
@@ -61,8 +60,7 @@ class PipelineSequence(Pipeline):
         return run, last
 
     def __str__(self):
-        return '[PipelineSequence|{} steps: {}]'.format(
-            len(self.steps), '->'.join([str(p) for p in self.steps]))
+        return "[PipelineSequence|{} steps: {}]".format(len(self.steps), '->'.join(str(p) for p in self.steps))
 
 
 class ParallelPipeline(Pipeline):
@@ -72,10 +70,10 @@ class ParallelPipeline(Pipeline):
     as further elements of the tuple.
     """
 
-    def __init__(self, pipelines):
+    def __init__(self, *pipelines):
         Pipeline.__init__(self)
 
-        self.pipelines = pipelines
+        self.pipelines = [s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in pipelines]
         self.results = None
 
     @overrides(Pipeline)
@@ -92,8 +90,8 @@ class ParallelPipeline(Pipeline):
         return succ,  tuple([r[1] for r in self.results])
 
     def __str__(self):
-        return '[ParallelPipeline|{} pipelines: {}]'.format(
-            len(self.pipelines), '||'.join([str(p) for p in self.pipelines]))
+        return "[ParallelPipeline|{} pipelines: {}]".format(
+            len(self.pipelines), '||'.join(str(p) for p in self.pipelines))
 
 
 class AtomicFunctionPipeline(Pipeline):
@@ -112,6 +110,26 @@ class AtomicFunctionPipeline(Pipeline):
         return '[AtomicFunctionPipeline|function=' + self.__func.__name__ + ']'
 
 
+class ConstantPipeline(Pipeline):
+    """ A wrapper class that just returns the parameter passed in the
+    constructor. This can be used as an entry point for a pipeline."""
+
+    def __init__(self, const):
+        Pipeline.__init__(self)
+
+        self.__const = const
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        """ Ignores the input and returns the object passed in the
+        constructor"""
+        return True, self.__const
+
+    def __str__(self):
+        return "[ConstantPipeline|const=" + str(self.__const) + "]"
+
+
+@deprecated
 def create_sequential_pipeline(steps):
     """
     Build a PipelineSequence with the given steps. The steps can be Pipelines or python functions. If they are
@@ -119,9 +137,10 @@ def create_sequential_pipeline(steps):
     :param steps: the steps of the pipeline as a list of Pipeline objects and python functions
     :return: a single PipelineSequence object with the given steps
     """
-    return PipelineSequence([s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in steps])
+    return PipelineSequence(*[s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in steps])
 
 
+@deprecated
 def create_parallel_pipeline(pipelines):
     """
     Build a ParallelPipeline with the given pipelines. The steps can be Pipelines or python functions. If they are
@@ -129,7 +148,7 @@ def create_parallel_pipeline(pipelines):
     :param pipelines: the pipelines of the pipeline as a list of Pipeline objects and python functions
     :return: a single ParallelPipeline object with the given pipelines
     """
-    return ParallelPipeline([s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in pipelines])
+    return ParallelPipeline(*[s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in pipelines])
 
 
 

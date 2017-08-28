@@ -1,6 +1,7 @@
 import time     # import the time library for the sleep function
 import brickpi3 # import the BrickPi3 drivers
 import math
+#TODO WORK IN PROGRESS
 class Head:
     def __init__(self):
         self.MAX_RANGE = 80
