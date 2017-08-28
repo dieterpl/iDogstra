@@ -5,9 +5,9 @@ import sys
 
 
 class Robot (brickpi3.BrickPi3):
-
     def __init__(self, speed=100):
         super(Robot, self).__init__()
+
         self.movement_state = 'stop'
         self.default_speed = speed
         self.current_speed = 0
@@ -67,9 +67,8 @@ class Robot (brickpi3.BrickPi3):
 
         self.movement_state = 'stop'
 
-    def left_by_angle(self, angle):
-        brickPiAngle = angle * 10
-        offset = 0
+    def move_by_degree(self, direction, degree):
+        BP.set_motor_limits(BP.PORT_A + BP.PORT_D, 50, 200)
 
         self.offset_motor_encoder(BP.PORT_A, BP.get_motor_encoder(BP.PORT_A))
         self.offset_motor_encoder(BP.PORT_D, BP.get_motor_encoder(BP.PORT_D))
@@ -77,35 +76,20 @@ class Robot (brickpi3.BrickPi3):
         port_A_pos = self.get_motor_encoder(self.PORT_A)
         port_D_pos = self.get_motor_encoder(self.PORT_D)
 
-        port_A_new_pos = port_A_pos + brickPiAngle + offset
-        port_D_new_pos = port_D_pos + brickPiAngle + offset
+        port_A_new_pos = port_A_pos + degree
+        port_D_new_pos = port_D_pos + degree
 
         print("curr portA: %s curr portD: %s" % (port_A_pos, port_D_pos))
         print("next portA: %s next portD: %s" % (port_A_new_pos, port_D_new_pos))
 
-        self.set_motor_position(self.PORT_A, port_A_new_pos)
-        self.set_motor_position(self.PORT_D, -port_D_new_pos)
-        self.movement_state = 'left'
-
-    def right_by_angle(self, angle):
-        brickPiAngle = angle * 10
-        offset = 0
-
-        self.offset_motor_encoder(BP.PORT_A, BP.get_motor_encoder(BP.PORT_A))
-        self.offset_motor_encoder(BP.PORT_D, BP.get_motor_encoder(BP.PORT_D))
-
-        port_A_pos = self.get_motor_encoder(self.PORT_A)
-        port_D_pos = self.get_motor_encoder(self.PORT_D)
-
-        port_A_new_pos = port_A_pos + brickPiAngle + offset
-        port_D_new_pos = port_D_pos + brickPiAngle + offset
-
-        print("curr portA: %s curr portD: %s" % (port_A_pos, port_D_pos))
-        print("next portA: %s next portD: %s" % (port_A_new_pos, port_D_new_pos))
-
-        self.set_motor_position(self.PORT_A, -port_A_new_pos)
-        self.set_motor_position(self.PORT_D, port_D_new_pos)
-        self.movement_state = 'right'
+        if direction == 'left':
+            self.set_motor_position(self.PORT_A, port_A_new_pos)
+            self.set_motor_position(self.PORT_D, -port_D_new_pos)
+            self.movement_state = 'left'
+        elif direction == 'right':
+            self.set_motor_position(self.PORT_A, -port_A_new_pos)
+            self.set_motor_position(self.PORT_D, port_D_new_pos)
+            self.movement_state = 'right'
 
     def get_info():
         port_A_pos = self.get_motor_encoder(self.PORT_A)
@@ -131,14 +115,20 @@ class Robot (brickpi3.BrickPi3):
         elif direction == 'backward':
             self.__move_for_duration(self.backward, duration, speed)
 
-    def move_by_angle(self, direction, angle):
-        if direction == 'left_by_angle':
-            self.left_by_angle(angle)
-        elif direction == 'right_by_angle':
-            self.right_by_angle(angle)
+    def move_by_degree(self, direction, degree):
+        bpdegree = self.degree_to_bpdegree(degree)
 
-    def angleToTime(self, degree):
-        pass
+        if direction == 'left_by_degree':
+            self.move_by_degree('left', bpdegree)
+        elif direction == 'right_by_degree':
+            self.move_by_degree('right', bpdegree)
+
+    def bpdegree_to_degree(self, bpdegree):
+        return (bpdegree * 1.6) / 10
+
+    def degree_to_bpdegree(self, degree):
+        if
+        return (degree * 0.625) * 10
 
     def __move_with_key(self, key):
         if key == '' and self.movement_state != 'stop':
@@ -166,7 +156,7 @@ class Robot (brickpi3.BrickPi3):
 
     def cli(self):
         directions = ['left', 'right', 'forward', 'backward']
-        directions_by_angle = ['left_by_angle', 'right_by_angle']
+        directions_by_angle = ['left_by_degree', 'right_by_degree']
 
         try:
             while True:
