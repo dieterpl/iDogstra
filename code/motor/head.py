@@ -29,8 +29,8 @@ class Head:
                 self.goToPosition(self.PORT,i)
 
     def headshake(self):
-        self.goToPosition(self.MAX_RANGE)
-        self.goToPosition(-self.MAX_RANGE)
+        self.goToPosition(self.PORT, self.MAX_RANGE)
+        self.goToPosition(self.PORT, -self.MAX_RANGE)
 
     def __exit__(self, exc_type, exc_value, traceback):
         # self.BP.reset_all() Kills BrickPi
