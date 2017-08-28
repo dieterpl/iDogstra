@@ -6,7 +6,7 @@ class InfraRed:
     def __enter__(self):
         self.BP = brickpi3.BrickPi3()
         self.PORT = self.BP.PORT_1
-        self.TIME = 0.05
+        self.TIME = 0.1
         # Configure for an EV3 color sensor.
         # BP.set_sensor_type configures the BrickPi3 for a specific sensor.
         # BP.PORT_1 specifies that the sensor will be on sensor port 1.
