@@ -251,3 +251,31 @@ class RecommendedSpeedPipeline(Pipeline):
                     (avg_strength - self.threshold))
         return (True, speed)
 
+class UserDistanceEstimtionPipeline(Pipeline):
+    """A pipeline that takes multiple DataList objects and recommends a speed
+    for the roboter based on the signal strenght"""
+
+    def __init__(self, min_speed=15, threshold=60, multiplier=3.0):
+        Pipeline.__init__(self)
+        self.min_speed = min_speed
+        self.threshold = threshold
+        self.multiplier = multiplier
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        """Takes a list of DataList objects, and returns the recommended
+        speed in the interval [0;100]"""
+        if len(inp) == 0:
+            return (False, None)
+        data_count = sum(len(data) for data in inp)
+        logging.debug("data_count=" + str(data_count))
+        if data_count == 0:
+            return (False, None)
+        avg_strength = sum(data.avg() for data in inp) / len(inp)
+        logging.info("avg_strength=" + str(avg_strength))
+        speed = 0
+        if avg_strength >= self.threshold:
+            speed = min(100, self.min_speed + self.multiplier *
+                    (avg_strength - self.threshold))
+        return (True, speed)
+

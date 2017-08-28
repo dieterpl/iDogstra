@@ -1,7 +1,7 @@
 import cv2
 
 from config.config import *
-from logic.statemachine import *
+
 from motor import movement
 from sensors.bluetooth.bluetooth import BTDongle
 from sensors.camera import camera
