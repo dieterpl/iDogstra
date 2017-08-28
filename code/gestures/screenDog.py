@@ -51,7 +51,7 @@ class ScreenDog:
         self.imgPath =gesture
 
 
-        self.label.update()
+
         self.window.update()
         self.root.update()
         return 0
