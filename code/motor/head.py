@@ -48,11 +48,11 @@ if __name__ == '__main__':
 
         #examples
         #Robot looks around carefully
-        hd.headshake(self.MAX_RANGE/4)
+        hd.headshake(hd.MAX_RANGE/4)
 
         time.sleep(2)
 
         #visual presentation of "No"
-        hd.headshake(self.MAX_RANGE)
+        hd.headshake(hd.MAX_RANGE)
 
 
