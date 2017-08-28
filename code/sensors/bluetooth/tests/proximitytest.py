@@ -3,7 +3,9 @@
 import sys
 import time
 
-from sensors.bluetooth.bluetooth import BTDongle
+from sensors.bluetooth.bluetooth import BTDongle, SnapshotBTDataPipeline, \
+    RecommendedSpeedPipeline
+from sensors.pipeline import create_sequential_pipeline, ConstantPipeline
 from motor import movement
 
 
@@ -32,35 +34,20 @@ def main():
     for dongle in dongles:
         dongle.start()
 
+    pipeline = create_sequential_pipeline([
+        ConstantPipeline(dongles),
+        SnapshotBTDataPipeline(),
+        RecommendedSpeedPipeline(threshold=50)
+    ])
+
     while True:
-        a = avg(dongles)
-        print("%02.2f" % a)
-        if a < 60:
+        succ, speed = pipeline.run_pipeline(None)
+        print(succ, speed)
+        if speed == 0:
             movement.stop()
         else:
-            movement.forward(min(100, 15 + 4 * (a - 60)))
+            movement.forward(speed)
         time.sleep(0.4)
-
-    while True:
-        # for dongle in dongles:
-        #    print("%02.2f %d " % (dongle.avg(), dongle.datacount()), end="")
-        a = avg(dongles)
-        s = stddev(dongles)
-        if a < 40:
-            print("direkt dran")
-        elif a < 50:
-            print("nah dran")
-        elif a < 60:
-            print("nicht so ganz nah, aber auch nicht wirklich weit")
-        elif a < 70:
-            print("ca. 1 m")
-        elif a < 80:
-            print("einige Meter")
-        else:
-            print("weit entfernt")
-        print("%02.2f %02.2f" % (a, s))
-        time.sleep(1)
-
 
 if __name__ == "__main__":
     main()
