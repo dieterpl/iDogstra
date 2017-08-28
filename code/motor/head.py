@@ -19,7 +19,7 @@ class Head:
         oldValue = 0
 
         while True:
-            newValue = int(self.BP.get_motor_encoder)
+            newValue = int(self.BP.get_motor_encoder(self.PORT))
             if newValue != oldValue:
                 #while self.BP.get_motor_encoder(self.PORT) not in range(position-10,position+10):
                 oldValue = self.BP.get_motor_encoder(self.PORT)
