@@ -5,7 +5,7 @@ import math
 class Head:
 
     def __enter__(self):
-        self.MAX_RANGE = 80
+        self.MAX_RANGE = 70
         self.BP = brickpi3.BrickPi3()
         self.PORT = self.BP.PORT_C
         self.BP.set_motor_power(self.PORT, self.BP.MOTOR_FLOAT)
@@ -48,11 +48,11 @@ if __name__ == '__main__':
 
         #examples
         #Robot looks around carefully
-        hd.headshake(20)
+        hd.headshake(self.MAX_RANGE/4)
 
         time.sleep(2)
 
         #visual presentation of "No"
-        hd.headshake(40)
+        hd.headshake(self.MAX_RANGE)
 
 
