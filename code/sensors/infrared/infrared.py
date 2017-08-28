@@ -12,7 +12,18 @@ class InfraRed:
         # BP.PORT_1 specifies that the sensor will be on sensor port 1.
         # BP.Sensor_TYPE.EV3_INFRARED_PROXIMITY specifies that the sensor will be an EV3 infrared sensor.
         self.BP.set_sensor_type(self.BP.PORT_1, self.BP.SENSOR_TYPE.EV3_INFRARED_PROXIMITY)
+        self.init_sensor()
         return self
+
+    def init_sensor(self):
+        value = None
+        for var in range(0, 20):
+            try:
+                self.BP.get_sensor(self.PORT)
+            except brickpi3.SensorError as error:
+                time.sleep(0.1)
+            if value is not None:
+                break
 
     def get_distance(self):
         mean = 0
@@ -34,7 +45,7 @@ class InfraRed:
 
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.BP.reset_all()
+        #self.BP.reset_all() Kills BrickPi
 
 
 if __name__ == '__main__':
