@@ -1,12 +1,14 @@
+import os
+import sys
+import time
+
 import cv2
 import numpy as np
-import time
-from sensors.pipeline import Pipeline, create_sequential_pipeline, create_parallel_pipeline
-from utils.config import *
-from utils.functions import overrides
-import sys
 
-import os
+from config.config import *
+from sensors.pipeline import Pipeline, PipelineSequence, ParallelPipeline
+from utils.functions import overrides
+
 if os.uname().machine == 'armv7l':  # probably runnig on RaspPi
     import picamera
     import picamera.array
@@ -15,7 +17,7 @@ else:
 
 # create and setup the camera object
 if picamera is None:
-    camera = cv2.VideoCapture(0)
+    camera = cv2.VideoCapture(1)
 else:
     camera = picamera.PiCamera()
     #camera.resolution = PYCAMERA_RESOLUTION
@@ -57,14 +59,17 @@ class DetectColoredObjectPipeline(Pipeline):
 
         if type(color) == str:
             if color == 'red':
-                self.__threshold_lower = np.array([0, 50, 50])
-                self.__threshold_upper = np.array([10, 255, 255])
+                self.__threshold_lower = np.array([140, 50, 50])
+                self.__threshold_upper = np.array([160, 255, 255])
             elif color == 'yellow':
                 self.__threshold_lower = np.array([30, 50, 50])
                 self.__threshold_upper = np.array([70, 255, 255])
             elif color == 'orange':
                 self.__threshold_lower = np.array([15, 50, 50])
                 self.__threshold_upper = np.array([25, 255, 255])
+            elif color == 'magenta':
+                self.__threshold_lower = np.array([150, 50, 20])
+                self.__threshold_upper = np.array([170, 255, 255])
             else:
                 raise ValueError('Unsupported color', color)
         elif type(color) == tuple:
@@ -89,7 +94,7 @@ class DetectColoredObjectPipeline(Pipeline):
         if len(cnts) > 0:
             largest_contour = max(cnts, key=cv2.contourArea)
 
-            if cv2.contourArea(largest_contour) > self.__min_contour_size:
+            if cv2.contourArea(largest_contour) > inp.shape[0] * inp.shape[1] * self.__min_contour_size:
                 bbox = tuple(cv2.boundingRect(largest_contour))
                 return True, bbox
 
@@ -136,25 +141,24 @@ class GetImageDimensionsPipeline(Pipeline):
         return True, inp.shape
 
 
-if __name__ == '__main__':
+def test():
     # test a default pipeline
-    cameraPipeline = \
-        create_sequential_pipeline([
+    camera_pipeline = \
+        PipelineSequence(
             lambda inp: read(),
-            create_parallel_pipeline([
-                create_sequential_pipeline([
+            ParallelPipeline(
+                PipelineSequence(
                     ConvertColorspacePipeline(to='hsv'),
-                    DetectColoredObjectPipeline(color='orange')
-                ]),
+                    DetectColoredObjectPipeline(color='red')
+                ),
                 GetImageDimensionsPipeline()
-            ]),
+            ),
             FindYDeviationPipeline()
-        ])
-
+        )
 
     def show_result(*_):
-        _, _, (bbox_ok, bbox) = cameraPipeline.steps[1].pipelines[0].step_results
-        _, (image_ok, image), _, (dev_ok, dev) = cameraPipeline.step_results
+        _, _, (bbox_ok, bbox) = camera_pipeline.steps[1].pipelines[0].step_results
+        _, (image_ok, image), _, (dev_ok, dev) = camera_pipeline.step_results
 
         # draw bounding box
         if bbox_ok:
@@ -171,16 +175,19 @@ if __name__ == '__main__':
             sys.exit()
 
     def switch_detect_to_track(*_):
-        _, (image_ok, image), _, (bbox_ok, bbox), _ = cameraPipeline.step_results
+        _, (image_ok, image), _, (bbox_ok, bbox), _ = camera_pipeline.step_results
 
         if bbox_ok:
             print('Switching detection step with tracking step')
-            cameraPipeline.steps[2] = TrackBBOXPipeline(image, bbox, tracking_algorithm=TRACKING_ALGORITHM)
-            cameraPipeline.execute_callbacks.remove(switch_detect_to_track)
-
+            camera_pipeline.steps[2] = TrackBBOXPipeline(image, bbox, tracking_algorithm=TRACKING_ALGORITHM)
+            camera_pipeline.execute_callbacks.remove(switch_detect_to_track)
 
     cv2.namedWindow('camtest')
-    cameraPipeline.execute_callbacks = [show_result]
+    camera_pipeline.execute_callbacks = [show_result]
     while True:
-        cameraPipeline.run_pipeline(None)  # first input is irrelevant
+        camera_pipeline.run_pipeline(None)  # first input is irrelevant
+
+
+if __name__ == '__main__':
+    test()
 

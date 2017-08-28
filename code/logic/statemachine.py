@@ -6,24 +6,27 @@ class StateMachine(object):
     """ The interface to the state machine. """
 
     def __init__(self):
-        self.__current_state = _InitialState()
+        self._current_state = _InitialState()
 
         self.__history = []
 
     def run(self):
-        while True:
-            self.update()
+        try:
+            while True:
+                self.update()
+        except KeyboardInterrupt:
+            self._current_state.on_exit()
 
     def update(self):
-        pipeline_out = self.__current_state.pipeline.run_pipeline(None)
+        pipeline_out = self._current_state.pipeline.run_pipeline(None)
         self.__history.append(pipeline_out)
-        next_state = self.__current_state.on_update(self.__history)
+        next_state = self._current_state.on_update(self.__history)
         self.set_state(next_state)
 
     def set_state(self, state):
-        if state is not self.__current_state:
-            self.__current_state.on_exit()
-            self.__current_state = state
+        if state is not self._current_state:
+            self._current_state.on_exit()
+            self._current_state = state
             state.on_enter()
 
 
