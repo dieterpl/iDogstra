@@ -21,7 +21,7 @@ class InfraRed:
             if value is not None:
                 mean += value
                 mean_counter += 1
-            time.sleep(0.1)
+            time.sleep(1)
         except brickpi3.SensorError as error:
             print(error)
         if mean_counter != 0:
