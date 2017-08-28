@@ -6,10 +6,10 @@ class Head:
 
     def __enter__(self):
         self.MAX_RANGE = 80
+        self.BP = brickpi3.BrickPi3()
         self.BP.set_motor_power(self.PORT, self.BP.MOTOR_FLOAT)
         # optionally set a power limit (in percent) and a speed limit (in Degrees Per Second)
         self.BP.set_motor_limits(self.PORT, 10, 0)
-        self.BP = brickpi3.BrickPi3()
         self.PORT = self.BP.PORT_C
         return self
 
