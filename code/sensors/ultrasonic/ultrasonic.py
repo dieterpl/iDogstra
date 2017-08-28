@@ -1,6 +1,11 @@
 # Bibliotheken einbinden
-import RPi.GPIO as GPIO
 import time
+try:
+    import RPi.GPIO as GPIO
+except ModuleNotFoundError:
+    print("WARNING: Could not import module RaspberryPI (not running on a raspberry pi?). S module will not "
+          "be available.")
+    GPIO = None
 
 
 class UltraSonic:
@@ -47,7 +52,7 @@ class UltraSonic:
         TimeElapsed = StopZeit - StartZeit
         # mit der Schallgeschwindigkeit (34300 cm/s) multiplizieren
         # und durch 2 teilen, da hin und zurueck
-        distance = TimeElapsed * 34300) / 2
+        distance = (TimeElapsed * 34300) / 2
         if distance > self.MAX_VALUE:
             return self.MAX_VALUE
         return distance
@@ -56,6 +61,6 @@ class UltraSonic:
         GPIO.cleanup()
 
 
-if __name__ == '__main__':
-    with UltraSonic() as us:
-        print ("Gemessene Entfernung = %.1f cm" % us.get_distance())
+#if __name__ == '__main__':
+#    with UltraSonic() as us:
+#        print ("Gemessene Entfernung = %.1f cm" % us.get_distance())
