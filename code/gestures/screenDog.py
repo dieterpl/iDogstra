@@ -1,22 +1,18 @@
-import Tkinter as tk
+import tkinter as tk
 import time
 from enum import Enum
-import threading
+from threading import Thread
+
 class Gesture(Enum):
     neutral = r"neutral.gif"
     confused = r"confused.gif"
-
-def threaded(fn):
-    def wrapper(*args, **kwargs):
-        threading.Thread(target=fn, args=args, kwargs=kwargs).start()
-    return wrapper
 
 class ScreenDog:
     def __init__(self):
         self.DEFAULT = Gesture.confused
         self.current_state = self.DEFAULT
 
-    @threaded
+
     def open_window(self):
         self.root = tk.Tk()
         # set the dimensions of the screen
@@ -32,13 +28,25 @@ class ScreenDog:
         #Whatever buttons, etc
 
 
-        self.imgPath = self.current_state
+        self.imgPath = r"confused.gif"
         self.photo = tk.PhotoImage(file = self.imgPath)
         self.label = tk.Label(self.window,image = self.photo)
         self.label.image = self.photo # keep a reference!
         self.label.grid(row = 3, column = 1, padx = 5, pady = 5)
         self.label.pack(fill = tk.BOTH, expand = 1)
+        self.root.after(10, self.task)
+        self.root.after(1000, self.root.destroy)
         self.window.mainloop()
+
+    def start(self):
+        self.t = Thread(target=self.open_window)
+        self.t.start()
+
+
+    def task(self):
+        #print("hello")
+        self.root.after(1, self.task)  # reschedule event in 2 seconds
+
 
     def changeState(self, gesture):
         self.imgPath =gesture
@@ -50,12 +58,18 @@ class ScreenDog:
         return 0
 
 
+def main():
+    while True:
+        print ("main")
+
 if __name__ == '__main__':
     try:
 
         sd = ScreenDog()
-        handle = sd.open_window()
-        print handle
+        sd.start()
+        print ("test")
+
+
 
 
         # Beim Abbruch durch STRG+C resetten
