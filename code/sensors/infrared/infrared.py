@@ -13,15 +13,19 @@ class InfraRed:
         return self
 
     def get_distance(self):
-
+        mean = 0
+        mean_counter = 0
         try:
-            value = self.BP.get_sensor(self.PORT)
+            for var in range(0,10):
+                value = self.BP.get_sensor(self.PORT)
             if value is not None:
-                return (self.BP.get_sensor(self.PORT))
-            else:
-                return -1
+                mean += value
+                mean_counter += 1
+            time.sleep(0.1)
         except brickpi3.SensorError as error:
             print(error)
+        if mean_counter != 0:
+            return mean/mean_counter
         return -1
 
     def __exit__(self, exc_type, exc_value, traceback):
