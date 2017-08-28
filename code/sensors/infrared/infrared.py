@@ -49,4 +49,6 @@ class InfraRed:
 
 if __name__ == '__main__':
     with InfraRed() as ir:
-        print ("Gemessene Entfernung = %.1f cm" % ir.get_distance())
+        for i in range(0,100):
+            print ("Gemessene Entfernung = %.1f cm" % ir.get_distance())
+            time.sleep(0.1)
