@@ -70,11 +70,12 @@ class Robot (brickpi3.BrickPi3):
     def left_by_angle(self, angle):
         self.set_motor_position(self.PORT_A, angle)
         self.set_motor_position(self.PORT_D, -angle)
-        self.movment_state = 'left'
-        self.stop()
+        self.movement_state = 'left'
 
     def right_by_angle(self, angle):
-        pass  # todo
+        self.set_motor_position(self.PORT_A, -angle)
+        self.set_motor_position(self.PORT_D, angle)
+        self.movement_state = 'right'
 
     def __move_for_duration(self, move_func, duration, speed=None):
         if speed is None:
