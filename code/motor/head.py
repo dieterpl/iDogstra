@@ -10,7 +10,7 @@ class Head:
         self.PORT = self.BP.PORT_C
         self.BP.set_motor_power(self.PORT, self.BP.MOTOR_FLOAT)
         # optionally set a power limit (in percent) and a speed limit (in Degrees Per Second)
-        self.BP.set_motor_limits(self.PORT, 10, 0)
+        self.BP.set_motor_limits(self.PORT, 0, 20)
         return self
 
 
