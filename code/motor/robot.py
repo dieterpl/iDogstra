@@ -68,36 +68,26 @@ class Robot (brickpi3.BrickPi3):
         self.movement_state = 'stop'
 
     def left_by_angle(self, angle):
+        brickPiAngle = angle * 10
         port_A_pos = self.get_motor_encoder(self.PORT_A)
         port_D_pos = self.get_motor_encoder(self.PORT_D)
 
-        offset = 0
-
-        port_A_new_pos = port_A_pos + angle + offset
-        port_D_new_pos = port_D_pos - angle - offset
-
         print("curr portA: %s curr portD: %s" % (port_A_pos, port_D_pos))
-        print("next portA: %s next portD: %s" % (port_A_new_pos, port_D_new_pos))
 
-        self.set_motor_position(self.PORT_A, port_A_new_pos)
-        self.set_motor_position(self.PORT_D, -port_D_new_pos)
+        self.set_motor_position(self.PORT_A, brickPiAngle)
+        self.set_motor_position(self.PORT_D, -brickPiAngle)
         self.movement_state = 'left'
 
     def right_by_angle(self, angle):
+        brickPiAngle = angle * 10
         port_A_pos = self.get_motor_encoder(self.PORT_A)
         port_D_pos = self.get_motor_encoder(self.PORT_D)
 
-        offset = 0
-
-        port_A_new_pos = port_A_pos - angle - offset
-        port_D_new_pos = port_D_pos + angle + offset
-
         print("curr portA: %s curr portD: %s" % (port_A_pos, port_D_pos))
-        print("next portA: %s next portD: %s" % (port_A_new_pos, port_D_new_pos))
 
-        self.set_motor_position(self.PORT_A, port_A_new_pos)
-        self.set_motor_position(self.PORT_D, -port_D_new_pos)
-        self.movement_state = 'right'
+        self.set_motor_position(self.PORT_A, -brickPiAngle)
+        self.set_motor_position(self.PORT_D, brickPiAngle)
+        self.movement_state = 'left'
 
     def get_info():
         port_A_pos = self.get_motor_encoder(self.PORT_A)
