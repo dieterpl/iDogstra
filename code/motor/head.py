@@ -63,6 +63,6 @@ if __name__ == '__main__':
         time.sleep(2)
 
         #visual presentation of "No"
-        hd.headshake(hd.MAX_RANGE)
+        hd.headshake(hd.MAX_RANGE*10)
 
 
