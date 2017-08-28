@@ -8,9 +8,9 @@ class UltraSonic:
         self.MAX_VALUE = 300
         self.GPIO_TRIGGER = 26
         self.GPIO_ECHO = 20
-        self.initialized = False
+        self.init()
 
-    def init(self):
+    def __enter__(self):
         # GPIO Modus (BOARD / BCM)
         GPIO.setmode(GPIO.BCM)
 
@@ -19,9 +19,7 @@ class UltraSonic:
         GPIO.setup(self.GPIO_ECHO, GPIO.IN)
 
     def get_distance(self):
-        if (not self.initialized):
-            self.init()
-            self.initialized = True
+
         # setze Trigger auf HIGH
         GPIO.output(self.GPIO_TRIGGER, True)
 
@@ -46,15 +44,19 @@ class UltraSonic:
         # und durch 2 teilen, da hin und zurueck
         return (TimeElapsed * 34300) / 2
 
+    def __exit__(self, exc_type, exc_value, traceback):
+        GPIO.cleanup()
+
+
 
 if __name__ == '__main__':
     try:
-        us = UltraSonic()
+        with UltraSonic() as us:
         while True:
-            print ("Gemessene Entfernung = %.1f cm" % us.get_Distanz())
+            print ("Gemessene Entfernung = %.1f cm" % us.get_distance())
             time.sleep(1)
 
             # Beim Abbruch durch STRG+C resetten
     except KeyboardInterrupt:
         print("Messung vom User gestoppt")
-        GPIO.cleanup()
+
