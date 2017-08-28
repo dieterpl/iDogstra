@@ -1,10 +1,11 @@
-from logic.statemachine import *
-from sensors.pipeline import create_parallel_pipeline, create_sequential_pipeline
-from sensors.camera import camera
-from motor import movement
 import cv2
-from utils.config import *
+
+from config.config import *
+from logic.statemachine import *
+from motor import movement
 from sensors.bluetooth.bluetooth import BTDongle
+from sensors.camera import camera
+from sensors.pipeline import create_parallel_pipeline, create_sequential_pipeline
 
 
 class FollowColorSM(StateMachine):

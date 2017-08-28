@@ -7,12 +7,12 @@ import struct
 import bluetooth._bluetooth as bluez
 import math
 import time
+import logging
 
-from collections import deque
-from collections import namedtuple
-from threading import Thread
-from threading import Lock
-from utils.functions import current_time_millis
+from collections import deque, namedtuple
+from threading import Thread, Lock
+from utils.functions import current_time_millis, overrides
+from sensors.pipeline import Pipeline
 
 
 OGF_LE_CTL = 0x08
@@ -204,3 +204,50 @@ class BTDongle:
             data_list.append(t)
         self.lock.release()
         return DataList(threshold, data_list)
+
+
+class SnapshotBTDataPipeline(Pipeline):
+    """A pipeline that takes a list of BTDongle objects and extracts a snapshot
+    of the collected data"""
+
+    def __init__(self, threshold=2000):
+        Pipeline.__init__(self)
+        self.threshold = threshold
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        """Takes a list of BTDongle objects and returns a list of DataList
+        objects which are a snapshot of the collected bluetooth data"""
+        if len(inp) == 0:
+            return (False, None)
+        return (True, [dongle.snapshot_data(self.threshold) for dongle in inp])
+
+
+class RecommendedSpeedPipeline(Pipeline):
+    """A pipeline that takes multiple DataList objects and recommends a speed
+    for the roboter based on the signal strenght"""
+
+    def __init__(self, min_speed=15, threshold=60, multiplier=3.0):
+        Pipeline.__init__(self)
+        self.min_speed = min_speed
+        self.threshold = threshold
+        self.multiplier = multiplier
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        """Takes a list of DataList objects, and returns the recommended
+        speed in the interval [0;100]"""
+        if len(inp) == 0:
+            return (False, None)
+        data_count = sum(len(data) for data in inp)
+        logging.debug("data_count=" + str(data_count))
+        if data_count == 0:
+            return (False, None)
+        avg_strength = sum(data.avg() for data in inp) / len(inp)
+        logging.info("avg_strength=" + str(avg_strength))
+        speed = 0
+        if avg_strength >= self.threshold:
+            speed = min(100, self.min_speed + self.multiplier *
+                    (avg_strength - self.threshold))
+        return (True, speed)
+

@@ -1,10 +1,14 @@
 import time
-import brickpi3
-import getch
+try:
+    import brickpi3
+    BP = brickpi3.BrickPi3()
+except ModuleNotFoundError:
+    print("WARNING: Could not import module brickpi3 (not running on a raspberry pi?). Movement module will not "
+          "be available.")
+    brickpi3, BP = None, None
+
 import sys
 
-
-BP = brickpi3.BrickPi3()
 DEFAULT_SPEED = 100
 
 state = 'stop'
