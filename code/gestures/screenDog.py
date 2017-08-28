@@ -11,8 +11,8 @@ class ScreenDog:
     def __init__(self):
         self.DEFAULT = Gesture.confused
         self.current_state = self.DEFAULT
-        self.window
-        self.root
+        self.window = None
+        self.root = None
 
     def open_window(self):
         self.root = tk.Tk()
@@ -50,23 +50,18 @@ class ScreenDog:
 
     def changeState(self, gesture):
         self.imgPath =gesture
-
-
-
-        self.window.update()
+        #self.window.update()
         self.root.update()
         return 0
 
-
-def main():
-    while True:
-        print ("main")
 
 if __name__ == '__main__':
     try:
 
         sd = ScreenDog()
         sd.start()
+        print ("test1")
+        time.sleep(0.5)
         sd.changeState(Gesture.neutral)
         print ("test")
 
