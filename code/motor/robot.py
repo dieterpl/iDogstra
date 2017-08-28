@@ -87,16 +87,23 @@ class Robot (brickpi3.BrickPi3):
         port_A_pos = self.get_motor_encoder(self.PORT_A)
         port_D_pos = self.get_motor_encoder(self.PORT_D)
 
-        print(port_A_pos)
-        print(port_D_pos)
-
         offset = 0
 
         port_A_new_pos = port_A_pos - angle - offset
         port_D_new_pos = port_D_pos + angle + offset
+
+        print("curr portA: %s curr portD: %s" % (port_A_pos, port_D_pos))
+        print("next portA: %s next portD: %s" % (port_A_new_pos, port_D_new_pos))
+
         self.set_motor_position(self.PORT_A, port_A_new_pos)
         self.set_motor_position(self.PORT_D, -port_D_new_pos)
         self.movement_state = 'right'
+
+    def get_info():
+        port_A_pos = self.get_motor_encoder(self.PORT_A)
+        port_D_pos = self.get_motor_encoder(self.PORT_D)
+
+        print("portA position: %s portD position: %s" % (port_A_pos, port_D_pos))
 
     def __move_for_duration(self, move_func, duration, speed=None):
         if speed is None:
@@ -170,6 +177,9 @@ class Robot (brickpi3.BrickPi3):
                 elif command in directions_by_angle:
                     angle = int(operation[1])
                     self.move_by_angle(command, angle)
+                elif command == 'info':
+                    self.get_info()
+
                 else:
                     print('No such action')
 
