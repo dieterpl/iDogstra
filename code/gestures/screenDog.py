@@ -4,17 +4,28 @@ from threading import Thread
 
 
 class ScreenDog:
+
     class Gesture():
+        """
+        predefined gesture pictures
+        """
         neutral = r"neutral.gif"
         confused = r"confused.gif"
 
     def __init__(self):
+        """
+        init the class and shows the window default image configurable
+        """
         self.DEFAULT = self.Gesture.confused
         self.current_state = self.DEFAULT
         self.window = None
         self.root = None
-
-    def open_window(self):
+        self.show_window()
+    def __open_window(self):
+        """
+        privat method to dispaly window on pi in fullscreen
+        :return: -
+        """
         self.root = tk.Tk()
         # set the dimensions of the screen
         # and where it is placed
@@ -34,39 +45,51 @@ class ScreenDog:
         self.label.image = self.photo  # keep a reference!
         self.label.grid(row=3, column=1, padx=5, pady=5)
         self.label.pack(fill=tk.BOTH, expand=1)
-        self.root.after(100, self.change_picture_callback)
+        self.root.after(100, self.__change_picture_callback)
         self.window.mainloop()
 
 
-    def change_picture_callback(self):
+    def __change_picture_callback(self):
+        """
+        callback used to update the picture tk interal stuff
+        :return:
+        """
         self.imgPath = self.current_state
         self.photo = tk.PhotoImage(file=self.imgPath)
         self.label.configure(image=self.photo)
         self.image = self.photo
-        self.root.after(100, self.change_picture_callback)  # reschedule event in 2 seconds
+        self.root.after(100, self.__change_picture_callback)  # reschedule event in 2 seconds
 
-    def show_window(self):
-        self.t = Thread(target=self.open_window)
+    def __show_window(self):
+        """
+        starts windows in different thread and waits for init
+        :return:
+        """
+        self.t = Thread(target=self.__open_window)
         self.t.start()
         # time to start thread
         time.sleep(2)
 
 
 
-    def changeState(self, gesture):
+    def change_gesture(self, gesture):
+        """
+        method th change the picture by selecting gesture
+        :param gesture: string to new image
+        :return: -
+        """
         self.current_state = gesture
 
 
 if __name__ == '__main__':
     try:
-
         sd = ScreenDog()
         sd.show_window()
         while True:
             time.sleep(2.5)
-            sd.changeState(sd.Gesture.neutral)
+            sd.change_gesture(sd.Gesture.neutral)
             time.sleep(5.5)
-            sd.changeState(sd.Gesture.confused)
+            sd.change_gesture(sd.Gesture.confused)
             # Beim Abbruch durch STRG+C resetten
     except KeyboardInterrupt:
         print("Messung vom User gestoppt")
