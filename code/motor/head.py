@@ -34,8 +34,8 @@ class Head:
         rotates the head of the robot between (-MAX,MAX)<-Degrees of Head Movement possible
         :return: -
         """
-        self.goToPosition(self.PORT)
-        self.goToPosition(self.PORT)
+        self.goToPosition(self.PORT, self.MAX_RANGE)
+        self.goToPosition(self.PORT, -self.MAX_RANGE)
 
     def __exit__(self, exc_type, exc_value, traceback):
         # self.BP.reset_all() Kills BrickPi
