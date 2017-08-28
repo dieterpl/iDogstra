@@ -51,13 +51,13 @@ class Robot (brickpi3.BrickPi3):
             self.current_speed -= 1
 
             if self.movement_state == 'forward':
-                forward(self.current_speed)
+                self.forward(self.current_speed)
             elif self.movement_state == 'backward':
-                backward(self.current_speed)
+                self.backward(self.current_speed)
             elif self.movement_state == 'left':
-                left(self.current_speed)
+                self.left(self.current_speed)
             elif self.movement_state == 'right':
-                right(self.current_speed)
+                self.right(self.current_speed)
 
             time.sleep(0.01)
 
