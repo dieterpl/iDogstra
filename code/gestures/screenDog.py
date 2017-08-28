@@ -51,6 +51,8 @@ class ScreenDog:
         self.imgPath = gesture
         self.photo = tk.PhotoImage(file=self.imgPath)
         self.label.image = self.photo
+        self.label.grid(row=3, column=1, padx=5, pady=5)
+        self.label.pack(fill=tk.BOTH, expand=1)
         return 0
 
 
