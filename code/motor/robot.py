@@ -12,26 +12,30 @@ class Robot (brickpi3.BrickPi3):
         self.speed = 100
 
     def forward(self, speed=None):
-        if speed is None speed = self.speed
+        if speed is None:
+            speed = self.speed
 
         self.set_motor_power(self.PORT_A + self.PORT_D, speed)
         self.state = 'forward'
 
     def backward(self, speed=None):
-        if speed is None speed = self.speed
+        if speed is None:
+            speed = self.speed
 
         self.set_motor_power(self.PORT_A + self.PORT_D, -speed)
         self.state = 'backward'
 
     def left(self, speed=None):
-        if speed is None speed = self.speed
+        if speed is None:
+            speed = self.speed
 
         self.set_motor_power(self.PORT_A, speed)
         self.set_motor_power(self.PORT_D, -speed)
         self.state = 'left'
 
     def right(self, speed=None):
-        if speed is None speed = self.speed
+        if speed is None:
+            speed = self.speed
 
         self.set_motor_power(self.PORT_A, -speed)
         self.set_motor_power(self.PORT_D, speed)
@@ -48,7 +52,8 @@ class Robot (brickpi3.BrickPi3):
         pass  # todo
 
     def __move_for_duration(self, move_func, duration, speed=None):
-        if speed is None speed = self.speed
+        if speed is None:
+            speed = self.speed
 
         move_func(speed)
         time.sleep(duration)
