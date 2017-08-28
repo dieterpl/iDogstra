@@ -3,37 +3,40 @@ import brickpi3 # import the BrickPi3 drivers
 import math
 #TODO WORK IN PROGRESS
 class Head:
+
     def __init__(self):
         self.MAX_RANGE = 80
         self.BP = brickpi3.BrickPi3()
+        self.PORT = self.BP.PORT_C
 
     def goToPosition(self,motor, position):
-        while self.BP.get_motor_encoder(self.BP.PORT_C) not in range(position-8,position+8):
-            self.BP.set_motor_position(self.BP.PORT_C, position)
-            print (self.BP.get_motor_encoder(self.BP.PORT_C))
+        while self.BP.get_motor_encoder(self.PORT) not in range(position-8,position+8):
+            self.BP.set_motor_position(self.PORT, position)
+            print (self.BP.get_motor_encoder(self.PORT))
         return
 
     def doFullScan(self):
-        self.BP.set_motor_power(self.BP.PORT_C, self.BP.MOTOR_FLOAT)
-        self.BP.set_motor_limits(self.BP.PORT_C, 0, 0)          # optionally set a power limit (in percent) and a speed limit (in Degrees Per Second)
-        self.goToPosition(self.BP.PORT_C,0)
+        self.BP.set_motor_power(self.PORT, self.BP.MOTOR_FLOAT)
+        self.BP.set_motor_limits(self.PORT, 0, 0)          # optionally set a power limit (in percent) and a speed limit (in Degrees Per Second)
+        self.goToPosition(self.BP.PORT,0)
         while True:
             for i in range(0,self.MAX_RANGE,1):
-                self.goToPosition(self.BP.PORT_C,i)
-
+                self.goToPosition(self.PORT,i)
             for i in range(self.MAX_RANGE,0,-1):
-                self.goToPosition(self.BP.PORT_C,i)
+                self.goToPosition(self.PORT,i)
 
-hd = Head()
+    def headshake(self):
+        self.goToPosition(self.MAX_RANGE)
+        self.goToPosition(-self.MAX_RANGE)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        # self.BP.reset_all() Kills BrickPi
+        self.BP.set_motor_power(self.BP.PORT, 0)
+        return None
 
 if __name__ == '__main__':
-    try:
-       
-        while True:
-            hd.doFullScan()
-            time.sleep(1)
+    with head() as hd:
+
+        #hd.doFullScan()
+        hd.headshake()
  
-        # Beim Abbruch durch STRG+C resetten
-    except KeyboardInterrupt:
-        hd.BP.reset_all()
-        print("Messung vom User gestoppt")
