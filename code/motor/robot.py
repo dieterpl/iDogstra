@@ -19,7 +19,7 @@ class Robot (brickpi3.BrickPi3):
 
         self.set_motor_power(self.PORT_A + self.PORT_D, speed)
         self.current_speed = speed
-        self.state = 'forward'
+        self.movement_state = 'forward'
 
     def backward(self, speed=None):
         if speed is None:
@@ -28,7 +28,7 @@ class Robot (brickpi3.BrickPi3):
 
         self.set_motor_power(self.PORT_A + self.PORT_D, -speed)
         self.current_speed = speed
-        self.state = 'backward'
+        self.movement_state = 'backward'
 
     def left(self, speed=None):
         if speed is None:
@@ -38,7 +38,7 @@ class Robot (brickpi3.BrickPi3):
         self.set_motor_power(self.PORT_A, speed)
         self.set_motor_power(self.PORT_D, -speed)
         self.current_speed = speed
-        self.state = 'left'
+        self.movement_state = 'left'
 
     def right(self, speed=None):
         if speed is None:
@@ -48,7 +48,7 @@ class Robot (brickpi3.BrickPi3):
         self.set_motor_power(self.PORT_A, -speed)
         self.set_motor_power(self.PORT_D, speed)
         self.current_speed = speed
-        self.state = 'right'
+        self.movement_state = 'right'
 
     def stop(self):
         while(self.current_speed > 0):
@@ -65,7 +65,7 @@ class Robot (brickpi3.BrickPi3):
 
             time.sleep(0.01)
 
-        self.state = 'stop'
+        self.movement_state = 'stop'
 
     def left_by_angle(self, angle):
         pass  # todo
@@ -95,9 +95,7 @@ class Robot (brickpi3.BrickPi3):
         pass
 
     def __move_with_key(self, key):
-        global state
-
-        if key == '' and self.state != 'stop':
+        if key == '' and self.movement_state != 'stop':
             self.stop()
         elif key == 'w':
             self.forward()
@@ -106,7 +104,7 @@ class Robot (brickpi3.BrickPi3):
         elif key == 'd':
             self.right()
         elif key == 's':
-            if self.state == 'stop':
+            if self.movement_state == 'stop':
                 self.backward()
             else:
                 self.stop()
