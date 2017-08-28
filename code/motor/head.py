@@ -35,7 +35,7 @@ class Head:
         return None
 
 if __name__ == '__main__':
-    with head() as hd:
+    with Head() as hd:
 
         #hd.doFullScan()
         hd.headshake()
