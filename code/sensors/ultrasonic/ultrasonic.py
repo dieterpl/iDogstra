@@ -8,7 +8,6 @@ class UltraSonic:
         self.MAX_VALUE = 300
         self.GPIO_TRIGGER = 26
         self.GPIO_ECHO = 20
-        self.init()
 
     def __enter__(self):
         # GPIO Modus (BOARD / BCM)
