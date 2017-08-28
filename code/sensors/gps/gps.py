@@ -41,7 +41,7 @@ while True:
             Input = Input + str(Zeichen)
 
 		# test whether sending protocoll matches GPGG
-		if Input == "GPGG":
+        if Input == "GPGG":
 
             # read chars until LF
             while Zeichen != "\n":
@@ -94,4 +94,4 @@ while True:
             print "GPS-Qualitaet:", Qualitaet
             print "Anzahl der Satelliten:", Satelliten
             print "Checksumme:", Checksumme
-			print "-------------------------------------------"
+            print "-------------------------------------------"
