@@ -67,7 +67,7 @@ class Robot (brickpi3.BrickPi3):
 
         self.movement_state = 'stop'
 
-    def move_by_degree(self, direction, degree):
+    def move_by_bpdegree(self, direction, bpdegree):
         BP.set_motor_limits(BP.PORT_A + BP.PORT_D, 50, 200)
 
         self.offset_motor_encoder(BP.PORT_A, BP.get_motor_encoder(BP.PORT_A))
@@ -76,8 +76,8 @@ class Robot (brickpi3.BrickPi3):
         port_A_pos = self.get_motor_encoder(self.PORT_A)
         port_D_pos = self.get_motor_encoder(self.PORT_D)
 
-        port_A_new_pos = port_A_pos + degree
-        port_D_new_pos = port_D_pos + degree
+        port_A_new_pos = port_A_pos + bpdegree
+        port_D_new_pos = port_D_pos + bpdegree
 
         print("curr portA: %s curr portD: %s" % (port_A_pos, port_D_pos))
         print("next portA: %s next portD: %s" % (port_A_new_pos, port_D_new_pos))
@@ -119,9 +119,9 @@ class Robot (brickpi3.BrickPi3):
         bpdegree = self.degree_to_bpdegree(degree)
 
         if direction == 'left_by_degree':
-            self.move_by_degree('left', bpdegree)
+            self.move_by_bpdegree('left', bpdegree)
         elif direction == 'right_by_degree':
-            self.move_by_degree('right', bpdegree)
+            self.move_by_bpdegree('right', bpdegree)
 
     def bpdegree_to_degree(self, bpdegree):
         return (bpdegree * 1.6) / 10
@@ -155,7 +155,7 @@ class Robot (brickpi3.BrickPi3):
 
     def cli(self):
         directions = ['left', 'right', 'forward', 'backward']
-        directions_by_angle = ['left_by_degree', 'right_by_degree']
+        directions_by_degree = ['left_by_degree', 'right_by_degree']
 
         try:
             while True:
@@ -171,9 +171,9 @@ class Robot (brickpi3.BrickPi3):
                     speed = int(operation[1])
                     duration = float(operation[2])
                     self.move(command, speed, duration)
-                elif command in directions_by_angle:
-                    angle = int(operation[1])
-                    self.move_by_degree(command, angle)
+                elif command in directions_by_degree:
+                    degree = int(operation[1])
+                    self.move_by_degree(command, degree)
                 elif command == 'info':
                     self.get_info()
 
