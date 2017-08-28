@@ -71,11 +71,14 @@ class Robot (brickpi3.BrickPi3):
         brickPiAngle = angle * 10
         offset = 0
 
+        self.offset_motor_encoder(BP.PORT_A, BP.get_motor_encoder(BP.PORT_A))
+        self.offset_motor_encoder(BP.PORT_D, BP.get_motor_encoder(BP.PORT_D))
+
         port_A_pos = self.get_motor_encoder(self.PORT_A)
         port_D_pos = self.get_motor_encoder(self.PORT_D)
 
         port_A_new_pos = port_A_pos + brickPiAngle + offset
-        port_D_new_pos = port_D_pos - brickPiAngle - offset
+        port_D_new_pos = port_D_pos + brickPiAngle + offset
 
         print("curr portA: %s curr portD: %s" % (port_A_pos, port_D_pos))
         print("next portA: %s next portD: %s" % (port_A_new_pos, port_D_new_pos))
@@ -88,10 +91,13 @@ class Robot (brickpi3.BrickPi3):
         brickPiAngle = angle * 10
         offset = 0
 
+        self.offset_motor_encoder(BP.PORT_A, BP.get_motor_encoder(BP.PORT_A))
+        self.offset_motor_encoder(BP.PORT_D, BP.get_motor_encoder(BP.PORT_D))
+
         port_A_pos = self.get_motor_encoder(self.PORT_A)
         port_D_pos = self.get_motor_encoder(self.PORT_D)
 
-        port_A_new_pos = port_A_pos - brickPiAngle - offset
+        port_A_new_pos = port_A_pos + brickPiAngle + offset
         port_D_new_pos = port_D_pos + brickPiAngle + offset
 
         print("curr portA: %s curr portD: %s" % (port_A_pos, port_D_pos))
