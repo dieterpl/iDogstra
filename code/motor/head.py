@@ -19,9 +19,9 @@ class Head:
         oldValue = 0
 
         while True:
-            if self.BP.get_motor_encoder != oldValue:
+            if int(self.BP.get_motor_encoder) != oldValue:
                 print ("OLDV: " + str(oldValue))
-                print ("OLDV: " == str(oldValue))
+                print (int(self.BP.get_motor_encoder) == str(oldValue))
                 #while self.BP.get_motor_encoder(self.PORT) not in range(position-10,position+10):
                 oldValue = self.BP.get_motor_encoder(self.PORT)
                 self.BP.set_motor_position(self.PORT, position)
