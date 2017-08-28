@@ -91,12 +91,6 @@ class Robot (brickpi3.BrickPi3):
             self.set_motor_position(self.PORT_D, port_D_new_pos)
             self.movement_state = 'right'
 
-    def get_info():
-        port_A_pos = self.get_motor_encoder(self.PORT_A)
-        port_D_pos = self.get_motor_encoder(self.PORT_D)
-
-        print("portA position: %s portD position: %s" % (port_A_pos, port_D_pos))
-
     def __move_for_duration(self, move_func, duration, speed=None):
         if speed is None:
             speed = self.default_speed
@@ -124,10 +118,10 @@ class Robot (brickpi3.BrickPi3):
             self.move_by_bpdegree('right', bpdegree)
 
     def bpdegree_to_degree(self, bpdegree):
-        return (bpdegree * 1.6) / 10
+        return (bpdegree * 1.66) / 10
 
     def degree_to_bpdegree(self, degree):
-        return (degree * 0.625) * 10
+        return (degree * 0.6) * 10
 
     def __move_with_key(self, key):
         if key == '' and self.movement_state != 'stop':
@@ -184,6 +178,20 @@ class Robot (brickpi3.BrickPi3):
             self.reset_all()
 
 
+"""
+call this module with >  python3 robot.py speed  to drive the
+brickpi with WASD and a specific speed
+otherwise >  python3 robot.py  will open the command line interface:
+
+commands:
+left speed duration
+right speed duration
+forward speed duration
+backward speed duration
+
+left_by_degree degree
+right_by_degree degree
+"""
 if __name__ == '__main__':
     args = sys.argv
 
