@@ -4,12 +4,11 @@ import time
 
 
 class UltraSonic:
-    def __init__(self):
+
+    def __enter__(self):
         self.MAX_VALUE = 300
         self.GPIO_TRIGGER = 26
         self.GPIO_ECHO = 20
-
-    def __enter__(self):
         # GPIO Modus (BOARD / BCM)
         GPIO.setmode(GPIO.BCM)
 
