@@ -20,7 +20,7 @@ class ScreenDog:
         self.current_state = self.DEFAULT
         self.window = None
         self.root = None
-        self.show_window()
+        self.__show_window()
     def __open_window(self):
         """
         privat method to dispaly window on pi in fullscreen
@@ -84,7 +84,6 @@ class ScreenDog:
 if __name__ == '__main__':
     try:
         sd = ScreenDog()
-        sd.show_window()
         while True:
             time.sleep(2.5)
             sd.change_gesture(sd.Gesture.neutral)
