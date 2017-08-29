@@ -26,6 +26,8 @@ if picamera is None or USE_USB_CAMERA:
     # camera.set(cv2.CAP_PROP_GAIN, 1)
     # camera.set(cv2.CAP_PROP_BACKLIGHT, 100)
     # camera.set(cv2.CAP_PROP_SETTINGS, 1)
+
+    picamera = None
 else:
     camera = picamera.PiCamera()
     # camera.resolution = PYCAMERA_RESOLUTION
@@ -164,55 +166,15 @@ class GetImageDimensionsPipeline(Pipeline):
         return True, inp.shape
 
 
-def test():
-    # test a default pipeline
-    camera_pipeline = \
-        PipelineSequence(
-            lambda inp: read(),
-            ParallelPipeline(
-                PipelineSequence(
-                    ConvertColorspacePipeline(to="hsv"),
-                    ColorThresholdPipeline(color="magenta"),
-                    ErodeDilatePipeline(),
-                    GetLargestContourPipeline()
-                ),
-                GetImageDimensionsPipeline()
-            ),
-            FindYDeviationPipeline()
-        )
+class EdgeDetectionPipeline(Pipeline):
 
-    def show_result(*_):
-        _, _, _, _, (bbox_ok, bbox) = camera_pipeline.steps[1].pipelines[0].step_results
-        _, (image_ok, image), _, (dev_ok, dev) = camera_pipeline.step_results
+    def __init__(self, threshold_lower=100, threshold_upper=200):
+        Pipeline.__init__(self)
 
-        # draw bounding box
-        if bbox_ok:
-            p1 = (int(bbox[0]), int(bbox[1]))
-            p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
-            cv2.rectangle(image, p1, p2, (0, 0, 255))
+        self.threshold_lower = threshold_lower
+        self.threshold_upper = threshold_upper
 
-        # add deviation as text
-        if dev_ok:
-            cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
-
-        cv2.imshow('camtest', image)
-        if cv2.waitKey(1) & 0xff == ord('q'):
-            sys.exit()
-
-    def switch_detect_to_track(*_):
-        _, (image_ok, image), _, (bbox_ok, bbox), _ = camera_pipeline.step_results
-
-        if bbox_ok:
-            print('Switching detection step with tracking step')
-            camera_pipeline.steps[2] = TrackBBOXPipeline(image, bbox, tracking_algorithm=TRACKING_ALGORITHM)
-            camera_pipeline.execute_callbacks.remove(switch_detect_to_track)
-
-    cv2.namedWindow('camtest', cv2.WINDOW_AUTOSIZE)
-    camera_pipeline.execute_callbacks = [show_result]
-    while True:
-        camera_pipeline.run_pipeline(None)  # first input is irrelevant
-
-
-if __name__ == '__main__':
-    test()
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        return True, cv2.Canny(inp, self.threshold_lower, self.threshold_upper)
 

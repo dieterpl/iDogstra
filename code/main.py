@@ -1,44 +1,52 @@
 import argparse
-from config import *
 import logging
 import time
-import logic.iDog_state_machine
+
+
 import logic.find_threshold_sm
 from sensors.bluetooth import bluetooth
 from sensors.camera import camera
 
 
+from logic import follow_color_sm, camera_test_sm, iDog_sm
+from config import *
+
+
+known_state_machines = {
+    "follow-color": follow_color_sm.FollowColorSM,
+    "test-camera": camera_test_sm.CameraTestSM,
+    "default": iDog_sm.IDog
+}
+
 def main():
     """ Application entry point. """
 
-    mode = __parse_args()
+    sm, smargs = __parse_args()
     __prepare_logs()
-    logging.debug("Starting application in mode {}".format(mode))
 
     logging.debug("Starting BT-Dongles")
     config.BT_DONGLES = [bluetooth.BTDongle(i, config.BT_TARGET_UUID) for i in range(2)]
     for dongle in config.BT_DONGLES:
         dongle.start()
 
-    if mode == "default":
-        logic.iDog_state_machine.IDog().run()
-    elif mode == "cameratest":
-        camera.test()
-    elif mode == "find-threshold":
-        logic.find_threshold_sm.FindThresholdSM().run()
+    if sm not in known_state_machines:
+        logging.error("Unkown state machine '{}'".format(sm))
     else:
-        logging.error("Unkown mode '{}'".format(mode))
+        logging.debug("Starting application with state machine {}".format(sm))
+        sm_class = known_state_machines[sm]
+        sm_class(*smargs).run()
 
 
 def __parse_args():
     parser = argparse.ArgumentParser(description="iDogstra - the world's best dog AI since 1753")
-    parser.add_argument('mode', type=str, help='What state machine to execute')
+    parser.add_argument("sm", type=str, help='What state machine to execute')
+    parser.add_argument("smargs", nargs="*", help="Arguments to pass to the state machine")
     parser.add_argument('-v', '--verbose', action='store_const', const=True, default=False, help='Set verbose output')
 
     args = parser.parse_args()
 
     config.DEBUG_MODE = config.DEBUG_MODE or args.verbose
-    return args.mode
+    return args.sm, args.smargs
 
 
 def __prepare_logs():
