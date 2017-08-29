@@ -34,7 +34,7 @@ class Head:
                 time.sleep(0.8)
             else:
                 time.sleep(self.MAX_RANGE/degree*5)
-                print("timeslept " + str(self.MAX_RANGE/(degree*5)))
+                print("timeslept " + str(self.MAX_RANGE/(degree*10)))
             #time.sleep(1)
             print (self.BP.get_motor_encoder(self.PORT))
         return
@@ -55,7 +55,7 @@ class Head:
         """
         self.goToPosition(self.PORT, self.MAX_RANGE, degree)
         self.goToPosition(self.PORT, -self.MAX_RANGE, degree)
-        #time.sleep(0.1)
+        time.sleep(0.1)
         self.goToPosition(self.PORT, 0, degree)
 
     def __exit__(self, exc_type, exc_value, traceback):
