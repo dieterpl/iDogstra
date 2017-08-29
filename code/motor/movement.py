@@ -2,7 +2,7 @@ import time
 try:
     import brickpi3
     BP = brickpi3.BrickPi3()
-except ModuleNotFoundError:
+except Exception:
     print("WARNING: Could not import module brickpi3 (not running on a raspberry pi?). Movement module will not "
           "be available.")
     brickpi3, BP = None, None
