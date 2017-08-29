@@ -1,23 +1,25 @@
 from logic.statemachine import *
-from logic.states import FollowState, WaitState
+from logic.states import follow,wait
 from utils.functions import current_time_millis
-from sensors.bluetooth import *
-
+from sensors.bluetooth import bluetooth
+from sensors import pipeline
+from sensors.camera import camera
+import logging
 class SearchState(State):
     """ Abstract superclass for all state machine states """
     def __init__(self):
         self.start_time = None
-        self.__btdongles = btdongles
+        self.__btdongles = bluetooth.btdongles
 
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
         self.__pipeline = \
-            create_parallel_pipeline([
+            pipeline.create_parallel_pipeline([
                 # Camera inputs
-                create_sequential_pipeline([
+                pipeline.create_sequential_pipeline([
                     lambda inp: camera.read(),
-                    create_parallel_pipeline([
-                        create_sequential_pipeline([
+                    pipeline.create_parallel_pipeline([
+                        pipeline.create_sequential_pipeline([
                             camera.ConvertColorspacePipeline(to='hsv'),
                             camera.DetectColoredObjectPipeline(color='magenta')
                         ]),
@@ -26,10 +28,10 @@ class SearchState(State):
                     camera.FindYDeviationPipeline()
                 ]),
                 # Bluetooth inputs
-                create_sequential_pipeline([
-                    ConstantPipeline(self.__btdongles),
-                    SnapshotBTDataPipeline(),
-                    RecommendedSpeedPipeline()
+                pipeline.create_sequential_pipeline([
+                    pipeline.ConstantPipeline(self.__btdongles),
+                    bluetooth.SnapshotBTDataPipeline(),
+                    bluetooth.UserDistanceEstimationPipeline()
                 ])
             ])
 
@@ -44,11 +46,14 @@ class SearchState(State):
 
     @property
     def pipeline(self):
-        raise NotImplementedError()
+        return self.__pipeline
 
     def on_update(self, hist):
+        camera_dev_result, distance_result = hist[-1]
+        logging.debug("SearchState Pipeline results", hist[-1])
+
         if True:
-            return FollowState()
+            return follow.FollowState()
         else:
             return self
 
