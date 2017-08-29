@@ -34,6 +34,7 @@ class Head:
                 time.sleep(1)
             else:
                 #time.sleep(self.MAX_RANGE/degree*10)
+                time.sleep(0.1)
                 print("timeslept " + str(self.MAX_RANGE/(degree*10)))
             #time.sleep(1)
             print (self.BP.get_motor_encoder(self.PORT))
