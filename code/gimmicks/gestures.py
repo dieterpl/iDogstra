@@ -4,7 +4,8 @@ import sys
 import os
 sys.path.append(os.path.abspath("/Users/An/iDogstra/code/motor"))
 sys.path.append(os.path.abspath("/Users/An/iDogstra/code/gestures"))
-import head,robot
+import head
+import robot
 import screenDog
 """
 dont use this, TODO: implement this, currently bei head.py
