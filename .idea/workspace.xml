@@ -17,7 +17,7 @@
         <entry file="file://$PROJECT_DIR$/code/gimmicks/gestures.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="622">
-              <caret line="43" column="20" lean-forward="false" selection-start-line="43" selection-start-column="20" selection-end-line="43" selection-end-column="20" />
+              <caret line="43" column="21" lean-forward="false" selection-start-line="43" selection-start-column="21" selection-end-line="43" selection-end-column="21" />
               <folding />
             </state>
           </provider>
@@ -38,7 +38,7 @@
       <file leaf-file-name="screenDog.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code/gestures/screenDog.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-225">
+            <state relative-caret-position="225">
               <caret line="9" column="32" lean-forward="false" selection-start-line="9" selection-start-column="32" selection-end-line="9" selection-end-column="32" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
@@ -671,7 +671,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/code/gestures/screenDog.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-225">
+        <state relative-caret-position="225">
           <caret line="9" column="32" lean-forward="false" selection-start-line="9" selection-start-column="32" selection-end-line="9" selection-end-column="32" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
@@ -682,7 +682,7 @@
     <entry file="file://$PROJECT_DIR$/code/gimmicks/gestures.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="622">
-          <caret line="43" column="20" lean-forward="false" selection-start-line="43" selection-start-column="20" selection-end-line="43" selection-end-column="20" />
+          <caret line="43" column="21" lean-forward="false" selection-start-line="43" selection-start-column="21" selection-end-line="43" selection-end-column="21" />
           <folding />
         </state>
       </provider>
