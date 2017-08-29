@@ -57,7 +57,7 @@ class SearchState(State):
 
     def on_update(self, hist):
         _, pipeline_result = hist[-1]
-        logging.debug("SearchState Pipeline results", hist[-1])
+        logging.debug("Search Pipeline results {}".format(hist[-1]))
         # unpack results
         camera_result, distance_result = pipeline_result
         cam_ok, dev = camera_result
@@ -117,7 +117,7 @@ class FollowState(State):
 
     def on_update(self, hist):
         _, pipeline_result = hist[-1]
-        logging.debug("FollowState Pipeline results", hist[-1])
+        logging.debug("FollowState Pipeline results {}".format(hist[-1]))
         # unpack results
         camera_result, distance_result = pipeline_result
         cam_ok, dev = camera_result
@@ -191,7 +191,7 @@ class TrackState(State):
 
     def on_update(self, hist):
         _, pipeline_result = hist[-1]
-        logging.debug("TrackState Pipeline results", hist[-1])
+        logging.debug("TrackState Pipeline results {}".format(hist[-1]))
         # unpack results
         camera_result, distance_result = pipeline_result
         cam_ok, dev = camera_result
@@ -260,7 +260,7 @@ class WaitState(State):
 
     def on_update(self, hist):
         _, pipeline_result = hist[-1]
-        logging.debug("WaitState Pipeline results", hist[-1])
+        logging.debug("WaitState Pipeline results {}".format(hist[-1]))
         # unpack results
         camera_result, distance_result = pipeline_result
         cam_ok, dev = camera_result
