@@ -25,27 +25,32 @@ data_stream = gps3.DataStream()
 gps_socket.connect()
 gps_socket.watch()
 
-lat_lng_values = []
+latlon_values = []
 
 for new_data in gps_socket:
     if new_data:
         os.system('clear')
         data_stream.unpack(new_data)
 
-        lat_lng_values.append({
+        latlon_values.append({
             'lat': data_stream.TPV.get('lat'),
             'lon': data_stream.TPV.get('lon')
         })
 
-        if(len(lat_lng_values) > 2):
-            last_lat = float(lat_lng_values[-1].get('lat'))
-            last_lon = float(lat_lng_values[-1].get('lon'))
-            before_last_lat = float(lat_lng_values[-1].get('lat'))
-            before_last_lon = float(lat_lng_values[-1].get('lon'))
-            distance = \
-                getDistanceFromLatLonInMeter(last_lat, last_lon,
-                                             before_last_lat, before_last_lon)
-            print('distance walked: %s' % distance)
+        if(len(latlon_values) > 2):
+            lat1 = latlon_values[-1].get('lat')
+            lon1 = latlon_values[-1].get('lon')
+            lat2 = latlon_values[-2].get('lat')
+            lon2 = latlon_values[-2].get('lon')
+
+            if(lat1 != 'n/a' and lon1 != 'n/a' and lat2 != 'n/a' and lon2 != 'n/a'):
+                lat1 = float(lat1)
+                lon1 = float(lon1)
+                lat2 = float(lat2)
+                lon2 = float(lon2)
+                distance = getDistanceFromLatLonInMeter(lat1, lon1, lat2, lon2)
+
+                print('distance walked: %s' % distance)
 
         print('device = ', data_stream.TPV.get('device'))
         print('status = ', data_stream.TPV.get('status'))
