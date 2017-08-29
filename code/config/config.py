@@ -1,6 +1,6 @@
 import os
 
-CAMERA_RESOLUTION = (1280, 720)  # the resolution to use for the raspberry pi camera
+CAMERA_RESOLUTION = (640, 480)  # the resolution to use for the raspberry pi camera
 
 DETECTION_SIZE_THRESHOLD = .01  # minimum size of a colored object, relative to the total image size
 
@@ -10,8 +10,7 @@ GRAPHICAL_OUTPUT = True  # enable or disable graphical output
 
 TRACKING_ALGORITHM = 'MIL'  # algorithm to use for object tracking in images
 
-USE_USB_CAMERA = True
-
+USE_USB_CAMERA = False
 # the paths to relevant directories of the project
 ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir))
 LOGSPATH = os.path.join(ROOT_PATH, 'logs')
