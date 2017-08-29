@@ -12,7 +12,7 @@ dont use this, TODO: implement this, currently bei head.py
 """
 class Gestures:
     def __enter__(self):
-        self.head = head.Head(self.head)
+        self.head = head.Head()
         #self.screen = screenDog.ScreenDog()
         return self
 
@@ -23,4 +23,4 @@ class Gestures:
 
 if __name__ == '__main__':
     with Gestures() as gs:
-        self.head.headshake(hd.MAX_RANGE/4)
+        gs.head.headshake(hd.MAX_RANGE/4)
