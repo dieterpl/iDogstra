@@ -32,8 +32,8 @@ for new_data in gps_socket:
         data_stream.unpack(new_data)
 
         lat_lng_values.append({
-            'lat': data_stream.TPV.get('lat')
-            'lng': data_stream.TPV.get('lon')
+            'lat': data_stream.TPV.get('lat'),
+            'lon': data_stream.TPV.get('lon')
         })
 
         if(len(lat_lng_values) > 2):
