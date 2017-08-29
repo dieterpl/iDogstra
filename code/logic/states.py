@@ -81,7 +81,7 @@ class FollowState(State):
                 pipeline.PipelineSequence(
                     pipeline.ConstantPipeline(config.BT_DONGLES),
                     bluetooth.SnapshotBTDataPipeline(),
-                    bluetooth.UserDistanceEstimationPipeline()
+                    bluetooth.RecommendedSpeedPipeline()
                 )
             )
 
@@ -98,7 +98,7 @@ class FollowState(State):
         # unpack results
         cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
         print(cam_ok, bt_ok)
-        dev, distance = pipeline_result
+        dev, speed = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return WaitState()
