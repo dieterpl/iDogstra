@@ -12,7 +12,7 @@ dont use this, TODO: implement this, currently bei head.py
 """
 class Gestures:
     def __enter__(self):
-        self.head = head.Head()
+        self.head = head.Head(self.head)
         #self.screen = screenDog.ScreenDog()
         return self
 
