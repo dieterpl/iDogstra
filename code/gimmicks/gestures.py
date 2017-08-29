@@ -28,23 +28,13 @@ class Gestures:
         :return:
         """
         while not breakflag:
-            gs.screen.change_gesture(gs.screen.Gesture.search1)
-            time.sleep(0.1)
-            gs.screen.change_gesture(gs.screen.Gesture.search2)
-            time.sleep(0.1)
-            gs.screen.change_gesture(gs.screen.Gesture.search3)
-            time.sleep(0.1)
-            gs.screen.change_gesture(gs.screen.Gesture.search4)
-            time.sleep(0.1)
-            gs.screen.change_gesture(gs.screen.Gesture.search5)
-            time.sleep(0.1)
-            gs.screen.change_gesture(gs.screen.Gesture.search6)
-            time.sleep(0.1)
-            gs.screen.change_gesture(gs.screen.Gesture.search7)
-            time.sleep(0.1)
-            gs.screen.change_gesture(gs.screen.Gesture.search8)
-            time.sleep(0.1)
-            gs.screen.change_gesture(gs.screen.Gesture.search9)
+            for element in gs.screen.Gesture.searchArray:
+                gs.screen.change_gesture(gs.screen.Gesture.element)
+                time.sleep(0.2)
+
+
+        def step(picture):
+            gs.screen.change_gesture(picture)
             time.sleep(0.1)
 
     def search(self, breakflag):

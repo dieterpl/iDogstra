@@ -23,6 +23,7 @@ class ScreenDog:
         search7 = r"dogsearch7.gif"
         search8 = r"dogsearch8.gif"
         search9 = r"dogsearch9.gif"
+        searchArray = ([search1, search2, search3, search4, search5, search6, search7, search8, search9])
 
 
     def __init__(self):
