@@ -41,4 +41,4 @@ if __name__ == '__main__':
         #time.sleep(1)
         #gs.head.headshake(gs.head.MAX_RANGE*3)
 
-        gs.idle()
+        gs.idle(True)
