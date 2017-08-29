@@ -32,6 +32,7 @@ else:
     camera = picamera.PiCamera()
     # camera.resolution = PYCAMERA_RESOLUTION
     camera.framerate = 32
+    camera.exposure_mode = "antishake"
     time.sleep(2)
 
 

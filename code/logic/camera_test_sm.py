@@ -21,14 +21,109 @@ class CameraTestSM(StateMachine):
             self._current_state.first_state = TestYDeviationState()
         elif testmode == "edges":
             self._current_state.first_state = ShowEdgesState()
+        elif testmode == "find-color":
+            self._current_state.first_state = FindColorState()
         elif testmode == "track-color":
-            self._current_state.first_state = TrackColorState()
+            self._current_state.first_state = FindColorStateToTrack()
         else:
             logging.warning("Unkown testmode '{}'. Falling back to show-image".format(testmode))
             self._current_state.first_state = ShowImageState()
 
 
-class TrackColorState(State):
+class TrackObjectState(State):
+    def __init__(self, frame, bbox):
+        State.__init__(self)
+
+        self.__pipeline = camera_pipelines.box_tracking_pipeline(frame, bbox)
+
+        if GRAPHICAL_OUTPUT:
+            def show_result(*_):
+                _, _, (bbox_ok, bbox) = self.pipeline[1][0].results
+                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline.results
+
+                # draw bounding box
+                if bbox_ok:
+                    p1 = (int(bbox[0]), int(bbox[1]))
+                    p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+                    cv2.rectangle(image, p1, p2, (0, 0, 255))
+
+                # add deviation as text
+                if dev_ok:
+                    cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
+
+                cv2.imshow('camtest', image)
+                if cv2.waitKey(1) & 0xff == ord('q'):
+                    sys.exit()
+
+            self.pipeline.execute_callbacks = [show_result]
+
+    def on_enter(self):
+        if GRAPHICAL_OUTPUT:
+            cv2.namedWindow('camtest', cv2.WINDOW_AUTOSIZE)
+
+    def on_exit(self):
+        if GRAPHICAL_OUTPUT:
+            cv2.destroyAllWindows()
+
+    @property
+    def pipeline(self):
+        return self.__pipeline
+
+    def on_update(self, hist):
+        return self
+
+
+class FindColorStateToTrack(State):
+
+    def __init__(self):
+        State.__init__(self)
+
+        self.__pipeline = camera_pipelines.color_tracking_pipeline()
+
+        if GRAPHICAL_OUTPUT:
+            def show_result(*_):
+                _, _, _, _, (bbox_ok, bbox) = self.pipeline[1][0].results
+                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline.results
+
+                # draw bounding box
+                if bbox_ok:
+                    p1 = (int(bbox[0]), int(bbox[1]))
+                    p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+                    cv2.rectangle(image, p1, p2, (0, 0, 255))
+
+                # add deviation as text
+                if dev_ok:
+                    cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
+
+                cv2.imshow('camtest', image)
+                if cv2.waitKey(1) & 0xff == ord('q'):
+                    sys.exit()
+
+            self.pipeline.execute_callbacks = [show_result]
+
+    def on_enter(self):
+        if GRAPHICAL_OUTPUT:
+            cv2.namedWindow('camtest', cv2.WINDOW_AUTOSIZE)
+
+    def on_exit(self):
+        if GRAPHICAL_OUTPUT:
+            cv2.destroyAllWindows()
+
+    @property
+    def pipeline(self):
+        return self.__pipeline
+
+    def on_update(self, hist):
+        _, _, _, _, (bbox_ok, bbox) = self.pipeline[1][0].results
+        _, (_, image), _, _ = self.pipeline.results
+
+        if bbox_ok:
+            return TrackObjectState(image, bbox)
+        else:
+            return self
+
+
+class FindColorState(State):
 
     def __init__(self):
         State.__init__(self)
@@ -166,25 +261,26 @@ class FindThresholdState(State):
         if GRAPHICAL_OUTPUT:
             cv2.namedWindow("camtest")
             cv2.namedWindow("original")
+            cv2.namedWindow("control")
 
             def check_positions(*_):
-                hu = cv2.getTrackbarPos("H+", "camtest")
-                hl = cv2.getTrackbarPos("H-", "camtest")
-                su = cv2.getTrackbarPos("S+", "camtest")
-                sl = cv2.getTrackbarPos("S-", "camtest")
-                vu = cv2.getTrackbarPos("V+", "camtest")
-                vl = cv2.getTrackbarPos("V-", "camtest")
+                hu = cv2.getTrackbarPos("H+", "control")
+                hl = cv2.getTrackbarPos("H-", "control")
+                su = cv2.getTrackbarPos("S+", "control")
+                sl = cv2.getTrackbarPos("S-", "control")
+                vu = cv2.getTrackbarPos("V+", "control")
+                vl = cv2.getTrackbarPos("V-", "control")
 
-                cv2.setTrackbarPos("H+", "camtest", max(hu, hl))
-                cv2.setTrackbarPos("S+", "camtest", max(su, sl))
-                cv2.setTrackbarPos("V+", "camtest", max(vu, vl))
+                cv2.setTrackbarPos("H+", "control", max(hu, hl))
+                cv2.setTrackbarPos("S+", "control", max(su, sl))
+                cv2.setTrackbarPos("V+", "control", max(vu, vl))
 
-            cv2.createTrackbar("H+", "camtest", 180, 180, check_positions)
-            cv2.createTrackbar("H-", "camtest", 150, 180, check_positions)
-            cv2.createTrackbar("S+", "camtest", 255, 255, check_positions)
-            cv2.createTrackbar("S-", "camtest", 20, 255, check_positions)
-            cv2.createTrackbar("V+", "camtest", 255, 255, check_positions)
-            cv2.createTrackbar("V-", "camtest", 180, 255, check_positions)
+            cv2.createTrackbar("H+", "control", 180, 180, check_positions)
+            cv2.createTrackbar("H-", "control", 150, 180, check_positions)
+            cv2.createTrackbar("S+", "control", 255, 255, check_positions)
+            cv2.createTrackbar("S-", "control", 20, 255, check_positions)
+            cv2.createTrackbar("V+", "control", 255, 255, check_positions)
+            cv2.createTrackbar("V-", "control", 180, 255, check_positions)
 
     @overrides(State)
     def on_exit(self):
@@ -198,13 +294,13 @@ class FindThresholdState(State):
     def on_update(self, hist):
         if GRAPHICAL_OUTPUT:
             self.pipeline[2].threshold_lower = np.array([
-                cv2.getTrackbarPos("H-", "camtest"),
-                cv2.getTrackbarPos("S-", "camtest"),
-                cv2.getTrackbarPos("V-", "camtest")])
+                cv2.getTrackbarPos("H-", "control"),
+                cv2.getTrackbarPos("S-", "control"),
+                cv2.getTrackbarPos("V-", "control")])
             self.pipeline[2].threshold_upper = np.array([
-                cv2.getTrackbarPos("H+", "camtest"),
-                cv2.getTrackbarPos("S+", "camtest"),
-                cv2.getTrackbarPos("V+", "camtest")])
+                cv2.getTrackbarPos("H+", "control"),
+                cv2.getTrackbarPos("S+", "control"),
+                cv2.getTrackbarPos("V+", "control")])
 
         return self
 
