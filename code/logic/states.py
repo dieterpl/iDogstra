@@ -31,7 +31,8 @@ class SearchState(State):
                             camera.GetLargestContourPipeline(),
                         ),
                         camera.GetImageDimensionsPipeline()
-                    )
+                    ),
+                    camera.FindYDeviationPipeline()
                 ),
                 # Bluetooth inputs
                 pipeline.PipelineSequence(
@@ -98,7 +99,8 @@ class FollowState(State):
                             camera.GetLargestContourPipeline(),
                         ),
                         camera.GetImageDimensionsPipeline()
-                    )
+                    ),
+                    camera.FindYDeviationPipeline()
                 ),
                 # Bluetooth inputs
                 pipeline.PipelineSequence(
@@ -172,7 +174,8 @@ class TrackState(State):
                             camera.GetLargestContourPipeline(),
                         ),
                         camera.GetImageDimensionsPipeline()
-                    )
+                    ),
+                    camera.FindYDeviationPipeline()
                 ),
                 # Bluetooth inputs
                 pipeline.PipelineSequence(
@@ -244,7 +247,8 @@ class WaitState(State):
                             camera.GetLargestContourPipeline(),
                         ),
                         camera.GetImageDimensionsPipeline()
-                    )
+                    ),
+                    camera.FindYDeviationPipeline()
                 ),
                 # Bluetooth inputs
                 pipeline.PipelineSequence(
