@@ -1,12 +1,13 @@
+import os
+import time
+
 import cv2
 import numpy as np
-import time
+
 import utils.functions
-#from typing import Tuple
-from utils.config import *
+# from typing import Tuple
+from config.config import *
 
-
-import os
 if os.uname().machine == 'armv7l':  # probably runnig on RaspPi
     import picamera
     import picamera.array
@@ -191,11 +192,11 @@ def get_video_frame(video, with_gray=False, color_space='bgr', return_original=F
         ok, orig_frame = video.read()
     else:
         start = utils.functions.current_time_millis()
-        array = picamera.array.PiRGBArray(video, size=PYCAMERA_RESOLUTION)
+        array = picamera.array.PiRGBArray(video, size=CAMERA_RESOLUTION)
         print('  Time to allocate the array', utils.functions.current_time_millis() - start)
 
         start = utils.functions.current_time_millis()
-        video.capture(array, format='bgr', resize=PYCAMERA_RESOLUTION, use_video_port=True)
+        video.capture(array, format='bgr', resize=CAMERA_RESOLUTION, use_video_port=True)
         ok, orig_frame = True, array.array
         print('  Time to do the capture:', utils.functions.current_time_millis() - start)
 

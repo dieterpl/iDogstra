@@ -1,0 +1,14 @@
+\begin{tikzpicture}
+
+
+\node[fill=gray!5, draw=black, rounded corners=5] (BT) at (-2.5, 6) {BT};
+\node[fill=gray!5, draw=black, rounded corners=5] (kamera) at (-.75,6) {Kamera};
+\node[fill=gray!5, draw=black, rounded corners=5] (IR) at (1,6) {IR};
+\node[fill=gray!5, draw=black, rounded corners=5] (US) at (2.5,6) {US};
+
+\node[fill=gray!5, draw=black] (verarbeitung) at (0,4) {Datenverarbeitung};
+\node[fill=gray!5, draw=black] (pipelines) at (0,2) {State Machine};
+\node[fill=gray!5, draw=black] (Motor) at (0,0) {Motor};
+
+
+\end{tikzpicture}

@@ -1,10 +1,11 @@
-from logic.statemachine import *
-from sensors.pipeline import create_parallel_pipeline, create_sequential_pipeline
-from sensors.camera import camera
-from motor import movement
 import cv2
-from utils.config import *
+
+from config.config import *
+from logic.statemachine import *
+from motor import movement
 from sensors.bluetooth.bluetooth import BTDongle
+from sensors.camera import camera
+from sensors.pipeline import create_parallel_pipeline, create_sequential_pipeline
 
 
 class FollowColorSM(StateMachine):
@@ -35,8 +36,10 @@ class FollowState(State):
                     lambda inp: camera.read(),
                     create_parallel_pipeline([
                         create_sequential_pipeline([
-                            camera.ConvertColorspacePipeline(to='hsv'),
-                            camera.DetectColoredObjectPipeline(color='magenta')
+                        camera.ConvertColorspacePipeline(to="hsv"),
+                        camera.ColorThresholdPipeline(color="magenta"),
+                        camera.ErodeDilatePipeline(),
+                        camera.GetLargestContourPipeline(),
                         ]),
                         camera.GetImageDimensionsPipeline()
                     ]),
@@ -52,7 +55,7 @@ class FollowState(State):
 
         if DEBUG_MODE:
             def show_result(*_):
-                _, _, (bbox_ok,
+                _, _, _, _, _, (bbox_ok, bbox) = self.__pipeline.steps[1].pipelines[0].step_results
                        bbox) = self.__pipeline.steps[1].pipelines[0].step_results
                 _, (image_ok, image), _, (dev_ok,
                                           dev) = self.__pipeline.step_results

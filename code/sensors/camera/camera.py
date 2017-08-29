@@ -1,12 +1,14 @@
+import logging
+import sys
+import time
+
 import cv2
 import numpy as np
-import time
-from sensors.pipeline import Pipeline, create_sequential_pipeline, create_parallel_pipeline
-from utils.config import *
-from utils.functions import overrides
-import sys
 
-import os
+from config.config import *
+from sensors.pipeline import Pipeline, PipelineSequence, ParallelPipeline
+from utils.functions import overrides
+
 if os.uname().machine == 'armv7l':  # probably runnig on RaspPi
     import picamera
     import picamera.array
@@ -14,11 +16,19 @@ else:
     picamera = None
 
 # create and setup the camera object
-if picamera is None:
-    camera = cv2.VideoCapture(0)
+if picamera is None or USE_USB_CAMERA:
+    camera = cv2.VideoCapture(0 if picamera is None else 0)
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_RESOLUTION[0])
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_RESOLUTION[1])
+    # camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)
+    # camera.set(cv2.CAP_PROP_EXPOSURE, .0001)
+    # camera.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+    # camera.set(cv2.CAP_PROP_GAIN, 1)
+    # camera.set(cv2.CAP_PROP_BACKLIGHT, 100)
+    # camera.set(cv2.CAP_PROP_SETTINGS, 1)
 else:
     camera = picamera.PiCamera()
-    #camera.resolution = PYCAMERA_RESOLUTION
+    # camera.resolution = PYCAMERA_RESOLUTION
     camera.framerate = 32
     time.sleep(2)
 
@@ -29,8 +39,8 @@ def read():
     if picamera is None:
         return camera.read()[1]
     else:
-        array = picamera.array.PiRGBArray(camera, size=PYCAMERA_RESOLUTION)
-        camera.capture(array, format='bgr', resize=PYCAMERA_RESOLUTION, use_video_port=True)
+        array = picamera.array.PiRGBArray(camera, size=CAMERA_RESOLUTION)
+        camera.capture(array, format='bgr', resize=CAMERA_RESOLUTION, use_video_port=True)
         return array.array
 
 
@@ -43,50 +53,65 @@ class ConvertColorspacePipeline(Pipeline):
 
     @overrides(Pipeline)
     def _execute(self, inp):
-        if self.__target_colorspace == 'hsv':
+        if self.__target_colorspace == "hsv":
             return True, cv2.cvtColor(inp, cv2.COLOR_BGR2HSV)
+        elif self.__target_colorspace == "grayscale":
+            return True, cv2.cvtColor(inp, cv2.COLOR_BGR2GRAY)
         else:
-            print('Warning: unsupported color space', self.__target_colorspace)
+            logging.warning('Unsupported color space', self.__target_colorspace)
             return False, None
 
 
-class DetectColoredObjectPipeline(Pipeline):
+class ColorThresholdPipeline(Pipeline):
 
-    def __init__(self, color, min_contour_size=DETECTION_SIZE_THRESHOLD, post_process=True):
+    def __init__(self, color):
         Pipeline.__init__(self)
 
         if type(color) == str:
             if color == 'red':
-                self.__threshold_lower = np.array([140, 50, 50])
-                self.__threshold_upper = np.array([160, 255, 255])
+                self.threshold_lower = np.array([140, 50, 50])
+                self.threshold_upper = np.array([160, 255, 255])
             elif color == 'yellow':
-                self.__threshold_lower = np.array([30, 50, 50])
-                self.__threshold_upper = np.array([70, 255, 255])
+                self.threshold_lower = np.array([30, 50, 50])
+                self.threshold_upper = np.array([70, 255, 255])
             elif color == 'orange':
-                self.__threshold_lower = np.array([15, 50, 50])
-                self.__threshold_upper = np.array([25, 255, 255])
+                self.threshold_lower = np.array([15, 50, 50])
+                self.threshold_upper = np.array([25, 255, 255])
             elif color == 'magenta':
-                self.__threshold_lower = np.array([150, 50, 20])
-                self.__threshold_upper = np.array([170, 255, 255])
+                self.threshold_lower = np.array([155, 50, 20])
+                self.threshold_upper = np.array([175, 255, 255])
             else:
                 raise ValueError('Unsupported color', color)
         elif type(color) == tuple:
-            self.__threshold_lower, self.__threshold_upper = color
+            self.threshold_lower, self.threshold_upper = color
         else:
             raise ValueError('Unsupported argument type', type(color), '(must be str or tuple)')
 
-        self.__post_process = post_process
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        colmask = cv2.inRange(inp, self.threshold_lower, self.threshold_upper)
+        return True, colmask
+
+
+class ErodeDilatePipeline(Pipeline):
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        x = cv2.erode(inp, None, iterations=2)
+        x = cv2.dilate(x, None, iterations=2)
+        return True, x
+
+
+class GetLargestContourPipeline(Pipeline):
+
+    def __init__(self, min_contour_size=DETECTION_SIZE_THRESHOLD):
+        Pipeline.__init__(self)
+
         self.__min_contour_size = min_contour_size
 
     @overrides(Pipeline)
     def _execute(self, inp):
-        colmask = cv2.inRange(inp, self.__threshold_lower, self.__threshold_upper)
-
-        if self.__post_process:
-            colmask = cv2.erode(colmask, None, iterations=2)
-            colmask = cv2.dilate(colmask, None, iterations=2)
-
-        _, cnts, _ = cv2.findContours(colmask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        _, cnts, _ = cv2.findContours(inp.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
         # only proceed if at least one contour was found
         if len(cnts) > 0:
@@ -139,25 +164,26 @@ class GetImageDimensionsPipeline(Pipeline):
         return True, inp.shape
 
 
-if __name__ == '__main__':
+def test():
     # test a default pipeline
-    cameraPipeline = \
-        create_sequential_pipeline([
+    camera_pipeline = \
+        PipelineSequence(
             lambda inp: read(),
-            create_parallel_pipeline([
-                create_sequential_pipeline([
-                    ConvertColorspacePipeline(to='hsv'),
-                    DetectColoredObjectPipeline(color='red')
-                ]),
+            ParallelPipeline(
+                PipelineSequence(
+                    ConvertColorspacePipeline(to="hsv"),
+                    ColorThresholdPipeline(color="magenta"),
+                    ErodeDilatePipeline(),
+                    GetLargestContourPipeline()
+                ),
                 GetImageDimensionsPipeline()
-            ]),
+            ),
             FindYDeviationPipeline()
-        ])
-
+        )
 
     def show_result(*_):
-        _, _, (bbox_ok, bbox) = cameraPipeline.steps[1].pipelines[0].step_results
-        _, (image_ok, image), _, (dev_ok, dev) = cameraPipeline.step_results
+        _, _, _, _, (bbox_ok, bbox) = camera_pipeline.steps[1].pipelines[0].step_results
+        _, (image_ok, image), _, (dev_ok, dev) = camera_pipeline.step_results
 
         # draw bounding box
         if bbox_ok:
@@ -174,16 +200,19 @@ if __name__ == '__main__':
             sys.exit()
 
     def switch_detect_to_track(*_):
-        _, (image_ok, image), _, (bbox_ok, bbox), _ = cameraPipeline.step_results
+        _, (image_ok, image), _, (bbox_ok, bbox), _ = camera_pipeline.step_results
 
         if bbox_ok:
             print('Switching detection step with tracking step')
-            cameraPipeline.steps[2] = TrackBBOXPipeline(image, bbox, tracking_algorithm=TRACKING_ALGORITHM)
-            cameraPipeline.execute_callbacks.remove(switch_detect_to_track)
+            camera_pipeline.steps[2] = TrackBBOXPipeline(image, bbox, tracking_algorithm=TRACKING_ALGORITHM)
+            camera_pipeline.execute_callbacks.remove(switch_detect_to_track)
 
-
-    cv2.namedWindow('camtest')
-    cameraPipeline.execute_callbacks = [show_result]
+    cv2.namedWindow('camtest', cv2.WINDOW_AUTOSIZE)
+    camera_pipeline.execute_callbacks = [show_result]
     while True:
-        cameraPipeline.run_pipeline(None)  # first input is irrelevant
+        camera_pipeline.run_pipeline(None)  # first input is irrelevant
+
+
+if __name__ == '__main__':
+    test()
 
