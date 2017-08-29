@@ -1,63 +1,75 @@
 from logic.statemachine import *
-from logic.states import follow,wait
+from logic.states import follow, wait, track
 from utils.functions import current_time_millis
 from sensors.bluetooth import bluetooth
 from sensors import pipeline
 from sensors.camera import camera
-import logging
-class SearchState(State):
-    """ Abstract superclass for all state machine states """
-    def __init__(self):
-        self.start_time = None
-        self.__btdongles = bluetooth.btdongles
+from motor import robot
 
+import logging
+import config
+
+class SearchState(State):
+    """Turn robot in circles until the user is found or timeout occurred"""
+    def __init__(self, start_spin_direction = "left"):
+        State.__init__(self)
+        self.start_time = None
+        self.robots_control = robot.Robot()
+        self.start_spin_direction = start_spin_direction
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
         self.__pipeline = \
-            pipeline.create_parallel_pipeline([
+            pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
-                pipeline.create_sequential_pipeline([
+                pipeline.PipelineSequence(
                     lambda inp: camera.read(),
-                    pipeline.create_parallel_pipeline([
-                        pipeline.create_sequential_pipeline([
+                    pipeline.ConjunctiveParallelPipeline(
+                        pipeline.PipelineSequence(
                             camera.ConvertColorspacePipeline(to='hsv'),
                             camera.DetectColoredObjectPipeline(color='magenta')
-                        ]),
+                        ),
                         camera.GetImageDimensionsPipeline()
-                    ]),
+                    ),
                     camera.FindYDeviationPipeline()
-                ]),
+                ),
                 # Bluetooth inputs
-                pipeline.create_sequential_pipeline([
-                    pipeline.ConstantPipeline(self.__btdongles),
+                pipeline.PipelineSequence(
+                    pipeline.ConstantPipeline(config.BT_DONGLES),
                     bluetooth.SnapshotBTDataPipeline(),
                     bluetooth.UserDistanceEstimationPipeline()
-                ])
-            ])
-
+                )
+            )
 
     def on_enter(self):
+        if self.start_spin_direction == "left":
+            self.robots_control.left(25)
+        else:
+            self.robots_control.right(25)
         self.start_time = current_time_millis()
 
-
     def on_exit(self):
-        """ Called when this state is exited"""
-        pass
+        self.robots_control.stop()
 
     @property
     def pipeline(self):
         return self.__pipeline
 
     def on_update(self, hist):
-        camera_dev_result, distance_result = hist[-1]
+        _, pipeline_result = hist[-1]
         logging.debug("SearchState Pipeline results", hist[-1])
-
-        if True:
-            return follow.FollowState()
-        else:
+        # unpack results
+        camera_result, distance_result = pipeline_result
+        cam_ok, dev = camera_result
+        bt_ok, distance = distance_result
+        # if there are no result values go to wait state
+        if not cam_ok and not bt_ok:
+            return wait.WaitState()
+        if not cam_ok and bt_ok:
+            # is bt distance far then go in wait state or timeout is reached go in wait state
+            if current_time_millis() - self.start_time > 30000 or distance == bluetooth.UserDistanceEstimationPipeline.Distance.FAR:
+                return wait.WaitState()
             return self
-
-        if current_time_millis()-self.start_time>30000:
-            return WaitState()
-
-
+        if cam_ok and not bt_ok:
+            return track.TrackState()
+        if cam_ok and bt_ok:
+            return follow.FollowState()
