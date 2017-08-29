@@ -57,12 +57,11 @@ class SearchState(State):
         return self.__pipeline
 
     def on_update(self, hist):
-        _, pipeline_result = hist[-1]
-        logging.debug("Search Pipeline results {}".format(hist[-1]))
+        pipeline_result = hist[-1]
+        logging.debug("SearchState Pipeline results {}".format(hist[-1]))
         # unpack results
-        camera_result, distance_result = pipeline_result
-        cam_ok, dev = camera_result
-        bt_ok, distance = distance_result
+        cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+        dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return WaitState()
@@ -118,12 +117,11 @@ class FollowState(State):
         return self.__pipeline
 
     def on_update(self, hist):
-        _, pipeline_result = hist[-1]
+        pipeline_result = hist[-1]
         logging.debug("FollowState Pipeline results {}".format(hist[-1]))
         # unpack results
-        camera_result, distance_result = pipeline_result
-        cam_ok, dev = camera_result
-        bt_ok, speed = distance_result
+        cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+        dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return WaitState()
@@ -193,12 +191,11 @@ class TrackState(State):
         return self.__pipeline
 
     def on_update(self, hist):
-        _, pipeline_result = hist[-1]
+        pipeline_result = hist[-1]
         logging.debug("TrackState Pipeline results {}".format(hist[-1]))
         # unpack results
-        camera_result, distance_result = pipeline_result
-        cam_ok, dev = camera_result
-        bt_ok, distance = distance_result
+        cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+        dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return WaitState()
@@ -263,12 +260,11 @@ class WaitState(State):
         return self.__pipeline
 
     def on_update(self, hist):
-        _, pipeline_result = hist[-1]
+        pipeline_result = hist[-1]
         logging.debug("WaitState Pipeline results {}".format(hist[-1]))
         # unpack results
-        camera_result, distance_result = pipeline_result
-        cam_ok, dev = camera_result
-        bt_ok, distance = distance_result
+        cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+        dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return self
