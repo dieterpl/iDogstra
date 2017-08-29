@@ -6,10 +6,10 @@ from motor import movement
 from sensors.bluetooth.bluetooth import *
 from sensors.camera import camera
 from sensors.pipeline import *
+from logic.statemachine import *
 
 
 class FollowColorSM(StateMachine):
-
     def __init__(self, btdongles):
         """ btdongles is the list of bluetooth dongles"""
         StateMachine.__init__(self)
@@ -20,7 +20,6 @@ class FollowColorSM(StateMachine):
 
 
 class FollowState(State):
-
     def __init__(self, btdongles):
         """ btdongles is the list of bluetooth dongles"""
         State.__init__(self)
@@ -36,10 +35,10 @@ class FollowState(State):
                     lambda inp: camera.read(),
                     create_parallel_pipeline([
                         create_sequential_pipeline([
-                        camera.ConvertColorspacePipeline(to="hsv"),
-                        camera.ColorThresholdPipeline(color="magenta"),
-                        camera.ErodeDilatePipeline(),
-                        camera.GetLargestContourPipeline(),
+                            camera.ConvertColorspacePipeline(to="hsv"),
+                            camera.ColorThresholdPipeline(color="magenta"),
+                            camera.ErodeDilatePipeline(),
+                            camera.GetLargestContourPipeline(),
                         ]),
                         camera.GetImageDimensionsPipeline()
                     ]),
