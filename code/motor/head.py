@@ -54,7 +54,7 @@ class Head:
         after that returns to neutral position
         :return: -
         """
-        if(not breakflag):
+        if (not breakflag):
             self.goToPosition(self.PORT, self.MAX_RANGE, degree)
         if (not breakflag):
             self.goToPosition(self.PORT, -self.MAX_RANGE, degree)
