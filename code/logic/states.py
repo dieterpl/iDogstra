@@ -2,7 +2,7 @@ from logic.statemachine import *
 from utils.functions import current_time_millis
 from sensors.bluetooth import bluetooth
 from sensors import pipeline
-from sensors.camera import camera
+from sensors.camera import camera, camera_pipelines
 from motor import robot
 import logging
 import config
@@ -21,19 +21,7 @@ class SearchState(State):
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
-                pipeline.PipelineSequence(
-                    lambda inp: camera.read(),
-                    pipeline.ConjunctiveParallelPipeline(
-                        pipeline.PipelineSequence(
-                            camera.ConvertColorspacePipeline(to="hsv"),
-                            camera.ColorThresholdPipeline(color="magenta"),
-                            camera.ErodeDilatePipeline(),
-                            camera.GetLargestContourPipeline(),
-                        ),
-                        camera.GetImageDimensionsPipeline()
-                    ),
-                    camera.FindYDeviationPipeline()
-                ),
+                camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
                 pipeline.PipelineSequence(
                     pipeline.ConstantPipeline(config.BT_DONGLES),
@@ -88,19 +76,7 @@ class FollowState(State):
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
-                pipeline.PipelineSequence(
-                    lambda inp: camera.read(),
-                    pipeline.ConjunctiveParallelPipeline(
-                        pipeline.PipelineSequence(
-                            camera.ConvertColorspacePipeline(to="hsv"),
-                            camera.ColorThresholdPipeline(color="magenta"),
-                            camera.ErodeDilatePipeline(),
-                            camera.GetLargestContourPipeline(),
-                        ),
-                        camera.GetImageDimensionsPipeline()
-                    ),
-                    camera.FindYDeviationPipeline()
-                ),
+                camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
                 pipeline.PipelineSequence(
                     pipeline.ConstantPipeline(config.BT_DONGLES),
@@ -162,19 +138,7 @@ class TrackState(State):
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
-                pipeline.PipelineSequence(
-                    lambda inp: camera.read(),
-                    pipeline.ConjunctiveParallelPipeline(
-                        pipeline.PipelineSequence(
-                            camera.ConvertColorspacePipeline(to="hsv"),
-                            camera.ColorThresholdPipeline(color="magenta"),
-                            camera.ErodeDilatePipeline(),
-                            camera.GetLargestContourPipeline(),
-                        ),
-                        camera.GetImageDimensionsPipeline()
-                    ),
-                    camera.FindYDeviationPipeline()
-                ),
+                camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
                 pipeline.PipelineSequence(
                     pipeline.ConstantPipeline(config.BT_DONGLES),
@@ -234,19 +198,7 @@ class WaitState(State):
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
-                pipeline.PipelineSequence(
-                    lambda inp: camera.read(),
-                    pipeline.ConjunctiveParallelPipeline(
-                        pipeline.PipelineSequence(
-                            camera.ConvertColorspacePipeline(to="hsv"),
-                            camera.ColorThresholdPipeline(color="magenta"),
-                            camera.ErodeDilatePipeline(),
-                            camera.GetLargestContourPipeline(),
-                        ),
-                        camera.GetImageDimensionsPipeline()
-                    ),
-                    camera.FindYDeviationPipeline()
-                ),
+                camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
                 pipeline.PipelineSequence(
                     pipeline.ConstantPipeline(config.BT_DONGLES),
