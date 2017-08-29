@@ -31,9 +31,9 @@ class Head:
             oldValue = self.BP.get_motor_encoder(self.PORT)
             self.BP.set_motor_position(self.PORT, position)
             if(degree <= self.MAX_RANGE/4):
-                time.sleep(1)
+                time.sleep(0.5)
             else:
-                time.sleep(self.MAX_RANGE/degree*3)
+                time.sleep(self.MAX_RANGE/degree*5)
             #time.sleep(1)
             print (self.BP.get_motor_encoder(self.PORT))
         return
