@@ -13,3 +13,7 @@ USE_USB_CAMERA = True
 # the paths to relevant directories of the project
 ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir))
 LOGSPATH = os.path.join(ROOT_PATH, 'logs')
+
+BT_TARGET_UUID = "6951e12f049945d2930e1fc462c721c8"
+
+BT_DONGLES = []

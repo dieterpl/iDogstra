@@ -1,1 +1,1 @@
-__all__ = ["SnapshotBTDataPipeline", "RecommendedSpeedPipeline"]
+__all__ = ["SnapshotBTDataPipeline", "RecommendedSpeedPipeline", "UserDistanceEstimationPipeline", "ConstantPipeline"]

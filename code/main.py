@@ -4,6 +4,7 @@ import logging
 import time
 import logic.follow_color_sm
 import logic.find_threshold_sm
+from sensors.bluetooth import bluetooth
 from sensors.camera import camera
 
 
@@ -13,6 +14,11 @@ def main():
     mode = __parse_args()
     __prepare_logs()
     logging.debug("Starting application in mode {}".format(mode))
+
+    logging.debug("Starting BT-Dongles")
+    config.BT_DONGLES = [bluetooth.BTDongle(i, config.BT_TARGET_UUID) for i in range(2)]
+    for dongle in config.BT_DONGLES:
+        dongle.start()
 
     if mode == "follow-color":
         logic.follow_color_sm.FollowColorSM().run()

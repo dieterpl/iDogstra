@@ -9,6 +9,7 @@ import math
 import time
 import logging
 
+from enum import Enum
 from collections import deque, namedtuple
 from threading import Thread, Lock
 from utils.functions import current_time_millis, overrides
@@ -251,15 +252,19 @@ class RecommendedSpeedPipeline(Pipeline):
                     (avg_strength - self.threshold))
         return (True, speed)
 
-class UserDistanceEstimtionPipeline(Pipeline):
-    """A pipeline that takes multiple DataList objects and recommends a speed
-    for the roboter based on the signal strenght"""
+class UserDistanceEstimationPipeline(Pipeline):
+    """A pipeline that return the distance of the user in three areas far, medium, near"""
 
-    def __init__(self, min_speed=15, threshold=60, multiplier=3.0):
+    class Distance(Enum):
+        FAR = 3
+        MEDIUM = 2
+        NEAR = 1
+
+    def __init__(self, **thresholds):
         Pipeline.__init__(self)
-        self.min_speed = min_speed
-        self.threshold = threshold
-        self.multiplier = multiplier
+        self.far_threshold = thresholds.get(self.Distance.FAR, 80)
+        self.medium_threshold = thresholds.get(self.Distance.MEDIUM, 60)
+        self.near_threshold = thresholds.get(self.Distance.NEAR, 0);
 
     @overrides(Pipeline)
     def _execute(self, inp):
@@ -273,9 +278,9 @@ class UserDistanceEstimtionPipeline(Pipeline):
             return (False, None)
         avg_strength = sum(data.avg() for data in inp) / len(inp)
         logging.info("avg_strength=" + str(avg_strength))
-        speed = 0
-        if avg_strength >= self.threshold:
-            speed = min(100, self.min_speed + self.multiplier *
-                    (avg_strength - self.threshold))
-        return (True, speed)
+        if avg_strength > self.far_threshold:
+            return True, self.Distance.FAR
+        if avg_strength > self.medium_threshold:
+            return True, self.Distance.MEDIUM
+        return True, self.Distance.NEAR
 
