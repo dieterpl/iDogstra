@@ -2,7 +2,7 @@ import argparse
 from config import *
 import logging
 import time
-import logic.follow_color_sm
+import logic.iDog_state_machine
 import logic.find_threshold_sm
 from sensors.bluetooth import bluetooth
 from sensors.camera import camera
@@ -20,8 +20,8 @@ def main():
     for dongle in config.BT_DONGLES:
         dongle.start()
 
-    if mode == "follow-color":
-        logic.follow_color_sm.FollowColorSM().run()
+    if mode == "default":
+        logic.iDog_state_machine.IDog().run()
     elif mode == "cameratest":
         camera.test()
     elif mode == "find-threshold":
