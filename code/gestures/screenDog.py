@@ -12,6 +12,8 @@ class ScreenDog:
         neutral = r"neutral.gif"
         confused = r"confused.gif"
         shepard = r"shepard.gif"
+        sleep1 = r"dogsleep1.gif"
+        sleep2 = r"dogsleep2.gif"
 
     def __init__(self):
         """
