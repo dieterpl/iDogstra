@@ -29,7 +29,7 @@ class Gestures:
         """
         while not breakflag:
             for element in gs.screen.Gesture.searchArray:
-                gs.screen.change_gesture(gs.screen.Gesture.element)
+                gs.screen.change_gesture(element)
                 time.sleep(0.2)
 
 
