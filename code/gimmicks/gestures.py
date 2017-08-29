@@ -22,7 +22,7 @@ class Gestures:
         # self.BP.reset_all() Kills BrickPi
         return None
 
-    def idle(self, breakflag):
+    def search(self, breakflag):
         """
         Displays the dog searching through monitor 0
         :param breakflag: Stops this emotion if breakflag is true
@@ -34,29 +34,36 @@ class Gestures:
                     gs.screen.change_gesture(element)
                     time.sleep(0.2)
 
-    def search(self, breakflag):
+    def idle(self, breakflag):
         """
         Displays the dog sleeping through monitor 0
         :param breakflag: Stops this emotion if breakflag is true
         :return:
         """
+        t = Thread(target=startHeadshaking)
+        t.start()
         while not breakflag:
             for element in gs.screen.Gesture.sleepArray:
                 if not breakflag:
                     gs.screen.change_gesture(element)
                     time.sleep(0.5)
 
-def startHeadshaking():
-    gs.head.headshake(gs.head.MAX_RANGE / 4)
+def startHeadshaking(breakflag):
+    while not breakflag:
+        gs.head.headshake(gs.head.MAX_RANGE / 4, breakflag)
+    gs.head.goToPosition(gs.head.PORT, 0, gs.head.MAX_RANGE)
 
 
 if __name__ == '__main__':
     with Gestures() as gs:
-        t = Thread(target=startHeadshaking)
-        t.start()
+        flag = False
+        gs.search(flag)
 
-        #time.sleep(1)
+
+        time.sleep(15)
+        print("now false")
+        flag = True
+
         #gs.head.headshake(gs.head.MAX_RANGE*3)
 
         #gs.idle(False)
-        gs.search(False)
