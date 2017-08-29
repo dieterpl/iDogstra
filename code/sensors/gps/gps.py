@@ -84,14 +84,14 @@ while True:
             Checksumme = Datenliste[14]
 
             # debug print out
-            print Input
-            print ""
-            print "Laenge des Datensatzes:", Laenge_Daten, "Zeichen"
-            print "Uhrzeit:", Uhrzeit
-            print "Breitengrad:", Breite, "Grad", Datenliste[3]
-            print "Laengengrad:", Laenge, "Grad", Datenliste[5]
-            print "Hoehe ueber dem Meeresspiegel:", Hoehe, Datenliste[10]
-            print "GPS-Qualitaet:", Qualitaet
-            print "Anzahl der Satelliten:", Satelliten
-            print "Checksumme:", Checksumme
-            print "-------------------------------------------"
+            print(Input)
+            print("")
+            print("Laenge des Datensatzes:", Laenge_Daten, "Zeichen")
+            print("Uhrzeit:", Uhrzeit)
+            print("Breitengrad:", Breite, "Grad", Datenliste[3])
+            print("Laengengrad:", Laenge, "Grad", Datenliste[5])
+            print("Hoehe ueber dem Meeresspiegel:", Hoehe, Datenliste[10])
+            print("GPS-Qualitaet:", Qualitaet)
+            print("Anzahl der Satelliten:", Satelliten)
+            print("Checksumme:", Checksumme)
+            print("-------------------------------------------")
