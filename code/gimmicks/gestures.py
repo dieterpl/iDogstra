@@ -5,13 +5,14 @@ import os
 sys.path.append(os.path.abspath("/home/pi/An/iDogstra/code/motor"))
 sys.path.append(os.path.abspath("/home/pi/An/iDogstra/code/gestures"))
 import head
-import robot
 import screenDog
 from threading import Thread
+
+
 """
 dont use this, TODO: implement this, currently bei head.py
 """
-class Gestures:
+class Gestures():
     def __enter__(self):
         self.head = head.Head()
         self.screen = screenDog.ScreenDog()
@@ -28,8 +29,8 @@ class Gestures:
         :param breakflag: Stops this emotion if breakflag is true
         :return:
         """
-        t = Thread(target=startHeadshaking(breakflag))
-        t.start()
+       # t = Thread(target=startHeadshaking(breakflag))
+       # t.start()
         while not breakflag:
             for element in gs.screen.Gesture.searchArray:
                 if not breakflag:
