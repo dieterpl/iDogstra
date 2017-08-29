@@ -14,6 +14,16 @@ class ScreenDog:
         shepard = r"shepard.gif"
         sleep1 = r"dogsleep1.gif"
         sleep2 = r"dogsleep2.gif"
+        search1 = r"dogsearch1.gif"
+        search2 = r"dogsearch2.gif"
+        search3 = r"dogsearch3.gif"
+        search4 = r"dogsearch4.gif"
+        search5 = r"dogsearch5.gif"
+        search6 = r"dogsearch6.gif"
+        search7 = r"dogsearch7.gif"
+        search8 = r"dogsearch8.gif"
+        search9 = r"dogsearch9.gif"
+
 
     def __init__(self):
         """

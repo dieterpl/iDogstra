@@ -28,6 +28,32 @@ class Gestures:
         :return:
         """
         while not breakflag:
+            gs.screen.change_gesture(gs.screen.Gesture.search1)
+            time.sleep(0.1)
+            gs.screen.change_gesture(gs.screen.Gesture.search2)
+            time.sleep(0.1)
+            gs.screen.change_gesture(gs.screen.Gesture.search3)
+            time.sleep(0.1)
+            gs.screen.change_gesture(gs.screen.Gesture.search4)
+            time.sleep(0.1)
+            gs.screen.change_gesture(gs.screen.Gesture.search5)
+            time.sleep(0.1)
+            gs.screen.change_gesture(gs.screen.Gesture.search6)
+            time.sleep(0.1)
+            gs.screen.change_gesture(gs.screen.Gesture.search7)
+            time.sleep(0.1)
+            gs.screen.change_gesture(gs.screen.Gesture.search8)
+            time.sleep(0.1)
+            gs.screen.change_gesture(gs.screen.Gesture.search9)
+            time.sleep(0.1)
+
+    def search(self, breakflag):
+        """
+        Displays the dog sleeping through monitor 0
+        :param breakflag: Stops this emotion if breakflag is true
+        :return:
+        """
+        while not breakflag:
             gs.screen.change_gesture(gs.screen.Gesture.sleep1)
             time.sleep(0.5)
             gs.screen.change_gesture(gs.screen.Gesture.sleep2)
@@ -42,3 +68,4 @@ if __name__ == '__main__':
         #gs.head.headshake(gs.head.MAX_RANGE*3)
 
         gs.idle(False)
+        gs.search(False)
