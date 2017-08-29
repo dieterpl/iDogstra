@@ -1,5 +1,5 @@
 from logic.statemachine import *
-from logic.states import follow, wait, track,search
+from logic.states import wait, track,search
 from utils.functions import current_time_millis
 from sensors.bluetooth import bluetooth
 from sensors import pipeline
