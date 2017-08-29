@@ -1,13 +1,7 @@
 import argparse
 import logging
 import time
-
-
-import logic.find_threshold_sm
 from sensors.bluetooth import bluetooth
-from sensors.camera import camera
-
-
 from logic import follow_color_sm, camera_test_sm, iDog_sm
 from config import *
 
