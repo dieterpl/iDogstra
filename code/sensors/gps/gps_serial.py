@@ -19,7 +19,6 @@ Datenliste = []
 
 # open UART
 UART = serial.Serial("/dev/ttyUSB0", 4800)
-UART.open()
 
 while True:
 
