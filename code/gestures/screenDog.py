@@ -11,6 +11,7 @@ class ScreenDog:
         """
         neutral = r"neutral.gif"
         confused = r"confused.gif"
+        shepard = r"shepard.gif"
 
     def __init__(self):
         """

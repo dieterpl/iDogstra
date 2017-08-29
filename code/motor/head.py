@@ -35,7 +35,7 @@ class Head:
             else:
                 time.sleep(self.MAX_RANGE/(degree*5))
                 #time.sleep(0.1)
-                print("timeslept " + str(self.MAX_RANGE/(degree*10)))
+                #print("timeslept " + str(self.MAX_RANGE/(degree*10)))
             #time.sleep(1)
             print (self.BP.get_motor_encoder(self.PORT))
         return
@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
 
 
-        time.sleep(3)
+        time.sleep(4)
 
         #visual presentation of "No"
         hd.headshake(hd.MAX_RANGE*5)

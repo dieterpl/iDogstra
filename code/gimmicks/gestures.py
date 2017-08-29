@@ -26,3 +26,5 @@ if __name__ == '__main__':
         gs.head.headshake(gs.head.MAX_RANGE/4)
         time.sleep(1)
         gs.head.headshake(gs.head.MAX_RANGE*3)
+
+        screen.change_gesture(shepard)
