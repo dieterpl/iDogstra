@@ -12,8 +12,8 @@ dont use this, TODO: implement this, currently bei head.py
 """
 class Gestures:
     def __enter__(self):
-        self.head = Head()
-        self.screen = FullScreenApp()
+        self.head = head.Head()
+        self.screen = screnDog.FullScreenApp()
         return self
 
 
