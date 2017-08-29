@@ -1,6 +1,11 @@
 import time  # import the time library for the sleep function
-import brickpi3  # import the BrickPi3 drivers
-
+try:
+    import brickpi3
+    BP = brickpi3.BrickPi3()
+except ModuleNotFoundError:
+    print("WARNING: Could not import module brickpi3 (not running on a raspberry pi?). Movement module will not "
+          "be available.")
+    brickpi3 = None
 
 class InfraRed:
 
@@ -67,8 +72,8 @@ class InfraRed:
         # self.BP.reset_all() Kills BrickPi
         return None
 
-if __name__ == '__main__':
-    with InfraRed() as ir:
-        for i in range(0,100):
-            print ("Gemessene Entfernung = %.1f cm" % ir.get_distance())
-            time.sleep(0.1)
+#if __name__ == '__main__':
+#    with InfraRed() as ir:
+#        for i in range(0,100):
+#            print ("Gemessene Entfernung = %.1f cm" % ir.get_distance())
+#            time.sleep(0.1)

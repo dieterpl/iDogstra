@@ -110,6 +110,25 @@ class AtomicFunctionPipeline(Pipeline):
         return '[AtomicFunctionPipeline|function=' + self.__func.__name__ + ']'
 
 
+class ConstantPipeline(Pipeline):
+    """ A wrapper class that just returns the parameter passed in the
+    constructor. This can be used as an entry point for a pipeline."""
+
+    def __init__(self, const):
+        Pipeline.__init__(self)
+
+        self.__const = const
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        """ Ignores the input and returns the object passed in the
+        constructor"""
+        return True, self.__const
+
+    def __str__(self):
+        return "[ConstantPipeline|const=" + str(self.__const) + "]"
+
+
 @deprecated
 def create_sequential_pipeline(steps):
     """

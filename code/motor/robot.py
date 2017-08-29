@@ -5,9 +5,9 @@ import sys
 
 
 class Robot (brickpi3.BrickPi3):
-
     def __init__(self, speed=100):
         super(Robot, self).__init__()
+
         self.movement_state = 'stop'
         self.default_speed = speed
         self.current_speed = 0
@@ -67,11 +67,29 @@ class Robot (brickpi3.BrickPi3):
 
         self.movement_state = 'stop'
 
-    def left_by_angle(self, angle):
-        pass  # todo
+    def move_by_bpdegree(self, direction, bpdegree):
+        BP.set_motor_limits(BP.PORT_A + BP.PORT_D, 50, 200)
 
-    def right_by_angle(self, angle):
-        pass  # todo
+        self.offset_motor_encoder(BP.PORT_A, BP.get_motor_encoder(BP.PORT_A))
+        self.offset_motor_encoder(BP.PORT_D, BP.get_motor_encoder(BP.PORT_D))
+
+        port_A_pos = self.get_motor_encoder(self.PORT_A)
+        port_D_pos = self.get_motor_encoder(self.PORT_D)
+
+        port_A_new_pos = port_A_pos + bpdegree
+        port_D_new_pos = port_D_pos + bpdegree
+
+        print("curr portA: %s curr portD: %s" % (port_A_pos, port_D_pos))
+        print("next portA: %s next portD: %s" % (port_A_new_pos, port_D_new_pos))
+
+        if direction == 'left':
+            self.set_motor_position(self.PORT_A, port_A_new_pos)
+            self.set_motor_position(self.PORT_D, -port_D_new_pos)
+            self.movement_state = 'left'
+        elif direction == 'right':
+            self.set_motor_position(self.PORT_A, -port_A_new_pos)
+            self.set_motor_position(self.PORT_D, port_D_new_pos)
+            self.movement_state = 'right'
 
     def __move_for_duration(self, move_func, duration, speed=None):
         if speed is None:
@@ -91,8 +109,19 @@ class Robot (brickpi3.BrickPi3):
         elif direction == 'backward':
             self.__move_for_duration(self.backward, duration, speed)
 
-    def angleToTime(self, degree):
-        pass
+    def move_by_degree(self, direction, degree):
+        bpdegree = self.degree_to_bpdegree(degree)
+
+        if direction == 'left_by_degree':
+            self.move_by_bpdegree('left', bpdegree)
+        elif direction == 'right_by_degree':
+            self.move_by_bpdegree('right', bpdegree)
+
+    def bpdegree_to_degree(self, bpdegree):
+        return (bpdegree * 1.66) / 10
+
+    def degree_to_bpdegree(self, degree):
+        return (degree * 0.6) * 10
 
     def __move_with_key(self, key):
         if key == '' and self.movement_state != 'stop':
@@ -120,6 +149,7 @@ class Robot (brickpi3.BrickPi3):
 
     def cli(self):
         directions = ['left', 'right', 'forward', 'backward']
+        directions_by_degree = ['left_by_degree', 'right_by_degree']
 
         try:
             while True:
@@ -130,11 +160,17 @@ class Robot (brickpi3.BrickPi3):
 
                 operation = inp.split(' ')
                 command = operation[0]
-                speed = int(operation[1])
-                duration = float(operation[2])
 
                 if command in directions:
+                    speed = int(operation[1])
+                    duration = float(operation[2])
                     self.move(command, speed, duration)
+                elif command in directions_by_degree:
+                    degree = int(operation[1])
+                    self.move_by_degree(command, degree)
+                elif command == 'info':
+                    self.get_info()
+
                 else:
                     print('No such action')
 
@@ -142,6 +178,20 @@ class Robot (brickpi3.BrickPi3):
             self.reset_all()
 
 
+"""
+call this module with >  python3 robot.py speed  to drive the
+brickpi with WASD and a specific speed
+otherwise >  python3 robot.py  will open the command line interface:
+
+commands:
+left speed duration
+right speed duration
+forward speed duration
+backward speed duration
+
+left_by_degree degree
+right_by_degree degree
+"""
 if __name__ == '__main__':
     args = sys.argv
 
