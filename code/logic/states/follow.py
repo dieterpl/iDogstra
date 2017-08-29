@@ -1,5 +1,5 @@
 from logic.statemachine import *
-from logic.states import wait, track,search
+from logic import states
 from utils.functions import current_time_millis
 from sensors.bluetooth import bluetooth
 from sensors import pipeline
@@ -55,12 +55,12 @@ class FollowState(State):
         bt_ok, speed = distance_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
-            return wait.WaitState()
+            return states.WaitState()
         if not cam_ok and bt_ok:
             # is bt distance far then go in wait state or timeout is reached go in wait state
-            return search.SearchState("left" if dev > 0 else "right")
+            return states.SearchState("left" if dev > 0 else "right")
         if cam_ok and not bt_ok:
-            return track.TrackState()
+            return states.TrackState()
         if cam_ok and bt_ok:
             self.last_dev=dev
             if dev < -0.6:
