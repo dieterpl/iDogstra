@@ -1,0 +1,38 @@
+import os
+from gps3 import gps3
+
+gps_socket = gps3.GPSDSocket()
+data_stream = gps3.DataStream()
+gps_socket.connect()
+gps_socket.watch()
+
+for new_data in gps_socket:
+    if new_data:
+        os.system('clear')
+        data_stream.unpack(new_data)
+        print('Altitude = ', data_stream.TPV['alt'])
+        print('device = ', data_stream.TPV['device'])
+        print('status = ', data_stream.TPV['status'])
+        print('mode = ', data_stream.TPV['mode'])
+        print('time = ', data_stream.TPV['time'])
+        print('ept = ', data_stream.TPV['ept'])
+        print('lat = ', data_stream.TPV['lat'])
+        print('lon = ', data_stream.TPV['lon'])
+        print('alt = ', data_stream.TPV['alt'])
+        print('epx = ', data_stream.TPV['epx'])
+        print('epy = ', data_stream.TPV['epy'])
+        print('epv = ', data_stream.TPV['epv'])
+        print('track = ', data_stream.TPV['track'])
+        print('speed = ', data_stream.TPV['speed'])
+        print('epd = ', data_stream.TPV['epd'])
+        print('eps = ', data_stream.TPV['eps'])
+        print('epc = ', data_stream.TPV['epc'])
+        print('-------------------------------')
+        print('time = ', data_stream.SKY['time'])
+        print('xdop = ', data_stream.SKY['xdop'])
+        print('ydop = ', data_stream.SKY['ydop'])
+        print('vdop = ', data_stream.SKY['vdop'])
+        print('tdop = ', data_stream.SKY['tdop'])
+        print('hdop = ', data_stream.SKY['hdop'])
+        print('gdop = ', data_stream.SKY['gdop'])
+        print('satellites = ', data_stream.SKY['satellites'])
