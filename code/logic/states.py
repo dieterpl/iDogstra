@@ -104,7 +104,7 @@ class FollowState(State):
             return WaitState()
         if not cam_ok and bt_ok:
             # is bt distance far then go in wait state or timeout is reached go in wait state
-            return SearchState("left" if dev > 0 else "right")
+            return SearchState("left" if self.last_dev > 0 else "right")
         if cam_ok and not bt_ok:
             return TrackState()
         if cam_ok and bt_ok:
