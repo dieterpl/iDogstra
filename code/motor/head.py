@@ -33,7 +33,7 @@ class Head:
             if(degree <= self.MAX_RANGE/4):
                 time.sleep(1)
             else:
-                time.sleep(self.MAX_RANGE/degree)
+                time.sleep(self.MAX_RANGE/degree*3)
             #time.sleep(1)
             print (self.BP.get_motor_encoder(self.PORT))
         return
