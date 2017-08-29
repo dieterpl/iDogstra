@@ -2,26 +2,21 @@ import argparse
 import logging
 import time
 from sensors.bluetooth import bluetooth
-from logic import follow_color_sm, camera_test_sm, iDog_sm
+from logic import camera_test_sm, iDog_sm
 from config import *
 
 
 known_state_machines = {
-    "follow-color": follow_color_sm.FollowColorSM,
     "test-camera": camera_test_sm.CameraTestSM,
     "default": iDog_sm.IDog
 }
+
 
 def main():
     """ Application entry point. """
 
     sm, smargs = __parse_args()
     __prepare_logs()
-
-    logging.debug("Starting BT-Dongles")
-    config.BT_DONGLES = [bluetooth.BTDongle(i, config.BT_TARGET_UUID) for i in range(2)]
-    for dongle in config.BT_DONGLES:
-        dongle.start()
 
     if sm not in known_state_machines:
         logging.error("Unkown state machine '{}'".format(sm))

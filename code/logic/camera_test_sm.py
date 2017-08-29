@@ -21,9 +21,55 @@ class CameraTestSM(StateMachine):
             self._current_state.first_state = TestYDeviationState()
         elif testmode == "edges":
             self._current_state.first_state = ShowEdgesState()
+        elif testmode == "track-color":
+            self._current_state.first_state = TrackColorState()
         else:
             logging.warning("Unkown testmode '{}'. Falling back to show-image".format(testmode))
             self._current_state.first_state = ShowImageState()
+
+
+class TrackColorState(State):
+
+    def __init__(self):
+        State.__init__(self)
+
+        self.__pipeline = camera_pipelines.color_tracking_pipeline()
+
+        if GRAPHICAL_OUTPUT:
+            def show_result(*_):
+                _, _, _, _, (bbox_ok, bbox) = self.pipeline[1][0].results
+                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline.results
+
+                # draw bounding box
+                if bbox_ok:
+                    p1 = (int(bbox[0]), int(bbox[1]))
+                    p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+                    cv2.rectangle(image, p1, p2, (0, 0, 255))
+
+                # add deviation as text
+                if dev_ok:
+                    cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
+
+                cv2.imshow('camtest', image)
+                if cv2.waitKey(1) & 0xff == ord('q'):
+                    sys.exit()
+
+            self.pipeline.execute_callbacks = [show_result]
+
+    def on_enter(self):
+        if GRAPHICAL_OUTPUT:
+            cv2.namedWindow('camtest', cv2.WINDOW_AUTOSIZE)
+
+    def on_exit(self):
+        if GRAPHICAL_OUTPUT:
+            cv2.destroyAllWindows()
+
+    @property
+    def pipeline(self):
+        return self.__pipeline
+
+    def on_update(self, hist):
+        return self
 
 
 class ShowImageState(State):
@@ -67,7 +113,7 @@ class ShowEdgesState(State):
 
         if GRAPHICAL_OUTPUT:
             def show_result(*_):
-                _, (_, image), (_, edges) = self.pipeline.step_results
+                _, (_, image), (_, edges) = self.pipeline.results
                 cv2.imshow("camera", image)
                 cv2.imshow("edges", edges)
                 if cv2.waitKey(1) & 0xff == ord('q'):
@@ -106,7 +152,7 @@ class FindThresholdState(State):
 
         if GRAPHICAL_OUTPUT:
             def show_result(*_):
-                _, (image_ok, image), _, _, (threshold_ok, threshold) = self.pipeline.step_results
+                _, (image_ok, image), _, _, (threshold_ok, threshold) = self.pipeline.results
 
                 cv2.imshow("camtest", cv2.bitwise_and(image, image, mask=threshold))
                 cv2.imshow("original", image)
@@ -151,11 +197,11 @@ class FindThresholdState(State):
 
     def on_update(self, hist):
         if GRAPHICAL_OUTPUT:
-            self.pipeline.steps[2].threshold_lower = np.array([
+            self.pipeline[2].threshold_lower = np.array([
                 cv2.getTrackbarPos("H-", "camtest"),
                 cv2.getTrackbarPos("S-", "camtest"),
                 cv2.getTrackbarPos("V-", "camtest")])
-            self.pipeline.steps[2].threshold_upper = np.array([
+            self.pipeline[2].threshold_upper = np.array([
                 cv2.getTrackbarPos("H+", "camtest"),
                 cv2.getTrackbarPos("S+", "camtest"),
                 cv2.getTrackbarPos("V+", "camtest")])
@@ -168,12 +214,23 @@ class TestYDeviationState(State):
     def __init__(self):
         State.__init__(self)
 
-        self.__pipeline = camera_pipelines.color_tracking_pipeline()
+        self.__pipeline = \
+            pipeline.PipelineSequence(
+                lambda inp: camera.read(),
+                pipeline.ConjunctiveParallelPipeline(
+                    pipeline.PipelineSequence(
+                        camera_pipelines.color_filter_pipeline(),
+                        camera.GetLargestContourPipeline()
+                    ),
+                    camera.GetImageDimensionsPipeline()
+                ),
+                camera.FindYDeviationPipeline()
+            )
 
         if GRAPHICAL_OUTPUT:
             def show_result(*_):
-                _, _, (bbox_ok, bbox) = self.pipeline.steps[1].pipelines[0].step_results
-                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline.step_results
+                _, _, (bbox_ok, bbox) = self.pipeline[1][0].results
+                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline.results
 
                 # draw bounding box
                 if bbox_ok:
@@ -183,7 +240,8 @@ class TestYDeviationState(State):
 
                 # add deviation as text
                 if dev_ok:
-                    cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
+                    cv2.putText(image, str(dev), (0, image.shape[0] - 5),
+                                cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
 
                 cv2.imshow('camtest', image)
                 if cv2.waitKey(1) & 0xff == ord('q'):

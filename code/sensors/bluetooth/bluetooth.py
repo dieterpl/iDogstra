@@ -252,6 +252,7 @@ class RecommendedSpeedPipeline(Pipeline):
                     (avg_strength - self.threshold))
         return (True, speed)
 
+
 class UserDistanceEstimationPipeline(Pipeline):
     """A pipeline that return the distance of the user in three areas far, medium, near"""
 

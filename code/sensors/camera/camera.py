@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 from config.config import *
-from sensors.pipeline import Pipeline, PipelineSequence, ParallelPipeline
+from sensors.pipeline import Pipeline
 from utils.functions import overrides
 
 if os.uname().machine == 'armv7l':  # probably runnig on RaspPi
@@ -80,7 +80,7 @@ class ColorThresholdPipeline(Pipeline):
                 self.threshold_lower = np.array([15, 50, 50])
                 self.threshold_upper = np.array([25, 255, 255])
             elif color == 'magenta':
-                self.threshold_lower = np.array([155, 50, 20])
+                self.threshold_lower = np.array([150, 20, 50])
                 self.threshold_upper = np.array([175, 255, 255])
             else:
                 raise ValueError('Unsupported color', color)

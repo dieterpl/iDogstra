@@ -16,9 +16,11 @@ def color_tracking_pipeline(color="magenta"):
     return \
         PipelineSequence(
             lambda inp: camera.read(),
-            ParallelPipeline(
+            ConjunctiveParallelPipeline(
                 PipelineSequence(
-                    color_filter_pipeline(color),
+                    camera.ConvertColorspacePipeline(to='hsv'),
+                    camera.ColorThresholdPipeline(color=color),
+                    camera.ErodeDilatePipeline(),
                     camera.GetLargestContourPipeline()
                 ),
                 camera.GetImageDimensionsPipeline()
