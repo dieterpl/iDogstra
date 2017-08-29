@@ -6,6 +6,8 @@ DETECTION_SIZE_THRESHOLD = .01  # minimum size of a colored object, relative to 
 
 DEBUG_MODE = True  # enable or disable debug mode
 
+GRAPHICAL_OUTPUT = False  # enable or disable graphical output
+
 TRACKING_ALGORITHM = 'MIL'  # algorithm to use for object tracking in images
 
 USE_USB_CAMERA = True
