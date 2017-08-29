@@ -23,4 +23,4 @@ class Gestures:
 
 if __name__ == '__main__':
     with Gestures() as gs:
-        gs.head.headshake(hd.MAX_RANGE/4)
+        gs.head.headshake(gs.head.MAX_RANGE/4)
