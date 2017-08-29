@@ -1,5 +1,6 @@
 from logic.statemachine import *
-from logic import states
+import logic.states as states
+
 from sensors.bluetooth import bluetooth
 from sensors import pipeline
 from sensors.camera import camera

@@ -1,5 +1,5 @@
 from logic.statemachine import *
-from logic import states
+import logic.states as states
 
 from utils.functions import current_time_millis
 from sensors.bluetooth import bluetooth
