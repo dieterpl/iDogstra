@@ -67,9 +67,11 @@ class Robot (brickpi3.BrickPi3):
 
         self.movement_state = 'stop'
 
-    def move_by_bpdegree(self, direction, bpdegree):
+    def __move_by_bpdegree(self, direction, bpdegree):
+        # optional for setting rotation speed
         BP.set_motor_limits(BP.PORT_A + BP.PORT_D, 50, 200)
 
+        # reset motor positions
         self.offset_motor_encoder(BP.PORT_A, BP.get_motor_encoder(BP.PORT_A))
         self.offset_motor_encoder(BP.PORT_D, BP.get_motor_encoder(BP.PORT_D))
 
@@ -91,24 +93,6 @@ class Robot (brickpi3.BrickPi3):
             self.set_motor_position(self.PORT_D, port_D_new_pos)
             self.movement_state = 'right'
 
-    def __move_for_duration(self, move_func, duration, speed=None):
-        if speed is None:
-            speed = self.default_speed
-
-        move_func(speed)
-        time.sleep(duration)
-        self.stop()
-
-    def move(self, direction, speed, duration):
-        if direction == 'left':
-            self.__move_for_duration(self.left, duration, speed)
-        elif direction == 'right':
-            self.__move_for_duration(self.right, duration, speed)
-        elif direction == 'forward':
-            self.__move_for_duration(self.forward, duration, speed)
-        elif direction == 'backward':
-            self.__move_for_duration(self.backward, duration, speed)
-
     def move_by_degree(self, direction, degree):
         bpdegree = self.degree_to_bpdegree(degree)
 
@@ -122,6 +106,23 @@ class Robot (brickpi3.BrickPi3):
 
     def degree_to_bpdegree(self, degree):
         return (degree * 0.6) * 10
+
+    def __move_for_duration(self, duration, speed=None):
+        if speed is None:
+            speed = self.default_speed
+
+        if direction == 'left':
+            self.__move_for_duration(self.left, duration, speed)
+        elif direction == 'right':
+            self.__move_for_duration(self.right, duration, speed)
+        elif direction == 'forward':
+            self.__move_for_duration(self.forward, duration, speed)
+        elif direction == 'backward':
+            self.__move_for_duration(self.backward, duration, speed)
+
+        time.sleep(duration)
+
+        self.stop()
 
     def __move_with_key(self, key):
         if key == '' and self.movement_state != 'stop':
@@ -164,7 +165,7 @@ class Robot (brickpi3.BrickPi3):
                 if command in directions:
                     speed = int(operation[1])
                     duration = float(operation[2])
-                    self.move(command, speed, duration)
+                    self.__move_for_duration(command, duration, speed)
                 elif command in directions_by_degree:
                     degree = int(operation[1])
                     self.move_by_degree(command, degree)
