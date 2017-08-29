@@ -26,6 +26,8 @@ if picamera is None or USE_USB_CAMERA:
     # camera.set(cv2.CAP_PROP_GAIN, 1)
     # camera.set(cv2.CAP_PROP_BACKLIGHT, 100)
     # camera.set(cv2.CAP_PROP_SETTINGS, 1)
+
+    picamera = None
 else:
     camera = picamera.PiCamera()
     # camera.resolution = PYCAMERA_RESOLUTION
