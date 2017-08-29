@@ -172,7 +172,7 @@ class TestYDeviationState(State):
 
         if GRAPHICAL_OUTPUT:
             def show_result(*_):
-                _, _, _, _, (bbox_ok, bbox) = self.pipeline.steps[1].pipelines[0].step_results
+                _, _, (bbox_ok, bbox) = self.pipeline.steps[1].pipelines[0].step_results
                 _, (image_ok, image), _, (dev_ok, dev) = self.pipeline.step_results
 
                 # draw bounding box

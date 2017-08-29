@@ -8,6 +8,16 @@ class Pipeline(object):
     def __init__(self):
         self.execute_callbacks = []
 
+        self._debug_prefix = ""
+
+    @property
+    def debug_prefix(self):
+        return self._debug_prefix
+
+    @debug_prefix.setter
+    def debug_prefix(self, value):
+        self._debug_prefix = value
+
     def run_pipeline(self, inp):
         start = current_time_millis()
         succ, out = self._execute(inp)
@@ -18,7 +28,7 @@ class Pipeline(object):
             cb(inp, out)
         callbacktime = current_time_millis() - start
 
-        logging.debug("Executing pipeline {} took {}ms (callbacktime: {}ms)".format(self, exectime, callbacktime))
+        logging.debug(self.debug_prefix + "Executing pipeline {} took {}ms (callbacktime: {}ms)".format(self, exectime, callbacktime))
 
         return succ, out
 
@@ -45,6 +55,18 @@ class PipelineSequence(Pipeline):
 
         self.steps = [s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in pipelines]
         self.step_results = None
+
+        self.debug_prefix = ""
+
+    @property
+    def debug_prefix(self):
+        return self._debug_prefix
+
+    @debug_prefix.setter
+    def debug_prefix(self, value):
+        self._debug_prefix = value
+        for s in self.steps:
+            s.debug_prefix = self.debug_prefix + "  "
 
     @overrides(Pipeline)
     def _execute(self, inp):
@@ -75,6 +97,18 @@ class ParallelPipeline(Pipeline):
 
         self.pipelines = [s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in pipelines]
         self.results = None
+
+        self.debug_prefix = ""
+
+    @property
+    def debug_prefix(self):
+        return self._debug_prefix
+
+    @debug_prefix.setter
+    def debug_prefix(self, value):
+        self._debug_prefix = value
+        for s in self.pipelines:
+            s.debug_prefix = self.debug_prefix + "  "
 
     @overrides(Pipeline)
     def _execute(self, inp):
