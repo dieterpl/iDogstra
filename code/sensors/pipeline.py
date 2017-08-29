@@ -85,6 +85,7 @@ class PipelineSequence(Pipeline):
         return "[PipelineSequence|{} steps: {}]".format(len(self.steps), '->'.join(str(p) for p in self.steps))
 
 
+@deprecated
 class ParallelPipeline(Pipeline):
     """
     Runs several pipelines in parallel and then combines their output.
@@ -125,6 +126,68 @@ class ParallelPipeline(Pipeline):
 
     def __str__(self):
         return "[ParallelPipeline|{} pipelines: {}]".format(
+            len(self.pipelines), '||'.join(str(p) for p in self.pipelines))
+
+
+class ConjunctiveParallelPipeline(Pipeline):
+    """
+    Runs several pipelines in parallel and then combines their output.
+    The result is a tuple that contains the success flag, which is true, if all
+    pipelines were successfull. The second component is a tuple containing
+    the result tuples of the parallel pipelines.
+    """
+
+    def __init__(self, *pipelines):
+        Pipeline.__init__(self)
+
+        self.pipelines = [s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in pipelines]
+        self.results = None
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        # todo use threads
+        self.results = []
+        succ = True
+        for pipeline in self.pipelines:
+            curr_succ, curr_out = pipeline.run_pipeline(inp)
+            self.results.append((curr_succ, curr_out))
+            if not curr_succ:
+                succ = False
+        return succ, tuple(self.results)
+
+    def __str__(self):
+        return "[ConjunctiveParallelPipeline|{} pipelines: {}]".format(
+            len(self.pipelines), '||'.join(str(p) for p in self.pipelines))
+
+
+class DisjunctiveParallelPipeline(Pipeline):
+    """
+    Runs several pipelines in parallel and then combines their output.
+    The result is a tuple that contains the success flag, which is true, if at
+    least one pipelines was successfull. The second component is a tuple
+    containing the result tuples of the parallel pipelines.
+    """
+
+    def __init__(self, *pipelines):
+        Pipeline.__init__(self)
+
+        self.pipelines = [s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in pipelines]
+        self.results = None
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        # todo use threads
+        self.results = []
+        succ = False
+        for pipeline in self.pipelines:
+            curr_succ, curr_out = pipeline.run_pipeline(inp)
+            self.results.append((curr_succ, curr_out))
+            if curr_succ:
+                succ = True
+        return succ, tuple(self.results)
+
+    def __str__(self):
+        return "[ConjunctiveParallelPipeline|{} pipelines: {}]".format(
             len(self.pipelines), '||'.join(str(p) for p in self.pipelines))
 
 
