@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import sys
+import logging
 
 from config.config import *
 from logic.statemachine import *
@@ -9,10 +10,83 @@ from sensors.camera import camera, camera_pipelines
 
 class CameraTestSM(StateMachine):
 
-    def __init__(self):
+    def __init__(self, testmode="show-image"):
         StateMachine.__init__(self)
 
-        self._current_state.first_state = FindThresholdState()
+        if testmode == "show-image":
+            self._current_state.first_state = ShowImageState()
+        elif testmode == "threshold":
+            self._current_state.first_state = FindThresholdState()
+        elif testmode == "deviation":
+            self._current_state.first_state = TestYDeviationState()
+        elif testmode == "edges":
+            self._current_state.first_state = ShowEdgesState()
+        else:
+            logging.warning("Unkown testmode '{}'. Falling back to show-image".format(testmode))
+            self._current_state.first_state = ShowImageState()
+
+
+class ShowImageState(State):
+
+    def __init__(self):
+        State.__init__(self)
+        self.__pipeline = pipeline.AtomicFunctionPipeline(lambda _: camera.read())
+
+        def show_result(_, image):
+            cv2.imshow('camera', image)
+            if cv2.waitKey(1) & 0xff == ord('q'):
+                sys.exit()
+
+        self.pipeline.execute_callbacks = [show_result]
+
+    @property
+    def pipeline(self):
+        return self.__pipeline
+
+    @overrides(State)
+    def on_enter(self):
+        cv2.namedWindow("camera")
+
+    @overrides(State)
+    def on_exit(self):
+        cv2.destroyAllWindows()
+
+    @overrides(State)
+    def on_update(self, hist):
+        return self
+
+
+class ShowEdgesState(State):
+
+    def __init__(self):
+        State.__init__(self)
+        self.__pipeline = camera_pipelines.edge_detection_pipeline(100, 200)
+
+        def show_result(*_):
+            _, (_, image), (_, edges) = self.pipeline.step_results
+            cv2.imshow("camera", image)
+            cv2.imshow("edges", edges)
+            if cv2.waitKey(1) & 0xff == ord('q'):
+                sys.exit()
+
+        self.pipeline.execute_callbacks = [show_result]
+
+    @property
+    def pipeline(self):
+        return self.__pipeline
+
+    @overrides(State)
+    def on_enter(self):
+        cv2.namedWindow("camera")
+        cv2.namedWindow("edges")
+
+    @overrides(State)
+    def on_exit(self):
+        cv2.destroyAllWindows()
+
+    @overrides(State)
+    def on_update(self, hist):
+        return self
 
 
 class FindThresholdState(State):
@@ -87,18 +161,6 @@ class TestYDeviationState(State):
 
         self.__pipeline = camera_pipelines.color_tracking_pipeline()
 
-    def on_enter(self):
-        cv2.namedWindow('camtest', cv2.WINDOW_AUTOSIZE)
-
-    def on_exit(self):
-        cv2.destroyAllWindows()
-
-    @property
-    def pipeline(self):
-        return self.__pipeline
-
-    def on_update(self, hist):
-
         def show_result(*_):
             _, _, _, _, (bbox_ok, bbox) = self.pipeline.steps[1].pipelines[0].step_results
             _, (image_ok, image), _, (dev_ok, dev) = self.pipeline.step_results
@@ -118,6 +180,21 @@ class TestYDeviationState(State):
                 sys.exit()
 
         self.pipeline.execute_callbacks = [show_result]
+
+    def on_enter(self):
+        cv2.namedWindow('camtest', cv2.WINDOW_AUTOSIZE)
+
+    def on_exit(self):
+        cv2.destroyAllWindows()
+
+    @property
+    def pipeline(self):
+        return self.__pipeline
+
+    def on_update(self, hist):
+        return self
+
+
 
 
 

@@ -15,7 +15,7 @@ known_state_machines = {
 def main():
     """ Application entry point. """
 
-    sm = __parse_args()
+    sm, smargs = __parse_args()
     __prepare_logs()
 
     if sm not in known_state_machines:
@@ -23,18 +23,19 @@ def main():
     else:
         logging.debug("Starting application with state machine {}".format(sm))
         sm_class = known_state_machines[sm]
-        sm_class().run()
+        sm_class(*smargs).run()
 
 
 def __parse_args():
     parser = argparse.ArgumentParser(description="iDogstra - the world's best dog AI since 1753")
-    parser.add_argument('sm', type=str, help='What state machine to execute')
+    parser.add_argument("sm", type=str, help='What state machine to execute')
+    parser.add_argument("smargs", nargs="*", help="Arguments to pass to the state machine")
     parser.add_argument('-v', '--verbose', action='store_const', const=True, default=False, help='Set verbose output')
 
     args = parser.parse_args()
 
     config.DEBUG_MODE = config.DEBUG_MODE or args.verbose
-    return args.sm
+    return args.sm, args.smargs
 
 
 def __prepare_logs():
