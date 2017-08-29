@@ -28,7 +28,7 @@ class Gestures:
         :param breakflag: Stops this emotion if breakflag is true
         :return:
         """
-        t = Thread(target=startHeadshaking)
+        t = Thread(target=startHeadshaking(breakflag))
         t.start()
         while not breakflag:
             for element in gs.screen.Gesture.searchArray:
