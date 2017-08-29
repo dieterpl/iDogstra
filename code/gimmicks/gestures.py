@@ -23,6 +23,7 @@ class Gestures:
 
 if __name__ == '__main__':
     with Gestures() as gs:
+        gs.screen.change_gesture(gs.screen.Gesture.shepard)
         gs.head.headshake(gs.head.MAX_RANGE/4)
         time.sleep(1)
         gs.head.headshake(gs.head.MAX_RANGE*3)
