@@ -7,12 +7,16 @@ class Pipeline(object):
 
     def __init__(self):
         self.execute_callbacks = []
-
+        self.__succ = False
         self._debug_prefix = ""
 
     @property
     def debug_prefix(self):
         return self._debug_prefix
+
+    @property
+    def success_state(self):
+        return self.__succ
 
     @debug_prefix.setter
     def debug_prefix(self, value):
@@ -29,8 +33,8 @@ class Pipeline(object):
         callbacktime = current_time_millis() - start
 
         logging.debug(self.debug_prefix + "Executing pipeline {} took {}ms (callbacktime: {}ms)".format(self, exectime, callbacktime))
-
-        return succ, out
+        self.__succ = succ
+        return out
 
     def _execute(self, inp):
         raise NotImplementedError()
@@ -77,56 +81,13 @@ class PipelineSequence(Pipeline):
             if not run:  # halt the pipeline if one step is not successfull
                 self.step_results.append((False, None))
             else:
-                run, last = pipeline.run_pipeline(last)
+                last = pipeline.run_pipeline(last)
+                run = pipeline.success_state
                 self.step_results.append((run, last))
         return run, last
 
     def __str__(self):
         return "[PipelineSequence|{} steps: {}]".format(len(self.steps), '->'.join(str(p) for p in self.steps))
-
-
-@deprecated
-class ParallelPipeline(Pipeline):
-    """
-    Runs several pipelines in parallel and then combines their output.
-    The result is a tuple that contains the success flag as its first component and then the result of every pipeline
-    as further elements of the tuple.
-    """
-
-    def __init__(self, *pipelines):
-        Pipeline.__init__(self)
-
-        self.pipelines = [s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in pipelines]
-        self.results = None
-
-        self.debug_prefix = ""
-
-    @property
-    def debug_prefix(self):
-        return self._debug_prefix
-
-    @debug_prefix.setter
-    def debug_prefix(self, value):
-        self._debug_prefix = value
-        for s in self.pipelines:
-            s.debug_prefix = self.debug_prefix + "  "
-
-    @overrides(Pipeline)
-    def _execute(self, inp):
-        # todo use threads
-        self.results = []
-        succ = True
-        for pipeline in self.pipelines:
-            if not succ:
-                self.results.append((False, None))
-            else:
-                succ, out = pipeline.run_pipeline(inp)
-                self.results.append((succ, out))
-        return succ,  tuple([r[1] for r in self.results])
-
-    def __str__(self):
-        return "[ParallelPipeline|{} pipelines: {}]".format(
-            len(self.pipelines), '||'.join(str(p) for p in self.pipelines))
 
 
 class ConjunctiveParallelPipeline(Pipeline):
@@ -149,11 +110,13 @@ class ConjunctiveParallelPipeline(Pipeline):
         self.results = []
         succ = True
         for pipeline in self.pipelines:
-            curr_succ, curr_out = pipeline.run_pipeline(inp)
+            curr_out = pipeline.run_pipeline(inp)
+            curr_succ = pipeline.success_state
             self.results.append((curr_succ, curr_out))
             if not curr_succ:
                 succ = False
-        return succ, tuple(self.results)
+
+        return succ, tuple(r[1] for r in self.results)
 
     def __str__(self):
         return "[ConjunctiveParallelPipeline|{} pipelines: {}]".format(
@@ -180,11 +143,13 @@ class DisjunctiveParallelPipeline(Pipeline):
         self.results = []
         succ = False
         for pipeline in self.pipelines:
-            curr_succ, curr_out = pipeline.run_pipeline(inp)
+            curr_out = pipeline.run_pipeline(inp)
+            curr_succ = pipeline.success_state
             self.results.append((curr_succ, curr_out))
             if curr_succ:
                 succ = True
-        return succ, tuple(self.results)
+
+        return succ, tuple(r[1] for r in self.results)
 
     def __str__(self):
         return "[ConjunctiveParallelPipeline|{} pipelines: {}]".format(
@@ -224,28 +189,6 @@ class ConstantPipeline(Pipeline):
 
     def __str__(self):
         return "[ConstantPipeline|const=" + str(self.__const) + "]"
-
-
-@deprecated
-def create_sequential_pipeline(steps):
-    """
-    Build a PipelineSequence with the given steps. The steps can be Pipelines or python functions. If they are
-    python functions they will be wrapped in an AtomicFunctionPipeline object
-    :param steps: the steps of the pipeline as a list of Pipeline objects and python functions
-    :return: a single PipelineSequence object with the given steps
-    """
-    return PipelineSequence(*[s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in steps])
-
-
-@deprecated
-def create_parallel_pipeline(pipelines):
-    """
-    Build a ParallelPipeline with the given pipelines. The steps can be Pipelines or python functions. If they are
-    python functions they will be wrapped in an AtomicFunctionPipeline object
-    :param pipelines: the pipelines of the pipeline as a list of Pipeline objects and python functions
-    :return: a single ParallelPipeline object with the given pipelines
-    """
-    return ParallelPipeline(*[s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in pipelines])
 
 
 
