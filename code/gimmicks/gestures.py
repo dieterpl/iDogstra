@@ -13,7 +13,7 @@ dont use this, TODO: implement this, currently bei head.py
 class Gestures:
     def __enter__(self):
         self.head = head.Head()
-        self.screen = screenDog.FullScreenApp()
+        self.screen = screenDog.Gesture()
         return self
 
 
