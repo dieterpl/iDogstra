@@ -17,12 +17,18 @@ else:
 
 # create and setup the camera object
 if picamera is None or USE_USB_CAMERA:
-    camera = cv2.VideoCapture(1 if picamera is None else 0)
+    camera = cv2.VideoCapture(0 if picamera is None else 0)
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_RESOLUTION[0])
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_RESOLUTION[1])
+    # camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)
+    # camera.set(cv2.CAP_PROP_EXPOSURE, .0001)
+    # camera.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+    # camera.set(cv2.CAP_PROP_GAIN, 1)
+    # camera.set(cv2.CAP_PROP_BACKLIGHT, 100)
+    # camera.set(cv2.CAP_PROP_SETTINGS, 1)
 else:
     camera = picamera.PiCamera()
-    #camera.resolution = PYCAMERA_RESOLUTION
+    # camera.resolution = PYCAMERA_RESOLUTION
     camera.framerate = 32
     time.sleep(2)
 
@@ -72,8 +78,8 @@ class ColorThresholdPipeline(Pipeline):
                 self.threshold_lower = np.array([15, 50, 50])
                 self.threshold_upper = np.array([25, 255, 255])
             elif color == 'magenta':
-                self.threshold_lower = np.array([150, 50, 20])
-                self.threshold_upper = np.array([170, 255, 255])
+                self.threshold_lower = np.array([155, 50, 20])
+                self.threshold_upper = np.array([175, 255, 255])
             else:
                 raise ValueError('Unsupported color', color)
         elif type(color) == tuple:
@@ -87,43 +93,25 @@ class ColorThresholdPipeline(Pipeline):
         return True, colmask
 
 
-class DetectColoredObjectPipeline(Pipeline):
+class ErodeDilatePipeline(Pipeline):
 
-    def __init__(self, color, min_contour_size=DETECTION_SIZE_THRESHOLD, post_process=True):
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        x = cv2.erode(inp, None, iterations=2)
+        x = cv2.dilate(x, None, iterations=2)
+        return True, x
+
+
+class GetLargestContourPipeline(Pipeline):
+
+    def __init__(self, min_contour_size=DETECTION_SIZE_THRESHOLD):
         Pipeline.__init__(self)
 
-        if type(color) == str:
-            if color == 'red':
-                self.__threshold_lower = np.array([140, 50, 50])
-                self.__threshold_upper = np.array([160, 255, 255])
-            elif color == 'yellow':
-                self.__threshold_lower = np.array([30, 50, 50])
-                self.__threshold_upper = np.array([70, 255, 255])
-            elif color == 'orange':
-                self.__threshold_lower = np.array([15, 50, 50])
-                self.__threshold_upper = np.array([25, 255, 255])
-            elif color == 'magenta':
-                self.__threshold_lower = np.array([150, 50, 20])
-                self.__threshold_upper = np.array([170, 255, 255])
-            else:
-                raise ValueError('Unsupported color', color)
-        elif type(color) == tuple:
-            self.__threshold_lower, self.__threshold_upper = color
-        else:
-            raise ValueError('Unsupported argument type', type(color), '(must be str or tuple)')
-
-        self.__post_process = post_process
         self.__min_contour_size = min_contour_size
 
     @overrides(Pipeline)
     def _execute(self, inp):
-        colmask = cv2.inRange(inp, self.__threshold_lower, self.__threshold_upper)
-
-        if self.__post_process:
-            colmask = cv2.erode(colmask, None, iterations=2)
-            colmask = cv2.dilate(colmask, None, iterations=2)
-
-        _, cnts, _ = cv2.findContours(colmask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        _, cnts, _ = cv2.findContours(inp.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
         # only proceed if at least one contour was found
         if len(cnts) > 0:
@@ -183,8 +171,10 @@ def test():
             lambda inp: read(),
             ParallelPipeline(
                 PipelineSequence(
-                    ConvertColorspacePipeline(to='hsv'),
-                    DetectColoredObjectPipeline(color='red')
+                    ConvertColorspacePipeline(to="hsv"),
+                    ColorThresholdPipeline(color="magenta"),
+                    ErodeDilatePipeline(),
+                    GetLargestContourPipeline()
                 ),
                 GetImageDimensionsPipeline()
             ),
@@ -192,7 +182,7 @@ def test():
         )
 
     def show_result(*_):
-        _, _, (bbox_ok, bbox) = camera_pipeline.steps[1].pipelines[0].step_results
+        _, _, _, _, (bbox_ok, bbox) = camera_pipeline.steps[1].pipelines[0].step_results
         _, (image_ok, image), _, (dev_ok, dev) = camera_pipeline.step_results
 
         # draw bounding box

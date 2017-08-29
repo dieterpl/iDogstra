@@ -36,8 +36,10 @@ class FollowState(State):
                     lambda inp: camera.read(),
                     create_parallel_pipeline([
                         create_sequential_pipeline([
-                            camera.ConvertColorspacePipeline(to='hsv'),
-                            camera.DetectColoredObjectPipeline(color='magenta')
+                        camera.ConvertColorspacePipeline(to="hsv"),
+                        camera.ColorThresholdPipeline(color="magenta"),
+                        camera.ErodeDilatePipeline(),
+                        camera.GetLargestContourPipeline(),
                         ]),
                         camera.GetImageDimensionsPipeline()
                     ]),
@@ -53,7 +55,7 @@ class FollowState(State):
 
         if DEBUG_MODE:
             def show_result(*_):
-                _, _, (bbox_ok,
+                _, _, _, _, _, (bbox_ok, bbox) = self.__pipeline.steps[1].pipelines[0].step_results
                        bbox) = self.__pipeline.steps[1].pipelines[0].step_results
                 _, (image_ok, image), _, (dev_ok,
                                           dev) = self.__pipeline.step_results
