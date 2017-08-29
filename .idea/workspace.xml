@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="5781bbcc-a065-4f2d-8aa2-d212b91cea7b" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/code/gimmicks/gestures.py" afterPath="$PROJECT_DIR$/code/gimmicks/gestures.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/code/motor/head.py" afterPath="$PROJECT_DIR$/code/motor/head.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -14,11 +13,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
-      <file leaf-file-name="gestures.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="gestures.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/code/gimmicks/gestures.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="647">
-              <caret line="26" column="45" lean-forward="false" selection-start-line="26" selection-start-column="45" selection-end-line="26" selection-end-column="45" />
+            <state relative-caret-position="347">
+              <caret line="15" column="26" lean-forward="true" selection-start-line="15" selection-start-column="26" selection-end-line="15" selection-end-column="26" />
               <folding>
                 <element signature="e#0#61#0" expanded="true" />
               </folding>
@@ -26,11 +25,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="head.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="head.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code/motor/head.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="650">
-              <caret line="35" column="48" lean-forward="false" selection-start-line="35" selection-start-column="48" selection-end-line="35" selection-end-column="48" />
+            <state relative-caret-position="250">
+              <caret line="19" column="35" lean-forward="true" selection-start-line="19" selection-start-column="35" selection-end-line="19" selection-end-column="35" />
               <folding>
                 <element signature="e#0#64#0" expanded="true" />
               </folding>
@@ -41,8 +40,8 @@
       <file leaf-file-name="screenDog.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code/gestures/screenDog.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="275">
-              <caret line="23" column="28" lean-forward="false" selection-start-line="23" selection-start-column="28" selection-end-line="23" selection-end-column="28" />
+            <state relative-caret-position="472">
+              <caret line="88" column="34" lean-forward="false" selection-start-line="88" selection-start-column="34" selection-end-line="88" selection-end-column="34" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -97,8 +96,8 @@
       <list>
         <option value="$PROJECT_DIR$/code/sensors/ultrasonic/ultrasonic.py" />
         <option value="$PROJECT_DIR$/code/sensors/infrared/infrared.py" />
-        <option value="$PROJECT_DIR$/code/gimmicks/gestures.py" />
         <option value="$PROJECT_DIR$/code/motor/head.py" />
+        <option value="$PROJECT_DIR$/code/gimmicks/gestures.py" />
       </list>
     </option>
   </component>
@@ -626,10 +625,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/code/motor/head.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="250">
+          <caret line="19" column="35" lean-forward="true" selection-start-line="19" selection-start-column="35" selection-end-line="19" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#64#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/code/gestures/screenDog.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="275">
-          <caret line="23" column="28" lean-forward="false" selection-start-line="23" selection-start-column="28" selection-end-line="23" selection-end-column="28" />
+        <state relative-caret-position="472">
+          <caret line="88" column="34" lean-forward="false" selection-start-line="88" selection-start-column="34" selection-end-line="88" selection-end-column="34" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
           </folding>
@@ -638,20 +647,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/code/gimmicks/gestures.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="647">
-          <caret line="26" column="45" lean-forward="false" selection-start-line="26" selection-start-column="45" selection-end-line="26" selection-end-column="45" />
+        <state relative-caret-position="347">
+          <caret line="15" column="26" lean-forward="true" selection-start-line="15" selection-start-column="26" selection-end-line="15" selection-end-column="26" />
           <folding>
             <element signature="e#0#61#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/code/motor/head.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="650">
-          <caret line="35" column="48" lean-forward="false" selection-start-line="35" selection-start-column="48" selection-end-line="35" selection-end-column="48" />
-          <folding>
-            <element signature="e#0#64#0" expanded="true" />
           </folding>
         </state>
       </provider>
