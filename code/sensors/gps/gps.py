@@ -1,15 +1,51 @@
 import os
 from gps3 import gps3
 
+
+def deg2rad(deg):
+    return deg * (math.pi / 180)
+
+
+def getDistanceFromLatLonInMeter(lat1, lon1, lat2, lon2):
+    EARTH_RADIUS_KM = 6371
+    dLat = deg2rad(lat2-lat1)  # deg2rad below
+    dLon = deg2rad(lon2-lon1)
+    a = math.sin(dLat/2) * math.sin(dLat/2) +
+    math.cos(deg2rad(lat1)) * math.cos(deg2rad(lat2)) *
+    math.sin(dLon/2) * math.sin(dLon/2)
+
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    d = (EARTH_RADIUS_KM * c) * 1000  # Distance in km
+    return d
+
+
 gps_socket = gps3.GPSDSocket()
 data_stream = gps3.DataStream()
 gps_socket.connect()
 gps_socket.watch()
 
+lat_lng_values = []
+
 for new_data in gps_socket:
     if new_data:
         os.system('clear')
         data_stream.unpack(new_data)
+
+        lat_lng_values.append({
+            'lat': data_stream.TPV.get('lat')
+            'lng': data_stream.TPV.get('lon')
+        })
+
+        if(len(lat_lng_values) > 2):
+            last_lat = lat_lng_values[-1].get('lat')
+            last_lon = lat_lng_values[-1].get('lon')
+            before_last_lat = lat_lng_values[-1].get('lat')
+            before_last_lon = lat_lng_values[-1].get('lon')
+            distance = \
+                getDistanceFromLatLonInMeter(last_lat, last_lon,
+                                             before_last_lat, before_last_lon)
+            print('distance walked: %s' % distance)
+
         print('device = ', data_stream.TPV.get('device'))
         print('status = ', data_stream.TPV.get('status'))
         print('mode = ', data_stream.TPV.get('mode'))
@@ -36,3 +72,5 @@ for new_data in gps_socket:
         print('gdop = ', data_stream.SKY.get('gdop'))
         print('satellites = ', data_stream.SKY.get('satellites'))
         print('# satellites = ', len(data_stream.SKY.get('satellites')))
+
+
