@@ -38,8 +38,8 @@ BT_MULTIPLIER = 3.0  # Multiplies the recommended speed
 
 ### Configures the distance estimation thresholds
 BT_DISTANCE_THRESHOLDS = {
-    "far": 80
-    "medium": 60
+    "far": 80,
+    "medium": 60,
     "near": 0
 }
 
