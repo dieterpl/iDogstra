@@ -28,14 +28,17 @@ class Gesture(Thread):
         self.gesture_running = False
 
         # show default picture after initialization
-        self.screen.change_picture(Gesture.PICTURES["default"])
+        self.screen.change_picture(self.__get_picture("default.gif"))
 
     def __next_picture(self):
         picture_frames = Gesture.PICTURES[self.current_gesture]
         picture_number = picture_frame[self.current_frame]
         picture_name = ("%s_%d.gif" % (self.current_gesture, picture_number))
 
-        return os.path.join(config.PICTUREPATH, picture_name)
+        return self.__get_picture(picture_name)
+
+    def __get_picture(name):
+        return os.path.join(config.PICTUREPATH, name)
 
     def change_gesture(self, gesture):
         if gesture in Gesture.PICTURES.keys():
