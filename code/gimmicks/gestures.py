@@ -30,5 +30,5 @@ class Gesture(Thread):
 
 if __name__ == '__main__':
     gesture = Gesture()
-    gesture.doEmotion(flag, gs.screen.Gesture.searchArray)
+    gesture.doEmotion(True, gesture.screen.Gesture.followArray)
 
