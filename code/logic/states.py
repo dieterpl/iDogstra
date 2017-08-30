@@ -22,11 +22,11 @@ class AbstractRobotState(State):
         if abs(dev) > 0.2:
             self.robots_control.rotate(interp1d([-1, 1], [-config.MAX_TURN_SPEED, config.MAX_TURN_SPEED])(dev))
 
-    def show_result(*_):
+    def show_result(self,*_):
         if config.GRAPHICAL_OUTPUT:
-            bbox_ok, bbox = pipeline["contour_bbox"].result
-            image = pipeline["image"].output
-            dev_ok, dev = pipeline["y_deviation"].result
+            bbox_ok, bbox = self.pipeline["contour_bbox"].result
+            image = self.pipeline["image"].output
+            dev_ok, dev = self.pipeline["y_deviation"].result
 
             # draw bounding box
             if bbox_ok:
