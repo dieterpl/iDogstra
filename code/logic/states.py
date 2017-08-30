@@ -9,6 +9,9 @@ import config
 import cv2
 import sys
 
+
+
+
 class SearchState(State):
     """Turn robot in circles until the user is found or timeout occurred"""
 
@@ -176,6 +179,20 @@ class TrackState(State):
     def pipeline(self):
         return self.__pipeline
 
+    def motor_aligment(self, dev):
+        if dev < -0.6:
+            self.robots_control.right(50)
+        elif dev < -0.3:
+            self.robots_control.right(30)
+        elif dev < -0.2:
+            self.robots_control.right(10)
+        elif dev > 0.6:
+            self.robots_control.left(50)
+        elif dev > 0.3:
+            self.robots_control.left(30)
+        elif dev > 0.2:
+            self.robots_control.left(10)
+
     def on_update(self, hist):
         pipeline_result = hist[-1]
         logging.debug("TrackState Pipeline results {}".format(hist[-1]))
@@ -192,33 +209,11 @@ class TrackState(State):
             return SearchState("left" if dev > 0 else "right")
         if cam_ok and not bt_ok:
             self.last_dev = dev
-            if dev < -0.6:
-                self.robots_control.right(50)
-            elif dev < -0.3:
-                self.robots_control.right(30)
-            elif dev < -0.2:
-                self.robots_control.right(10)
-            elif dev > 0.6:
-                self.robots_control.left(50)
-            elif dev > 0.3:
-                self.robots_control.left(30)
-            elif dev > 0.2:
-                self.robots_control.left(10)
+            self.motor_aligment(dev*-1)
             return self
         if cam_ok and bt_ok:
             self.last_dev = dev
-            if dev < -0.6:
-                self.robots_control.right(50)
-            elif dev < -0.3:
-                self.robots_control.right(30)
-            elif dev < -0.2:
-                self.robots_control.right(10)
-            elif dev > 0.6:
-                self.robots_control.left(50)
-            elif dev > 0.3:
-                self.robots_control.left(30)
-            elif dev > 0.2:
-                self.robots_control.left(10)
+            self.motor_aligment(dev * -1)
             if distance != bluetooth.UserDistanceEstimationPipeline.Distance.NEAR:
                 return FollowState()
             return self
