@@ -1,4 +1,7 @@
 import time  # import the time library for the sleep function
+from collections import deque, namedtuple
+from threading import Thread
+from utils.functions import current_time_millis
 
 try:
     import brickpi3
@@ -7,6 +10,8 @@ except ModuleNotFoundError:
     print("WARNING: Could not import module brickpi3 (not running on a raspberry pi?). Movement module will not "
           "be available.")
     brickpi3 = None
+
+DataTuple = namedtuple("DataTuple", "time distance")
 
 class InfraRed:
     def __init__(self):
@@ -22,7 +27,33 @@ class InfraRed:
         # BP.Sensor_TYPE.EV3_INFRARED_PROXIMITY specifies that the sensor will be an EV3 infrared sensor.
         self.BP.set_sensor_type(self.BP.PORT_1, self.BP.SENSOR_TYPE.EV3_INFRARED_PROXIMITY)
         self.init_sensor()
-        return self
+
+        self.data_deque = deque()
+
+    def accumulate_distance(self):
+        """
+        returns the distance in cm max value means object ist too far or too close
+        :return:
+        """
+
+        while True:
+            try:
+                value = self.BP.get_sensor(self.PORT)
+            except brickpi3.SensorError as error:
+                value = None
+            if value:
+                self.data_deque.append(self.DataTuple(current_time_millis(), value))
+                self.remove_old_data()
+
+
+    def remove_old_data(self, threshold=1000):
+        """Removes data tuples from the queue that are older
+        than threshold milliseconds"""
+
+        threshold = current_time_millis() - threshold
+
+        while len(self.data_deque) > 0 and self.data_deque[0].time < threshold:
+            self.data_deque.popleft()
 
     def init_sensor(self):
         """
@@ -38,26 +69,14 @@ class InfraRed:
             if value is not None:
                 break
 
-    def get_distance(self):
-        """
-        return the distance to the object in cm by avg the last 5 values
-        :return: distance in cm
-        """
-        mean = 0
-        mean_counter = 0
-        value = None
-        for var in range(0, 5):
-            try:
-                value = self.BP.get_sensor(self.PORT)
-            except brickpi3.SensorError as error:
-                value = None
-            if value is not None:
-                mean += value
-                mean_counter += 1
-        if mean_counter != 0:
-            return mean / mean_counter
-        return -1
+    def get_avg_value(self):
+        if len(self.data_deque) == 0:
+            return None
+        return sum(self.data_deque) / len(self.data_deque)
 
+    def start_thread(self):
+          if_t = Thread(target=self.accumulate_distance)
+          if_t.start()
 
 #if __name__ == '__main__':
 #    with InfraRed() as ir:

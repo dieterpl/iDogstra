@@ -83,7 +83,7 @@ class UltraSonic:
     def clean_up(self):
         GPIO.cleanup()
 
-    def start_us_thread(self):
+    def start_thread(self):
         us_t = Thread(target=self.accumulate_distance)
         us_t.start()
 
