@@ -1,14 +1,17 @@
 # Bibliotheken einbinden
 import time
-import config
 from collections import deque, namedtuple
 from threading import Thread
-from utils.functions import current_time_millis
+
+import config
+from sensors.pipeline import Pipeline
+from utils.functions import current_time_millis, overrides
+
 try:
     import RPi.GPIO as GPIO
 except ModuleNotFoundError:
-    print("WARNING: Could not import module RaspberryPI (not running on a raspberry pi?). S module will not "
-          "be available.")
+    print("WARNING: Could not import module RaspberryPI (not running on a "
+          "raspberry pi?). S module will not be available.")
     GPIO = None
 
 
@@ -74,11 +77,19 @@ class UltraSonic:
         while len(self.data_deque) > 0 and self.data_deque[0].time < threshold:
             self.data_deque.popleft()
 
-    def get_avg_value(self):
+    def __len__(self):
+        """ Returns the average of the measured data"""
         if len(self.data_deque) == 0:
             return None
         return sum(self.data_deque) / len(self.data_deque)
 
+    def get_data_count(self):
+        """Returns the amount of data that is present in the queue"""
+        # As old data is only removed when new data is added, we have to
+        # ensure that old data is being deleted before counting the elements
+        # in the queue
+        self.remove_old_data()
+        return len(self.data_deque)
 
     def clean_up(self):
         GPIO.cleanup()
@@ -87,6 +98,16 @@ class UltraSonic:
         us_t = Thread(target=self.accumulate_distance)
         us_t.start()
 
-# if __name__ == '__main__':
-#    with UltraSonic() as us:
-#        print ("Gemessene Entfernung = %.1f cm" % us.get_distance())
+
+class USGetDistancePipeline(Pipeline):
+    """A pipeline that returns the distance measured by the US sensors"""
+
+    def __init__(self):
+        Pipeline.__init__(self)
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        """Takes an UltraSonic object and returns the average value."""
+        if len(inp) == 0:
+            return False, None
+        return True, inp.get_data_count()
