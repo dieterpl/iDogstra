@@ -1,7 +1,8 @@
 import time  # import the time library for the sleep function
 from collections import deque, namedtuple
 from threading import Thread
-from utils.functions import current_time_millis
+from utils.functions import current_time_millis, overrides
+from sensors.pipeline import Pipeline
 
 try:
     import brickpi3
@@ -69,14 +70,37 @@ class InfraRed:
             if value is not None:
                 break
 
+    def start_thread(self):
+          if_t = Thread(target=self.accumulate_distance)
+          if_t.start()
+
+    def __len__(self):
+        """Returns the amount of data that is present in the queue"""
+        # As old data is only removed when new data is added, we have to
+        # ensure that old data is being deleted before counting the elements
+        # in the queue
+        self.remove_old_data()
+        return len(self.data_deque)
+
     def get_avg_value(self):
+        """ Returns the average of the measured data"""
         if len(self.data_deque) == 0:
             return None
         return sum(self.data_deque) / len(self.data_deque)
 
-    def start_thread(self):
-          if_t = Thread(target=self.accumulate_distance)
-          if_t.start()
+
+class IRGetDistancePipeline(Pipeline):
+    """A pipeline that returns the distance measured by the US sensors"""
+
+    def __init__(self):
+        Pipeline.__init__(self)
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        """Takes an UltraSonic object and returns the average value."""
+        if len(inp) == 0:
+            return False, None
+        return True, inp.get_avg_value()
 
 #if __name__ == '__main__':
 #    with InfraRed() as ir:
