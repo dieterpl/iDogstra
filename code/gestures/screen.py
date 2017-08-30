@@ -1,3 +1,5 @@
+import os
+import config
 import tkinter as tk
 import time
 from threading import Thread
@@ -5,19 +7,21 @@ from threading import Thread
 
 class Screen:
 
-    def __init__(self):
+    def __init__(self, initial_picture="init.gif"):
         """
         init the class and shows the window default image configurable
         """
-        self.imgPath = "./pics/default.gif"
-        self.window = None
-        self.root = None
+        self.imgPath = os.path.join(config.PICTUREPATH, initial_picture)
+
+        self.__init_root()
+        self.__init_window()
+
         self.__show_window()
 
     def __init_root(self):
-        self.root = tk.Tk()
         # set the dimensions of the screen
         # and where it is placed
+        self.root = tk.Tk()
         self.root.geometry('%dx%d+%d+%d' % (800, 480, 0, 0))
         self.root.attributes('-alpha', 0.0)  # For icon
         self.root.lower()
@@ -34,8 +38,6 @@ class Screen:
         privat method to dispaly window on pi in fullscreen
         :return: -
         """
-        self.__init_root()
-        self.__init_window()
         # Whatever buttons, etc
 
         self.photo = tk.PhotoImage(file=self.imgPath)
@@ -68,23 +70,10 @@ class Screen:
         # time to start thread
         time.sleep(2)
 
-    def change_picture(self, gesture_path):
+    def change_picture(self, picture_path):
         """
         method th change the picture by selecting gesture
-        :param gesture: string to new image
+        :param gesture_path: string to new image
         :return: -
         """
-        self.imgPath = gesture_path
-
-
-# if __name__ == '__main__':
-#    try:
-#        sd = ScreenDog()
-#        while True:
-#            time.sleep(2.5)
-#            sd.change_picture(sd.Gesture.neutral)
-#            time.sleep(5.5)
-#            sd.change_picture(sd.Gesture.confused)
-#            # Beim Abbruch durch STRG+C resetten
-#    except KeyboardInterrupt:
-#        print("Messung vom User gestoppt")
+        self.imgPath = picture_path
