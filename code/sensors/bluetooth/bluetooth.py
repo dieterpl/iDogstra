@@ -211,7 +211,6 @@ class SnapshotBTDataPipeline(Pipeline):
 
     def __init__(self):
         Pipeline.__init__(self)
-        self.threshold = config.BT_TIME_THRESHOLD
 
     @overrides(Pipeline)
     def _execute(self, inp):
@@ -219,7 +218,7 @@ class SnapshotBTDataPipeline(Pipeline):
         objects which are a snapshot of the collected bluetooth data"""
         if len(inp) == 0:
             return (False, None)
-        return (True, [dongle.snapshot_data(self.threshold) for dongle in inp])
+        return (True, [dongle.snapshot_data() for dongle in inp])
 
 
 class RecommendedSpeedPipeline(Pipeline):
