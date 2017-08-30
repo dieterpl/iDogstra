@@ -34,10 +34,11 @@ class Gesture(Thread):
         picture_frames = Gesture.PICTURES[self.current_gesture]
         picture_number = picture_frame[self.current_frame]
         picture_name = ("%s_%d.gif" % (self.current_gesture, picture_number))
+        print(picture_name)
 
         return self.__get_picture(picture_name)
 
-    def __get_picture(name):
+    def __get_picture(self, name):
         return os.path.join(config.PICTUREPATH, name)
 
     def change_gesture(self, gesture):
