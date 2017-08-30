@@ -1,3 +1,4 @@
+import os
 import time  # import the time library for the sleep function
 import config
 from threading import Thread, Condition, Lock
