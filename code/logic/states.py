@@ -154,9 +154,9 @@ class FollowState(AbstractRobotState):
         if cam_ok and bt_ok:
             self.last_dev = dev
             self.motor_alignment(dev)
-        else:
-            self.robots_control.forward(speed)
-        return self.queue_next_state(self)
+            if abs(dev) < 0.2:
+                self.robots_control.forward(speed)
+            return self.queue_next_state(self)
 
 
 class TrackState(AbstractRobotState):
