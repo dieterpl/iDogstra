@@ -1,63 +1,20 @@
 import tkinter as tk
 import time
-#from numpy import ndarray
 from threading import Thread
 
 
-class ScreenDog:
-
-    class Gesture():
-        """
-        predefined gesture pictures
-        """
-        neutral = r"neutral.gif"
-        confused = r"confused.gif"
-        shepard = r"shepard.gif"
-        sleep1 = r"dogsleep1.gif"
-        sleep2 = r"dogsleep2.gif"
-        search1 = r"dogsearch1.gif"
-        search2 = r"dogsearch2.gif"
-        search3 = r"dogsearch3.gif"
-        search4 = r"dogsearch4.gif"
-        search5 = r"dogsearch5.gif"
-        search6 = r"dogsearch6.gif"
-        search7 = r"dogsearch7.gif"
-        search8 = r"dogsearch8.gif"
-        search9 = r"dogsearch9.gif"
-        follow0 = r"follow0.gif"
-        follow1 = r"follow0.gif"
-        follow2 = r"follow0.gif"
-        follow3 = r"follow0.gif"
-        follow4 = r"follow0.gif"
-        follow01 = r"follow0.gif"
-        follow02 = r"follow0.gif"
-        follow03 = r"follow0.gif"
-        follow04 = r"follow0.gif"
-
-
-        searchArray = ([search1, search2, search3, search4, search5, search6, search7, search8, search9])
-        sleepArray = ([sleep1, sleep2])
-        followArray = ([follow0,follow1,follow2,follow3,follow4,follow3,follow2,follow1,follow0,follow01,follow02,follow03,follow04,follow03,follow02,follow01])
-        #followArray = ndarray((4,),str)
-
-        #for x in range (0, len(followArray)-1):
-            #followArray[x] = r"follow"+x+".gif"
+class Screen:
 
     def __init__(self):
         """
         init the class and shows the window default image configurable
         """
-        self.DEFAULT = self.Gesture.confused
-        self.current_state = self.DEFAULT
+        self.imgPath = "./pics/default.gif"
         self.window = None
         self.root = None
         self.__show_window()
 
-    def __open_window(self):
-        """
-        privat method to dispaly window on pi in fullscreen
-        :return: -
-        """
+    def __init_root(self):
         self.root = tk.Tk()
         # set the dimensions of the screen
         # and where it is placed
@@ -65,13 +22,22 @@ class ScreenDog:
         self.root.attributes('-alpha', 0.0)  # For icon
         self.root.lower()
         self.root.iconify()
+
+    def __init_window(self):
         self.window = tk.Toplevel(self.root)
         self.window.geometry("800x480")  # Whatever size
         self.window.overrideredirect(1)  # Remove border
         self.window.attributes('-topmost', 1)
+
+    def __open_window(self):
+        """
+        privat method to dispaly window on pi in fullscreen
+        :return: -
+        """
+        self.__init_root()
+        self.__init_window()
         # Whatever buttons, etc
 
-        self.imgPath = self.DEFAULT
         self.photo = tk.PhotoImage(file=self.imgPath)
         self.label = tk.Label(self.window, image=self.photo)
         self.label.image = self.photo  # keep a reference!
@@ -85,11 +51,12 @@ class ScreenDog:
         callback used to update the picture tk interal stuff
         :return:
         """
-        self.imgPath = self.current_state
         self.photo = tk.PhotoImage(file=self.imgPath)
         self.label.configure(image=self.photo)
         self.image = self.photo
-        self.root.after(100, self.__change_picture_callback)  # reschedule event in 2 seconds
+
+        # reschedule event in 2 seconds
+        self.root.after(100, self.__change_picture_callback)
 
     def __show_window(self):
         """
@@ -101,16 +68,16 @@ class ScreenDog:
         # time to start thread
         time.sleep(2)
 
-    def change_gesture(self, gesture):
+    def change_gesture(self, gesture_path):
         """
         method th change the picture by selecting gesture
         :param gesture: string to new image
         :return: -
         """
-        self.current_state = gesture
+        self.imgPath = gesture_path
 
 
-#if __name__ == '__main__':
+# if __name__ == '__main__':
 #    try:
 #        sd = ScreenDog()
 #        while True:
