@@ -4,11 +4,15 @@ CAMERA_RESOLUTION = (640, 480)  # the resolution to use for the raspberry pi cam
 
 DETECTION_SIZE_THRESHOLD = 0  # minimum size of a colored object, relative to the total image size
 
-DEBUG_MODE = True  # enable or disable debug mode
+DEBUG_MODE = False  # enable or disable debug mode
 
 GRAPHICAL_OUTPUT = True  # enable or disable graphical output
 
 TRACKING_ALGORITHM = 'MIL'  # algorithm to use for object tracking in images
+
+AUDIO_CHUNK = 2048
+
+AUDIO_FREQ = 22000 #14079
 
 USE_USB_CAMERA = False
 # the paths to relevant directories of the project
@@ -18,3 +22,4 @@ LOGSPATH = os.path.join(ROOT_PATH, 'logs')
 BT_TARGET_UUID = "6951e12f049945d2930e1fc462c721c8"
 
 BT_DONGLES = []
+
