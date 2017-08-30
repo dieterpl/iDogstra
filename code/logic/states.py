@@ -29,7 +29,26 @@ class SearchState(State):
                 # Bluetooth inputs
                 bluetooth_pipelines.user_distance_estimation_pipeline()
             )
+        if config.GRAPHICAL_OUTPUT:
+            def show_result(*_):
+                _, _, _, _, (bbox_ok, bbox) = self.pipeline[0][1][0].results
+                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline[0].results
 
+                # draw bounding box
+                if bbox_ok:
+                    p1 = (int(bbox[0]), int(bbox[1]))
+                    p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+                    cv2.rectangle(image, p1, p2, (0, 0, 255))
+
+                # add deviation as text
+                if dev_ok:
+                    cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
+
+                cv2.imshow('camtest', image)
+                if cv2.waitKey(1) & 0xff == ord('q'):
+                    sys.exit()
+
+            self.pipeline.execute_callbacks = [show_result]
     def on_enter(self):
         if self.start_spin_direction == "left":
             self.robots_control.left(25)
@@ -80,7 +99,26 @@ class FollowState(State):
                 # Bluetooth inputs
                 bluetooth_pipeline.recommended_speed_pipeline()
             )
+        if config.GRAPHICAL_OUTPUT:
+            def show_result(*_):
+                _, _, _, _, (bbox_ok, bbox) = self.pipeline[0][1][0].results
+                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline[0].results
 
+                # draw bounding box
+                if bbox_ok:
+                    p1 = (int(bbox[0]), int(bbox[1]))
+                    p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+                    cv2.rectangle(image, p1, p2, (0, 0, 255))
+
+                # add deviation as text
+                if dev_ok:
+                    cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
+
+                cv2.imshow('camtest', image)
+                if cv2.waitKey(1) & 0xff == ord('q'):
+                    sys.exit()
+
+            self.pipeline.execute_callbacks = [show_result]
     def on_exit(self):
         self.robots_control.stop()
 
@@ -93,8 +131,8 @@ class FollowState(State):
         logging.debug("FollowState Pipeline results {}".format(hist[-1]))
         # unpack results
         cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
-        print(cam_ok, bt_ok)
         dev, speed = pipeline_result
+        dev*=-1
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return WaitState()
@@ -189,6 +227,7 @@ class TrackState(State):
         cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
         logging.debug("Values {}{}".format(cam_ok, bt_ok))
         dev, distance = pipeline_result
+        dev*=-1
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return WaitState()
@@ -197,11 +236,11 @@ class TrackState(State):
             return SearchState("left" if dev > 0 else "right")
         if cam_ok and not bt_ok:
             self.last_dev = dev
-            self.motor_aligment(dev*-1)
+            self.motor_aligment(dev)
             return self
         if cam_ok and bt_ok:
             self.last_dev = dev
-            self.motor_aligment(dev * -1)
+            self.motor_aligment(dev)
             if distance != bluetooth.UserDistanceEstimationPipeline.Distance.NEAR:
                 return FollowState()
             return self
