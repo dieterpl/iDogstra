@@ -147,6 +147,26 @@ class TrackState(State):
                     bluetooth.UserDistanceEstimationPipeline()
                 )
             )
+        if config.GRAPHICAL_OUTPUT:
+            def show_result(*_):
+                _, _, _, _, (bbox_ok, bbox) = self.pipeline[1][0].results
+                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline.results
+
+                # draw bounding box
+                if bbox_ok:
+                    p1 = (int(bbox[0]), int(bbox[1]))
+                    p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+                    cv2.rectangle(image, p1, p2, (0, 0, 255))
+
+                # add deviation as text
+                if dev_ok:
+                    cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
+
+                cv2.imshow('camtest', image)
+                if cv2.waitKey(1) & 0xff == ord('q'):
+                    sys.exit()
+
+            self.pipeline.execute_callbacks = [show_result]
 
     def on_exit(self):
         self.robots_control.stop()
