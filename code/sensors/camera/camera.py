@@ -95,10 +95,10 @@ class ColorThresholdPipeline(Pipeline):
                 self.threshold_upper = np.array([25, 255, 255])
             elif color == 'magenta':
                 self.threshold_lower = np.array([interp1d([0, 360], [0, 180])(310),
-                                                 interp1d([0, 100], [0, 255])(40),
-                                                 interp1d([0, 100], [0, 255])(10)])
+                                                 interp1d([0, 100], [0, 255])(25),
+                                                 interp1d([0, 100], [0, 255])(25)])
                 self.threshold_upper = np.array([interp1d([0, 360], [0, 180])(325),
-                                                 interp1d([0, 100], [0, 255])(80),
+                                                 interp1d([0, 100], [0, 255])(100),
                                                  interp1d([0, 100], [0, 255])(100)])
             else:
                 raise ValueError('Unsupported color', color)
