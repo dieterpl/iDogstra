@@ -91,7 +91,7 @@ class SearchState(AbstractRobotState):
         pipeline_result = hist[-1]
         logging.debug("SearchState Pipeline results {}".format(hist[-1]))
         # unpack results
-        cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+        cam_ok, bt_ok = self.pipeline["y_deviation"].success_state, self.pipeline["user_distance"].success_state
         dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
@@ -138,7 +138,7 @@ class FollowState(AbstractRobotState):
         pipeline_result = hist[-1]
         logging.debug("FollowState Pipeline results {}".format(hist[-1]))
         # unpack results
-        cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+        cam_ok, bt_ok = self.pipeline["y_deviation"].success_state, self.pipeline["bt_speed"].success_state
         dev, speed = pipeline_result
         dev *= -1
         # if there are no result values go to wait state
@@ -188,7 +188,7 @@ class TrackState(AbstractRobotState):
         logging.debug("TrackState Pipeline results {}".format(hist[-1]))
 
         # unpack results
-        cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+        cam_ok, bt_ok = self.pipeline["y_deviation"].success_state, self.pipeline["user_distance"].success_state
         dev, distance = pipeline_result
         dev *= -1
         # if there are no result values go to wait state
@@ -235,7 +235,7 @@ class WaitState(AbstractRobotState):
         pipeline_result = hist[-1]
         logging.debug("WaitState Pipeline results {}".format(hist[-1]))
         # unpack results
-        cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+        cam_ok, bt_ok = self.pipeline["y_deviation"].success_state, self.pipeline["user_distance"].success_state
         dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:

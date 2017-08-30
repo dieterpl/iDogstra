@@ -7,7 +7,7 @@ def recommended_speed_pipeline():
     return pipeline.PipelineSequence(
         pipeline.ConstantPipeline(config.BT_DONGLES),
         bluetooth.SnapshotBTDataPipeline(),
-        bluetooth.RecommendedSpeedPipeline()
+        ("bt_speed",bluetooth.RecommendedSpeedPipeline())
     )
 
 
@@ -15,5 +15,5 @@ def user_distance_estimation_pipeline():
     return pipeline.PipelineSequence(
         pipeline.ConstantPipeline(config.BT_DONGLES),
         bluetooth.SnapshotBTDataPipeline(),
-        bluetooth.UserDistanceEstimationPipeline()
+        ("user_distance",bluetooth.UserDistanceEstimationPipeline())
     )
