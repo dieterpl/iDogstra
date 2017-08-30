@@ -33,6 +33,7 @@ else:
     camera = picamera.PiCamera()
     # camera.resolution = PYCAMERA_RESOLUTION
     camera.framerate = 32
+    camera.exposure_mode = "antishake"
     time.sleep(2)
 
 
@@ -45,6 +46,17 @@ def read():
         array = picamera.array.PiRGBArray(camera, size=CAMERA_RESOLUTION)
         camera.capture(array, format='bgr', resize=CAMERA_RESOLUTION, use_video_port=True)
         return array.array
+
+
+class ReadCameraPipeline(Pipeline):
+
+    def _execute(self, inp):
+        if picamera is None:
+            return camera.read()
+        else:
+            array = picamera.array.PiRGBArray(camera, size=CAMERA_RESOLUTION)
+            camera.capture(array, format='bgr', resize=CAMERA_RESOLUTION, use_video_port=True)
+            return True, array.array
 
 
 class ConvertColorspacePipeline(Pipeline):

@@ -12,14 +12,29 @@ from scipy.interpolate import interp1d
 
 class AbstractRobotState(State):
     def __init__(self):
+        State.__init__(self)
+        self.robots_control = robot.Robot()
 
+    def motor_alignment(self, dev):
+        if dev < -0.6:
+            self.robots_control.right(50)
+        elif dev < -0.3:
+            self.robots_control.right(30)
+        elif dev < -0.2:
+            self.robots_control.right(10)
+        elif dev > 0.6:
+            self.robots_control.left(50)
+        elif dev > 0.3:
+            self.robots_control.left(30)
+        elif dev > 0.2:
+
+            self.robots_control.left(10)
 class SearchState(AbstractRobotState):
     """Turn robot in circles until the user is found or timeout occurred"""
 
     def __init__(self, start_spin_direction="left"):
         AbstractRobotState.__init__(self)
         self.start_time = None
-        self.robots_control = robot.Robot()
         self.start_spin_direction = start_spin_direction
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
@@ -207,19 +222,7 @@ class TrackState(AbstractRobotState):
     def pipeline(self):
         return self.__pipeline
 
-    def motor_aligment(self, dev):
-        if dev < -0.6:
-            self.robots_control.right(50)
-        elif dev < -0.3:
-            self.robots_control.right(30)
-        elif dev < -0.2:
-            self.robots_control.right(10)
-        elif dev > 0.6:
-            self.robots_control.left(50)
-        elif dev > 0.3:
-            self.robots_control.left(30)
-        elif dev > 0.2:
-            self.robots_control.left(10)
+
 
     def on_update(self, hist):
         pipeline_result = hist[-1]
