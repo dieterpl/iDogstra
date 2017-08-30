@@ -121,7 +121,7 @@ class FollowState(AbstractRobotState):
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
-                camera_pipelines.color_tracking_pipeline(),
+                ("test1",camera_pipelines.color_tracking_pipeline()),
                 # Bluetooth inputs
                 bluetooth_pipelines.recommended_speed_pipeline()
             )
@@ -139,7 +139,7 @@ class FollowState(AbstractRobotState):
         pipeline_result = hist[-1]
         logging.debug("FollowState Pipeline results {}".format(hist[-1]))
         # unpack results
-        cam_ok, bt_ok = self.pipeline["y_deviation"].success_state, self.pipeline["bt_speed"].success_state
+        cam_ok, bt_ok = self.pipeline["test1"].success_state, self.pipeline["bt_speed"].success_state
         logging.debug("FollowState Pipeline results {}".format(cam_ok))
         dev, speed = pipeline_result
 
