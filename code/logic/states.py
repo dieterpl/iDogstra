@@ -1,6 +1,6 @@
 from logic.statemachine import *
 from utils.functions import current_time_millis
-from sensors.bluetooth import bluetooth
+from sensors.bluetooth import bluetooth, bluetooth_pipelines
 from sensors import pipeline
 from sensors.camera import camera, camera_pipelines
 from motor import robot
@@ -27,11 +27,7 @@ class SearchState(State):
                 # Camera inputs
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
-                pipeline.PipelineSequence(
-                    pipeline.ConstantPipeline(config.BT_DONGLES),
-                    bluetooth.SnapshotBTDataPipeline(),
-                    bluetooth.UserDistanceEstimationPipeline()
-                )
+                bluetooth_pipelines.user_distance_estimation_pipeline()
             )
         if config.GRAPHICAL_OUTPUT:
             def show_result(*_):
@@ -101,11 +97,7 @@ class FollowState(State):
                 # Camera inputs
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
-                pipeline.PipelineSequence(
-                    pipeline.ConstantPipeline(config.BT_DONGLES),
-                    bluetooth.SnapshotBTDataPipeline(),
-                    bluetooth.RecommendedSpeedPipeline()
-                )
+                bluetooth_pipeline.recommended_speed_pipeline()
             )
         if config.GRAPHICAL_OUTPUT:
             def show_result(*_):
@@ -183,11 +175,7 @@ class TrackState(State):
                 # Camera inputs
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
-                pipeline.PipelineSequence(
-                    pipeline.ConstantPipeline(config.BT_DONGLES),
-                    bluetooth.SnapshotBTDataPipeline(),
-                    bluetooth.UserDistanceEstimationPipeline()
-                )
+                bluetooth_pipelines.user_distance_estimation_pipeline()
             )
         if config.GRAPHICAL_OUTPUT:
             def show_result(*_):
@@ -271,11 +259,7 @@ class WaitState(State):
                 # Camera inputs
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
-                pipeline.PipelineSequence(
-                    pipeline.ConstantPipeline(config.BT_DONGLES),
-                    bluetooth.SnapshotBTDataPipeline(),
-                    bluetooth.UserDistanceEstimationPipeline()
-                )
+                bluetooth_pipelines.user_distance_estimation_pipeline()
             )
 
     @property
