@@ -82,8 +82,9 @@ class FindColorStateToTrack(State):
 
         if GRAPHICAL_OUTPUT:
             def show_result(*_):
-                _, _, _, _, (bbox_ok, bbox) = self.pipeline[1][0].results
-                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline.results
+                bbox_ok, bbox = self.pipeline["contour_bbox"].result
+                image = self.pipeline["image"].output
+                dev_ok, dev = self.pipeline["y_deviation"].result
 
                 # draw bounding box
                 if bbox_ok:
@@ -95,15 +96,15 @@ class FindColorStateToTrack(State):
                 if dev_ok:
                     cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
 
-                cv2.imshow('camtest', image)
-                if cv2.waitKey(1) & 0xff == ord('q'):
+                cv2.imshow("camtest", image)
+                if cv2.waitKey(1) & 0xff == ord("q"):
                     sys.exit()
 
             self.pipeline.execute_callbacks = [show_result]
 
     def on_enter(self):
         if GRAPHICAL_OUTPUT:
-            cv2.namedWindow('camtest', cv2.WINDOW_AUTOSIZE)
+            cv2.namedWindow("camtest", cv2.WINDOW_AUTOSIZE)
 
     def on_exit(self):
         if GRAPHICAL_OUTPUT:
@@ -132,8 +133,9 @@ class FindColorState(State):
 
         if GRAPHICAL_OUTPUT:
             def show_result(*_):
-                _, _, _, _, (bbox_ok, bbox) = self.pipeline[1][0].results
-                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline.results
+                bbox_ok, bbox = self.pipeline["contour_bbox"].result
+                image = self.pipeline["image"].output
+                dev_ok, dev = self.pipeline["y_deviation"].result
 
                 # draw bounding box
                 if bbox_ok:
@@ -143,7 +145,8 @@ class FindColorState(State):
 
                 # add deviation as text
                 if dev_ok:
-                    cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
+                    cv2.putText(image, str(dev), (0, image.shape[0] - 5),
+                                cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
 
                 cv2.imshow('camtest', image)
                 if cv2.waitKey(1) & 0xff == ord('q'):
@@ -208,7 +211,9 @@ class ShowEdgesState(State):
 
         if GRAPHICAL_OUTPUT:
             def show_result(*_):
-                _, (_, image), (_, edges) = self.pipeline.results
+                image = self.pipeline["image"].output
+                edges = self.pipeline["edges"].output
+                
                 cv2.imshow("camera", image)
                 cv2.imshow("edges", edges)
                 if cv2.waitKey(1) & 0xff == ord('q'):

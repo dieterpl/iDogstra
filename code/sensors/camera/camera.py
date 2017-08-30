@@ -47,6 +47,17 @@ def read():
         return array.array
 
 
+class ReadCameraPipeline(Pipeline):
+
+    def _execute(self, inp):
+        if picamera is None:
+            return camera.read()
+        else:
+            array = picamera.array.PiRGBArray(camera, size=CAMERA_RESOLUTION)
+            camera.capture(array, format='bgr', resize=CAMERA_RESOLUTION, use_video_port=True)
+            return True, array.array
+
+
 class ConvertColorspacePipeline(Pipeline):
 
     def __init__(self, to='hsv'):
