@@ -15,5 +15,5 @@ def user_distance_estimation_pipeline():
     return pipeline.PipelineSequence(
         pipeline.ConstantPipeline(config.BT_DONGLES),
         bluetooth.SnapshotBTDataPipeline(),
-        bluetooth.UserDistanceEstimationpipeline()
+        bluetooth.UserDistanceEstimationPipeline()
     )
