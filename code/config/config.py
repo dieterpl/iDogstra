@@ -34,6 +34,8 @@ MAX_TURN_SPEED = 70
 
 # Bluetooth Config
 
+BT_DONGLE_IDS = list(range(2))  # The device ids of the bt dongles to use
+
 # - Configures how the speed is recommended using bluetooth
 BT_MIN_SPEED = 20  # Min speed used during speed recommendation
 BT_MOVEMENT_RSSI_THRESHOLD = 65  # Min rssi value needed for speed recommendation

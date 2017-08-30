@@ -17,7 +17,8 @@ class IDog(StateMachine):
         StateMachine.__init__(self)
 
         logging.debug("Starting BT-Dongles")
-        config.BT_DONGLES = [bluetooth.BTDongle(i, config.BT_TARGET_UUID) for i in range(2)]
+        config.BT_DONGLES = [bluetooth.BTDongle(i, config.BT_TARGET_UUID)
+                             for i in config.BT_DONGLE_IDS]
         for dongle in config.BT_DONGLES:
             dongle.start()
 
