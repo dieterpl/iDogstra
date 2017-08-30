@@ -43,7 +43,7 @@ class Pipeline(object):
         callbacktime = current_time_millis() - start
 
         logging.info(self.debug_prefix + "Executing pipeline {} took {}ms (callbacktime: {}ms)".format(
-            self, exectime, callbacktime))
+            self.__class__.__name__, exectime, callbacktime))
 
         self.__succ = succ
         self.__output = out
