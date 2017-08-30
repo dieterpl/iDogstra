@@ -22,7 +22,7 @@ class AbstractRobotState(State):
         if abs(dev) > 0.2:
             self.robots_control.rotate(interp1d([-1, 1], [-config.MAX_TURN_SPEED, config.MAX_TURN_SPEED])(dev))
 
-    def show_result(self,*_):
+    def show_result(self, *_):
         if config.GRAPHICAL_OUTPUT:
             bbox_ok, bbox = self.pipeline["contour_bbox"].result
             image = self.pipeline["image"].output
@@ -62,7 +62,7 @@ class SearchState(AbstractRobotState):
         self.start_spin_direction = start_spin_direction
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
-        print (type(pipeline),pipeline)
+        print(type(pipeline), pipeline)
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
@@ -71,7 +71,7 @@ class SearchState(AbstractRobotState):
                 bluetooth_pipelines.user_distance_estimation_pipeline()
             )
 
-        #self.pipeline.execute_callbacks = [self.show_result]
+        # self.pipeline.execute_callbacks = [self.show_result]
 
     def on_enter(self):
         if self.start_spin_direction == "left":
@@ -111,7 +111,7 @@ class FollowState(AbstractRobotState):
     """ Follows the user using the camera and bt by moving the robot"""
 
     def __init__(self):
-        State.__init__(self)
+        AbstractRobotState.__init__(self)
         self.robots_control = robot.Robot()
         self.last_dev = 0
 
@@ -161,7 +161,7 @@ class TrackState(AbstractRobotState):
     """ Tracks the user with the camera but stays at the current position"""
 
     def __init__(self):
-        State.__init__(self)
+        AbstractRobotState.__init__(self)
         self.robots_control = robot.Robot()
         self.last_dev = 0
         # Create a pipeline that reads both camara and bluetooth inputs
@@ -176,47 +176,44 @@ class TrackState(AbstractRobotState):
 
         self.pipeline.execute_callbacks = [self.show_result]
 
+    def on_exit(self):
+        self.robots_control.stop()
 
-def on_exit(self):
-    self.robots_control.stop()
+    @property
+    def pipeline(self):
+        return self.__pipeline
 
+    def on_update(self, hist):
+        pipeline_result = hist[-1]
+        logging.debug("TrackState Pipeline results {}".format(hist[-1]))
 
-@property
-def pipeline(self):
-    return self.__pipeline
-
-
-def on_update(self, hist):
-    pipeline_result = hist[-1]
-    logging.debug("TrackState Pipeline results {}".format(hist[-1]))
-
-    # unpack results
-    cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
-    dev, distance = pipeline_result
-    dev *= -1
-    # if there are no result values go to wait state
-    if not cam_ok and not bt_ok:
-        return self.queue_next_state(WaitState())
-    if not cam_ok and bt_ok:
-        # is bt distance far then go in wait state or timeout is reached go in wait state
-        return self.queue_next_state(SearchState("left" if dev > 0 else "right"))
-    if cam_ok and not bt_ok:
-        self.last_dev = dev
-        self.motor_aligment(dev)
-        return self
-    if cam_ok and bt_ok:
-        self.last_dev = dev
-        self.motor_aligment(dev)
-        if distance != bluetooth.UserDistanceEstimationPipeline.Distance.NEAR:
-            return self.queue_next_state(FollowState())
-        return self.queue_next_state(self)
+        # unpack results
+        cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+        dev, distance = pipeline_result
+        dev *= -1
+        # if there are no result values go to wait state
+        if not cam_ok and not bt_ok:
+            return self.queue_next_state(WaitState())
+        if not cam_ok and bt_ok:
+            # is bt distance far then go in wait state or timeout is reached go in wait state
+            return self.queue_next_state(SearchState("left" if dev > 0 else "right"))
+        if cam_ok and not bt_ok:
+            self.last_dev = dev
+            self.motor_aligment(dev)
+            return self
+        if cam_ok and bt_ok:
+            self.last_dev = dev
+            self.motor_aligment(dev)
+            if distance != bluetooth.UserDistanceEstimationPipeline.Distance.NEAR:
+                return self.queue_next_state(FollowState())
+            return self.queue_next_state(self)
 
 
 class WaitState(AbstractRobotState):
     """ waits until bt is near or woken up by other sensors"""
 
     def __init__(self):
-        State.__init__(self)
+        AbstractRobotState.__init__(self)
 
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
