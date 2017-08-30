@@ -9,6 +9,7 @@ import math
 import time
 import logging
 
+from enum import Enum
 from collections import deque, namedtuple
 from threading import Thread, Lock
 from utils.functions import current_time_millis, overrides
@@ -250,4 +251,37 @@ class RecommendedSpeedPipeline(Pipeline):
             speed = min(100, self.min_speed + self.multiplier *
                     (avg_strength - self.threshold))
         return (True, speed)
+
+
+class UserDistanceEstimationPipeline(Pipeline):
+    """A pipeline that return the distance of the user in three areas far, medium, near"""
+
+    class Distance(Enum):
+        FAR = 3
+        MEDIUM = 2
+        NEAR = 1
+
+    def __init__(self, **thresholds):
+        Pipeline.__init__(self)
+        self.far_threshold = thresholds.get(self.Distance.FAR, 80)
+        self.medium_threshold = thresholds.get(self.Distance.MEDIUM, 60)
+        self.near_threshold = thresholds.get(self.Distance.NEAR, 0);
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        """Takes a list of DataList objects, and returns the recommended
+        speed in the interval [0;100]"""
+        if len(inp) == 0:
+            return (False, None)
+        data_count = sum(len(data) for data in inp)
+        logging.debug("data_count=" + str(data_count))
+        if data_count == 0:
+            return (False, None)
+        avg_strength = sum(data.avg() for data in inp) / len(inp)
+        logging.info("avg_strength=" + str(avg_strength))
+        if avg_strength > self.far_threshold:
+            return True, self.Distance.FAR
+        if avg_strength > self.medium_threshold:
+            return True, self.Distance.MEDIUM
+        return True, self.Distance.NEAR
 
