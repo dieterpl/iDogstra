@@ -1,5 +1,5 @@
 import time  # import the time library for the sleep function
-from threading import Thread
+from threading import Thread, Condition, Lock
 from screen import Screen
 
 
@@ -15,40 +15,56 @@ class Gesture(Thread):
     }
 
     def __init__(self):
+        Thread.__init__(self)
+        self.paused = False
+        self.pause_condition = Condition(Lock())
+
         self.current_gesture = "default"
+        self.current_frame = 0
+        # set picture delay to add up to exactly 1s for each picture sequence
         self.picture_delay = 1 / len(Gesture.PICTURES["default"])
         self.screen = Screen()
-
-        self.initial_state()
-
-    def run():
-        print("Gestures running")
-        doEmotion()
-        print("Gestures stopping")
-
-    def initial_state(self):
         self.gesture_running = False
 
-        default_picture = Gesture.PICTURES["default"]
-        self.screen.change_gesture(default_picture)
+        # show default picture after initialization
+        self.screen.change_picture(Gesture.PICTURES["default"])
 
-    def doEmotion(self):
-        while True:
-            for index in Gesture.PICTURES[self.current_gesture]:
-                picture = self.get_picture(index)
-                self.screen.change_gesture(picture)
-                time.sleep(self.picture_delay)
-
-    def get_picture(self, framenumber):
+    def __next_picture(self):
         picture_frames = Gesture.PICTURES[self.current_gesture]
-        picture_number = picture_frames[framenumber]
+        picture_number = picture_frame[self.current_frame]
 
         return "./pics/%s_%d.gif" % (self.current_gesture, picture_number)
 
     def change_gesture(self, gesture):
-        if gesture in GesturePICTURES.keys():
+        if gesture in Gesture.PICTURES.keys():
             self.current_gesture = gesture
+            self.current_frame = 0
             self.picture_delay = 1 / len(Gesture.PICTURES[gesture])
+
+    def run(self):
+        print("Gestures running")
+        while True:
+            with self.pause_condition:
+                while self.paused:
+                    self.pause_condition.wait()
+
+                picture_path = self.__next_picture()
+                self.screen.change_picture(picture_path)
+                self.current_frame += 1
+
+                time.sleep(self.picture_delay)
+            time.sleep(5)
+
+        print("Gestures stopping")
+
+    def pause(self):
+        self.paused = True
+        self.pause_condition.acquire()
+
+    def resume(self):
+        self.paused = False
+        self.pause_condition.notify()
+        self.pause_condition.release()
 
 
 if __name__ == '__main__':

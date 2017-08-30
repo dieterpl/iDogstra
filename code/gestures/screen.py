@@ -68,7 +68,7 @@ class Screen:
         # time to start thread
         time.sleep(2)
 
-    def change_gesture(self, gesture_path):
+    def change_picture(self, gesture_path):
         """
         method th change the picture by selecting gesture
         :param gesture: string to new image
@@ -82,9 +82,9 @@ class Screen:
 #        sd = ScreenDog()
 #        while True:
 #            time.sleep(2.5)
-#            sd.change_gesture(sd.Gesture.neutral)
+#            sd.change_picture(sd.Gesture.neutral)
 #            time.sleep(5.5)
-#            sd.change_gesture(sd.Gesture.confused)
+#            sd.change_picture(sd.Gesture.confused)
 #            # Beim Abbruch durch STRG+C resetten
 #    except KeyboardInterrupt:
 #        print("Messung vom User gestoppt")
