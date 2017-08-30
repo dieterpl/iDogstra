@@ -62,6 +62,7 @@ class SearchState(AbstractRobotState):
         self.start_spin_direction = start_spin_direction
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
+        print (type(pipeline),pipeline)
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
