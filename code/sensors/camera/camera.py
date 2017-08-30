@@ -46,17 +46,18 @@ class ReadCameraPipeline(Pipeline):
         self.__last_sucess = False
         self.__last_capture = None
 
-        Thread(target=self.__read)
+        Thread(target=self.__read).start()
 
     def __read(self):
-        if picamera is None:
-            self.__last_sucess, self.__last_capture = camera.read()
-        else:
-            array = picamera.array.PiRGBArray(camera, size=CAMERA_RESOLUTION)
-            camera.capture(array, format='bgr', resize=CAMERA_RESOLUTION, use_video_port=True)
+        while True:
+            if picamera is None:
+                self.__last_sucess, self.__last_capture = camera.read()
+            else:
+                array = picamera.array.PiRGBArray(camera, size=CAMERA_RESOLUTION)
+                camera.capture(array, format='bgr', resize=CAMERA_RESOLUTION, use_video_port=True)
 
-            self.__last_capture = array.array
-            self.__last_sucess = True
+                self.__last_capture = array.array
+                self.__last_sucess = True
 
     def _execute(self, inp):
         return self.__last_sucess and self.__last_capture is not None, self.__last_capture

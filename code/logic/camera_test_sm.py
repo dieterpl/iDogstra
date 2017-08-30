@@ -262,13 +262,14 @@ class ShowImageState(State):
 
     def __init__(self):
         State.__init__(self)
-        self.__pipeline = pipeline.AtomicFunctionPipeline(lambda _: camera.read())
+        self.__pipeline = camera.ReadCameraPipeline()
 
         if GRAPHICAL_OUTPUT:
             def show_result(_, image):
-                cv2.imshow('camera', image)
-                if cv2.waitKey(1) & 0xff == ord('q'):
-                    sys.exit()
+                if image is not None:
+                    cv2.imshow("camera", image)
+                    if cv2.waitKey(1) & 0xff == ord('q'):
+                        sys.exit()
 
             self.pipeline.execute_callbacks = [show_result]
 
