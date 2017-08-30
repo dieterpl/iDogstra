@@ -36,6 +36,7 @@ class ScreenDog:
         self.window = None
         self.root = None
         self.__show_window()
+
     def __open_window(self):
         """
         privat method to dispaly window on pi in fullscreen
@@ -63,7 +64,6 @@ class ScreenDog:
         self.root.after(100, self.__change_picture_callback)
         self.window.mainloop()
 
-
     def __change_picture_callback(self):
         """
         callback used to update the picture tk interal stuff
@@ -84,8 +84,6 @@ class ScreenDog:
         self.t.start()
         # time to start thread
         time.sleep(2)
-
-
 
     def change_gesture(self, gesture):
         """
