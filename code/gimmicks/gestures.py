@@ -1,12 +1,10 @@
 import time  # import the time library for the sleep function
-import brickpi3  # import the BrickPi3 drivers
 import sys
 import os
 sys.path.append(os.path.abspath("/home/pi/An/iDogstra/code/motor"))
 sys.path.append(os.path.abspath("/home/pi/An/iDogstra/code/gestures"))
-import head
 import screenDog
-#from threading import Thread
+from threading import Thread
 
 
 """
@@ -57,22 +55,19 @@ class Gestures():
                     gs.screen.change_gesture(element)
                     time.sleep(1/len(emotionArray))
 
-#def startHeadshaking(breakflag):
-    #while not breakflag:
-        #gs.head.headshake(gs.head.MAX_RANGE / 4, breakflag)
-   # gs.head.goToPosition(gs.head.PORT, 0, gs.head.MAX_RANGE)
+def swap(flag, time):
+    time.sleep(time)
+    flag = False;
+    print("now breaking")
 
 
 if __name__ == '__main__':
     with Gestures() as gs:
         flag = False
+        t1 = Thread(target=swap(flag,5))
+        t1.start()
 
-        gs.doEmotion(flag, gs.screen.Gesture.sleepArray)
-        time.sleep(15)
-        print("now false")
+        #gs.doEmotion(flag, gs.screen.Gesture.sleepArray)
+
         gs.doEmotion(flag, gs.screen.Gesture.searchArray)
-        #flag = True
 
-        #gs.head.headshake(gs.head.MAX_RANGE*3)
-
-        #gs.idle(False)
