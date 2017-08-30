@@ -23,9 +23,10 @@ class CheckFrequencyState(State):
         State.__init__(self)
 
         self.__pipeline = pipeline.PipelineSequence(
-            lambda _: microphone.read(),
-            microphone.fft,
-            microphone.freq_value
+            microphone.ReadMicrophonePipeline(device=4),
+            microphone.FFTPipeline(),
+            microphone.FilterFrequencyPipeline(freq=14079),
+            microphone.SignalStartEndPipeline()
         )
 
     @property
@@ -33,10 +34,12 @@ class CheckFrequencyState(State):
         return self.__pipeline
 
     def on_update(self, hist):
-        _, _, _, (_, v) = self.pipeline.results
-        if v > 5000:
-            print("Tone!")
-        else:
-            print("No Tone!")
+        sig = self.pipeline.output
+
+        if sig > 0:
+            print("Signal started!")
+        elif sig < 0:
+            print("Signal ended!")
+
         return self
 
