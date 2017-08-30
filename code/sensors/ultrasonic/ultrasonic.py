@@ -77,13 +77,13 @@ class UltraSonic:
         while len(self.data_deque) > 0 and self.data_deque[0].time < threshold:
             self.data_deque.popleft()
 
-    def __len__(self):
+    def get_avg_value(self):
         """ Returns the average of the measured data"""
         if len(self.data_deque) == 0:
             return None
         return sum(self.data_deque) / len(self.data_deque)
 
-    def get_data_count(self):
+    def __len__(self):
         """Returns the amount of data that is present in the queue"""
         # As old data is only removed when new data is added, we have to
         # ensure that old data is being deleted before counting the elements
@@ -110,4 +110,4 @@ class USGetDistancePipeline(Pipeline):
         """Takes an UltraSonic object and returns the average value."""
         if len(inp) == 0:
             return False, None
-        return True, inp.get_data_count()
+        return True, inp.get_avg_value()
