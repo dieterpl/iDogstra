@@ -25,9 +25,48 @@ class CameraTestSM(StateMachine):
             self._current_state.first_state = FindColorState()
         elif testmode == "track-color":
             self._current_state.first_state = FindColorStateToTrack()
+        elif testmode == "detect-person":
+            self._current_state.first_state = DetectPersonState()
+        elif testmode == "find-legs":
+            self._current_state.first_state = FindLegsState()
         else:
             logging.warning("Unkown testmode '{}'. Falling back to show-image".format(testmode))
             self._current_state.first_state = ShowImageState()
+
+
+class FindLegsState(State):
+    def __init__(self):
+        State.__init__(self)
+
+        self.__pipeline = camera_pipelines.find_legs_pipeline()
+
+        if GRAPHICAL_OUTPUT:
+            def show_result(*_):
+                image = self.pipeline["image"].output
+                legs = self.pipeline["legs"].output
+
+                cv2.imshow("camera", image)
+                cv2.imshow("legs", legs)
+                if cv2.waitKey(1) & 0xff == ord('q'):
+                    sys.exit()
+
+            self.pipeline.execute_callbacks = [show_result]
+
+    def on_enter(self):
+        if GRAPHICAL_OUTPUT:
+            cv2.namedWindow("camera", cv2.WINDOW_AUTOSIZE)
+            cv2.namedWindow("legs", cv2.WINDOW_AUTOSIZE)
+
+    def on_exit(self):
+        if GRAPHICAL_OUTPUT:
+            cv2.destroyAllWindows()
+
+    @property
+    def pipeline(self):
+        return self.__pipeline
+
+    def on_update(self, hist):
+        return self
 
 
 class TrackObjectState(State):
@@ -60,6 +99,47 @@ class TrackObjectState(State):
     def on_enter(self):
         if GRAPHICAL_OUTPUT:
             cv2.namedWindow('camtest', cv2.WINDOW_AUTOSIZE)
+
+    def on_exit(self):
+        if GRAPHICAL_OUTPUT:
+            cv2.destroyAllWindows()
+
+    @property
+    def pipeline(self):
+        return self.__pipeline
+
+    def on_update(self, hist):
+        return self
+
+
+class DetectPersonState(State):
+
+    def __init__(self):
+        State.__init__(self)
+
+        self.__pipeline = camera_pipelines.haarcascade_pipeline(
+            haarfile=os.path.join(HAARPATH, "lowerbody.xml"))
+
+        if GRAPHICAL_OUTPUT:
+            def show_result(*_):
+                bboxes = self.pipeline["cascades"].output
+                image = self.pipeline["image"].output
+
+                # draw bounding box
+                for bbox in bboxes:
+                    p1 = (int(bbox[0]), int(bbox[1]))
+                    p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+                    cv2.rectangle(image, p1, p2, (0, 0, 255))
+
+                cv2.imshow("camtest", image)
+                if cv2.waitKey(1) & 0xff == ord("q"):
+                    sys.exit()
+
+            self.pipeline.execute_callbacks = [show_result]
+
+    def on_enter(self):
+        if GRAPHICAL_OUTPUT:
+            cv2.namedWindow("camtest", cv2.WINDOW_AUTOSIZE)
 
     def on_exit(self):
         if GRAPHICAL_OUTPUT:

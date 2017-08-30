@@ -4,6 +4,7 @@ import time
 
 import cv2
 import numpy as np
+import random
 
 from config.config import *
 from sensors.pipeline import Pipeline
@@ -195,3 +196,41 @@ class EdgeDetectionPipeline(Pipeline):
     def _execute(self, inp):
         return True, cv2.Canny(inp, self.threshold_lower, self.threshold_upper)
 
+
+class HaarcascadePipeline(Pipeline):
+
+    def __init__(self, haarfile):
+        Pipeline.__init__(self)
+        self.detector = cv2.CascadeClassifier(haarfile)
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        return True, self.detector.detectMultiScale(inp)
+
+
+class FindLegsPipeline(Pipeline):
+
+    def __init__(self):
+        Pipeline.__init__(self)
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        result = np.zeros(inp.shape)
+
+        height, width = inp.shape
+        for y in range(0, height, 10):
+            edge_points = []
+            for x in range(0, width):
+                if inp[y, x] > 0:
+                    edge_points.append(x)
+
+            for i in range(1, len(edge_points)):
+                x1, x2 = edge_points[i-1], edge_points[i]
+
+                for x in range(x1, x2+1):
+                    result[y, x] = 255
+                for yy in range(max(0, y-10), min(height, y+10)):
+                    result[yy, x1] = 255
+                    result[yy, x2] = 255
+
+        return True, result
