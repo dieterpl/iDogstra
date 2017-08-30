@@ -26,18 +26,20 @@ BT_DONGLES = []
 
 STATE_SWITCH_COOLDOWN = 1000
 
-SEARCH_SPEED = 30
+SEARCH_SPEED = 40
 
 SEARCH_TIMEOUT = 10000
 
-MAX_TURN_SPEED = 100
+MAX_TURN_SPEED = 70
+
+
 
 ## Bluetooth Config
 
 ### Configures how the speed is recommended using bluetooth
 BT_MIN_SPEED = 15  # Min speed used during speed recommendation
 BT_MOVEMENT_RSSI_THRESHOLD = 60  # Min rssi value needed for speed recommendation
-BT_MULTIPLIER = 3.0  # Multiplies the recommended speed
+BT_MULTIPLIER = 7.0  # Multiplies the recommended speed
 
 ### Configures the distance estimation thresholds
 BT_DISTANCE_THRESHOLDS = {
