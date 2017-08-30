@@ -33,7 +33,7 @@ MAX_TURN_SPEED = 50
 
 ### Configures how the speed is recommended using bluetooth
 BT_MIN_SPEED = 15  # Min speed used during speed recommendation
-BT_MOVEMENT_RISS_THRESHOLD = 60  # Min rssi value needed for speed recommendation
+BT_MOVEMENT_RSSI_THRESHOLD = 60  # Min rssi value needed for speed recommendation
 BT_MULTIPLIER = 3.0  # Multiplies the recommended speed
 
 ### Configures the distance estimation thresholds

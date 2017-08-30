@@ -228,7 +228,7 @@ class RecommendedSpeedPipeline(Pipeline):
     def __init__(self):
         Pipeline.__init__(self)
         self.min_speed = config.BT_MIN_SPEED
-        self.threshold = config.BT_MOVEMENT_THRESHOLD
+        self.threshold = config.BT_MOVEMENT_RSSI_THRESHOLD
         self.multiplier = config.BT_MULTIPLIER
 
     @overrides(Pipeline)
