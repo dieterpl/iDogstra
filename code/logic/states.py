@@ -8,15 +8,16 @@ import logging
 import config
 import cv2
 import sys
+from scipy.interpolate import interp1d
 
+class AbstractRobotState(State):
+    def __init__(self):
 
-
-
-class SearchState(State):
+class SearchState(AbstractRobotState):
     """Turn robot in circles until the user is found or timeout occurred"""
 
     def __init__(self, start_spin_direction="left"):
-        State.__init__(self)
+        AbstractRobotState.__init__(self)
         self.start_time = None
         self.robots_control = robot.Robot()
         self.start_spin_direction = start_spin_direction
@@ -51,9 +52,9 @@ class SearchState(State):
             self.pipeline.execute_callbacks = [show_result]
     def on_enter(self):
         if self.start_spin_direction == "left":
-            self.robots_control.left(25)
+            self.robots_control.left(config.SEARCH_SPEED)
         else:
-            self.robots_control.right(25)
+            self.robots_control.right(config.SEARCH_SPEED)
         self.start_time = current_time_millis()
 
     def on_exit(self):
@@ -74,7 +75,7 @@ class SearchState(State):
             return WaitState()
         if not cam_ok and bt_ok:
             # is bt distance far then go in wait state or timeout is reached go in wait state
-            if current_time_millis() - self.start_time > 30000 or distance == bluetooth.UserDistanceEstimationPipeline.Distance.FAR:
+            if current_time_millis() - self.start_time > config.SEARCH_TIMEOUT or distance == bluetooth.UserDistanceEstimationPipeline.Distance.FAR:
                 return WaitState()
             return self
         if cam_ok and not bt_ok:
@@ -83,7 +84,7 @@ class SearchState(State):
             return FollowState()
 
 
-class FollowState(State):
+class FollowState(AbstractRobotState):
     """ Follows the user using the camera and bt by moving the robot"""
 
     def __init__(self):
@@ -154,24 +155,14 @@ class FollowState(State):
             return self.queue_next_state(TrackState())
         if cam_ok and bt_ok:
             self.last_dev = dev
-            if dev < -0.6:
-                self.robots_control.right(50)
-            elif dev < -0.3:
-                self.robots_control.right(30)
-            elif dev < -0.2:
-                self.robots_control.right(10)
-            elif dev > 0.6:
-                self.robots_control.left(50)
-            elif dev > 0.3:
-                self.robots_control.left(30)
-            elif dev > 0.2:
-                self.robots_control.left(10)
+            if abs(dev) < 0.2:
+                self.robots_control.rotate(interp1d([-1, 1], [-config.MAX_TURN_SPEED, config.MAX_TURN_SPEED])(dev))
             else:
                 self.robots_control.forward(speed)
             return self.queue_next_state(self)
 
 
-class TrackState(State):
+class TrackState(AbstractRobotState):
     """ Tracks the user with the camera but stays at the current position"""
 
     def __init__(self):
@@ -257,7 +248,7 @@ class TrackState(State):
             return self
 
 
-class WaitState(State):
+class WaitState(AbstractRobotState):
     """ waits until bt is near or woken up by other sensors"""
 
     def __init__(self):
