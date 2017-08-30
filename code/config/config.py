@@ -2,7 +2,7 @@ import os
 
 CAMERA_RESOLUTION = (640, 480)  # the resolution to use for the raspberry pi camera
 
-DETECTION_SIZE_THRESHOLD = .1  # minimum size of a colored object, relative to the total image size
+DETECTION_SIZE_THRESHOLD = .05  # minimum size of a colored object, relative to the total image size
 
 DEBUG_MODE = True  # enable or disable debug mode
 

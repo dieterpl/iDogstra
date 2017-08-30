@@ -19,7 +19,6 @@ class AbstractRobotState(State):
         self.state_switching_timestamp = None
 
     def motor_alignment(self, dev):
-        dev *= -1
         if abs(dev) > 0.2:
             self.robots_control.rotate(interp1d([-1, 1], [-config.MAX_TURN_SPEED, config.MAX_TURN_SPEED])(dev))
 
