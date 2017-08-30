@@ -47,7 +47,7 @@ def box_tracking_pipeline(frame, bbox):
 def edge_detection_pipeline(hysteresis_lower=100, hysteresis_upper=200):
     return \
         PipelineSequence(
-            ("image", lambda inp: camera.read()),
+            ("image", camera.ReadCameraPipeline()),
             ("edges", camera.EdgeDetectionPipeline(threshold_lower=hysteresis_lower, threshold_upper=hysteresis_upper))
         )
 
