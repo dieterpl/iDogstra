@@ -43,7 +43,7 @@ class ReadCameraPipeline(Pipeline):
     def __init__(self):
         Pipeline.__init__(self)
 
-        self.__last_sucess = None
+        self.__last_sucess = False
         self.__last_capture = None
 
         Thread(target=self.__read)
@@ -59,7 +59,7 @@ class ReadCameraPipeline(Pipeline):
             self.__last_sucess = True
 
     def _execute(self, inp):
-        return self.__last_sucess and not self.__last_capture is None, self.__last_capture
+        return self.__last_sucess and self.__last_capture is not None, self.__last_capture
 
 
 class ConvertColorspacePipeline(Pipeline):
