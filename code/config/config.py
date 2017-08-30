@@ -10,6 +10,8 @@ GRAPHICAL_OUTPUT = True  # enable or disable graphical output
 
 TRACKING_ALGORITHM = 'TLD'  # algorithm to use for object tracking in images
 
+USE_TRUE_PARALLEL_PIPELINES = True  # use multithreading in parallel pipelines
+
 USE_USB_CAMERA = False
 # the paths to relevant directories of the project
 ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir, os.path.pardir))

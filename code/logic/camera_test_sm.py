@@ -43,10 +43,17 @@ class FindLegsState(State):
         if GRAPHICAL_OUTPUT:
             def show_result(*_):
                 image = self.pipeline["image"].output
-                legs = self.pipeline["legs"].output
+                edges = self.pipeline["edges"].output
+                legs, candidates = self.pipeline["legs"].output
+
+                for leg in candidates:
+                    print(leg[0], leg[1])
+                    cv2.line(image, leg[0], leg[1], (0, 0, 255))
 
                 cv2.imshow("camera", image)
+                cv2.imshow("edges", edges)
                 cv2.imshow("legs", legs)
+
                 if cv2.waitKey(1) & 0xff == ord('q'):
                     sys.exit()
 
@@ -55,6 +62,7 @@ class FindLegsState(State):
     def on_enter(self):
         if GRAPHICAL_OUTPUT:
             cv2.namedWindow("camera", cv2.WINDOW_AUTOSIZE)
+            cv2.namedWindow("edges", cv2.WINDOW_AUTOSIZE)
             cv2.namedWindow("legs", cv2.WINDOW_AUTOSIZE)
 
     def on_exit(self):
@@ -254,13 +262,14 @@ class ShowImageState(State):
 
     def __init__(self):
         State.__init__(self)
-        self.__pipeline = pipeline.AtomicFunctionPipeline(lambda _: camera.read())
+        self.__pipeline = camera.ReadCameraPipeline()
 
         if GRAPHICAL_OUTPUT:
             def show_result(_, image):
-                cv2.imshow('camera', image)
-                if cv2.waitKey(1) & 0xff == ord('q'):
-                    sys.exit()
+                if image is not None:
+                    cv2.imshow("camera", image)
+                    if cv2.waitKey(1) & 0xff == ord('q'):
+                        sys.exit()
 
             self.pipeline.execute_callbacks = [show_result]
 
