@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath("/home/pi/An/iDogstra/code/motor"))
 sys.path.append(os.path.abspath("/home/pi/An/iDogstra/code/gestures"))
 import head
 import screenDog
-from threading import Thread
+#from threading import Thread
 
 
 """
@@ -49,21 +49,29 @@ class Gestures():
                     gs.screen.change_gesture(element)
                     time.sleep(0.5)
 
-def startHeadshaking(breakflag):
-    while not breakflag:
-        gs.head.headshake(gs.head.MAX_RANGE / 4, breakflag)
-    gs.head.goToPosition(gs.head.PORT, 0, gs.head.MAX_RANGE)
+
+    def doEmotion(self, breakflag, emotionArray):
+        while not breakflag:
+            for element in emotionArray:
+                if not breakflag:
+                    gs.screen.change_gesture(element)
+                    time.sleep(1/len(emotionArray))
+
+#def startHeadshaking(breakflag):
+    #while not breakflag:
+        #gs.head.headshake(gs.head.MAX_RANGE / 4, breakflag)
+   # gs.head.goToPosition(gs.head.PORT, 0, gs.head.MAX_RANGE)
 
 
 if __name__ == '__main__':
     with Gestures() as gs:
         flag = False
-        gs.search(flag)
 
-
+        gs.doEmotion(flag, gs.screen.Gesture.sleepArray)
         time.sleep(15)
         print("now false")
-        flag = True
+        gs.doEmotion(flag, gs.screen.Gesture.searchArray)
+        #flag = True
 
         #gs.head.headshake(gs.head.MAX_RANGE*3)
 
