@@ -1,4 +1,5 @@
 import time  # import the time library for the sleep function
+
 try:
     import brickpi3
     BP = brickpi3.BrickPi3()
@@ -8,7 +9,7 @@ except ModuleNotFoundError:
     brickpi3 = None
 
 class InfraRed:
-    def __enter__(self):
+    def __init__(self):
         """
         setting up pi and brickpi for ir sensor
         :return: -
@@ -57,9 +58,6 @@ class InfraRed:
             return mean / mean_counter
         return -1
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        # self.BP.reset_all() Kills BrickPi
-        return None
 
 #if __name__ == '__main__':
 #    with InfraRed() as ir:

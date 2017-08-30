@@ -47,6 +47,15 @@ BT_DISTANCE_THRESHOLDS = {
     "medium": 60,
     "near": 0
 }
-
 # - Misc
 BT_TIME_THRESHOLD = 1800  # The time in ms from which bt data is collected
+
+# Ultrasonic Config
+
+US_MAX_VALUE = 300  # Max distance cap
+
+# - Hardware pin config
+
+US_GPIO_TRIGGER = 26
+
+US_GPIO_ECHO = 20
