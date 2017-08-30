@@ -7,8 +7,22 @@ class Pipeline(object):
 
     def __init__(self):
         self.execute_callbacks = []
-        self.__succ = False
         self._debug_prefix = ""
+
+        self.__succ = False
+        self.__output = None
+
+    def reset_pipeline(self):
+        self.__succ = False
+        self.__output = None
+
+    @property
+    def output(self):
+        return self.__output
+
+    @property
+    def result(self):
+        return self.success_state, self.output
 
     @property
     def debug_prefix(self):
@@ -23,6 +37,8 @@ class Pipeline(object):
         self._debug_prefix = value
 
     def run_pipeline(self, inp):
+        self.reset_pipeline()
+
         start = current_time_millis()
         succ, out = self._execute(inp)
         exectime = current_time_millis() - start
@@ -33,8 +49,11 @@ class Pipeline(object):
         callbacktime = current_time_millis() - start
 
         logging.info(self.debug_prefix + "Executing pipeline {} took {}ms (callbacktime: {}ms)".format(
-            self, exectime, callbacktime))
+            self.__class__.__name__, exectime, callbacktime))
+
         self.__succ = succ
+        self.__output = out
+
         return out
 
     def _execute(self, inp):
@@ -49,12 +68,45 @@ class CompositePipeline(Pipeline):
     def __init__(self, *pipelines):
         Pipeline.__init__(self)
 
-        self.__pipelines = [s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in pipelines]
-        for p in pipelines:
-            print(type(p), p)
-        self._results = None
+        self.__named_pipelines = {}
 
+        self.__pipelines = []
+        for p in pipelines:
+            if issubclass(type(p), CompositePipeline):  # element is a composite pipeline
+                self.__named_pipelines.update(p.named_pipelines)
+                self.__pipelines.append(p)
+            elif issubclass(type(p), Pipeline):  # element is a pipeline, but NOT a composite pipeline
+                self.__pipelines.append(p)
+            elif type(p) == tuple:
+                name = p[0]
+                # check type of first element
+                if issubclass(type(p[1]), CompositePipeline):
+                    self.__named_pipelines.update(p[1].named_pipeline)
+                    toappend = p[1]
+                elif issubclass(type(p[1]), Pipeline):
+                    toappend = p[1]
+                else:
+                    toappend = AtomicFunctionPipeline(p[1])
+                if name in self.__named_pipelines:
+                    logging.warning("Name '{}' already exists in the CompositePipeline".format(name))
+                self.__named_pipelines[name] = toappend
+                self.__pipelines.append(toappend)
+            else:
+                self.__pipelines.append(AtomicFunctionPipeline(p))
+
+        self._results = None
         self.debug_prefix = ""
+
+    @overrides(Pipeline)
+    def reset_pipeline(self):
+        Pipeline.reset_pipeline(self)
+
+        for p in self.pipelines:
+            p.reset_pipeline()
+
+    @property
+    def named_pipelines(self):
+        return self.__named_pipelines
 
     @property
     def debug_prefix(self):
@@ -77,8 +129,13 @@ class CompositePipeline(Pipeline):
     def _execute(self, inp):
         raise NotImplementedError()
 
-    def __getitem__(self, item):
-        return self.pipelines[item]
+    def __getitem__(self, key):
+        if type(key) == int:
+            return self.pipelines[key]
+        elif type(key) == str:
+            return self.named_pipelines[key]
+        else:
+            raise TypeError()
 
 
 class EmptyPipeline(Pipeline):
@@ -206,6 +263,5 @@ class ConstantPipeline(Pipeline):
 
     def __str__(self):
         return "[ConstantPipeline|const=" + str(self.__const) + "]"
-
 
 
