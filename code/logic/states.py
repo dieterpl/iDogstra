@@ -10,25 +10,49 @@ import cv2
 import sys
 from scipy.interpolate import interp1d
 
+
 class AbstractRobotState(State):
     def __init__(self):
         State.__init__(self)
         self.robots_control = robot.Robot()
+        self.next_state = None
+        self.state_switching_timestamp = None
 
     def motor_alignment(self, dev):
-        if dev < -0.6:
-            self.robots_control.right(50)
-        elif dev < -0.3:
-            self.robots_control.right(30)
-        elif dev < -0.2:
-            self.robots_control.right(10)
-        elif dev > 0.6:
-            self.robots_control.left(50)
-        elif dev > 0.3:
-            self.robots_control.left(30)
-        elif dev > 0.2:
+        if abs(dev) > 0.2:
+            self.robots_control.rotate(interp1d([-1, 1], [-config.MAX_TURN_SPEED, config.MAX_TURN_SPEED])(dev))
 
-            self.robots_control.left(10)
+    def show_result(*_):
+        if config.GRAPHICAL_OUTPUT:
+            bbox_ok, bbox = pipeline["contour_bbox"].result
+            image = pipeline["image"].output
+            dev_ok, dev = pipeline["y_deviation"].result
+
+            # draw bounding box
+            if bbox_ok:
+                p1 = (int(bbox[0]), int(bbox[1]))
+                p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+                cv2.rectangle(image, p1, p2, (0, 0, 255))
+
+            # add deviation as text
+            if dev_ok:
+                cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6,
+                            [0, 255, 0])
+
+            cv2.imshow("camtest", image)
+            if cv2.waitKey(1) & 0xff == ord("q"):
+                sys.exit()
+
+    def queue_next_state(self, next_state):
+        if self.next_state != type(next_state):
+            self.next_state = type(next_state)
+            self.state_switching_timestamp = current_time_millis()
+        if current_time_millis() - self.state_switching_timestamp > config.STATE_SWITCH_COOLDOWN:
+            return next_state
+        else:
+            return self
+
+
 class SearchState(AbstractRobotState):
     """Turn robot in circles until the user is found or timeout occurred"""
 
@@ -45,26 +69,9 @@ class SearchState(AbstractRobotState):
                 # Bluetooth inputs
                 bluetooth_pipelines.user_distance_estimation_pipeline()
             )
-        if config.GRAPHICAL_OUTPUT:
-            def show_result(*_):
-                _, _, _, _, (bbox_ok, bbox) = self.pipeline[0][1][0].results
-                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline[0].results
 
-                # draw bounding box
-                if bbox_ok:
-                    p1 = (int(bbox[0]), int(bbox[1]))
-                    p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
-                    cv2.rectangle(image, p1, p2, (0, 0, 255))
+        self.pipeline.execute_callbacks = [self.show_result]
 
-                # add deviation as text
-                if dev_ok:
-                    cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
-
-                cv2.imshow('camtest', image)
-                if cv2.waitKey(1) & 0xff == ord('q'):
-                    sys.exit()
-
-            self.pipeline.execute_callbacks = [show_result]
     def on_enter(self):
         if self.start_spin_direction == "left":
             self.robots_control.left(config.SEARCH_SPEED)
@@ -106,8 +113,7 @@ class FollowState(AbstractRobotState):
         State.__init__(self)
         self.robots_control = robot.Robot()
         self.last_dev = 0
-        self.next_state = None
-        self.state_switching_timestamp = None
+
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
         self.__pipeline = \
@@ -117,26 +123,9 @@ class FollowState(AbstractRobotState):
                 # Bluetooth inputs
                 bluetooth_pipelines.recommended_speed_pipeline()
             )
-        if config.GRAPHICAL_OUTPUT:
-            def show_result(*_):
-                _, _, _, _, (bbox_ok, bbox) = self.pipeline[0][1][0].results
-                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline[0].results
 
-                # draw bounding box
-                if bbox_ok:
-                    p1 = (int(bbox[0]), int(bbox[1]))
-                    p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
-                    cv2.rectangle(image, p1, p2, (0, 0, 255))
+        self.pipeline.execute_callbacks = [self.show_result]
 
-                # add deviation as text
-                if dev_ok:
-                    cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
-
-                cv2.imshow('camtest', image)
-                if cv2.waitKey(1) & 0xff == ord('q'):
-                    sys.exit()
-
-            self.pipeline.execute_callbacks = [show_result]
     def on_exit(self):
         self.robots_control.stop()
 
@@ -144,22 +133,13 @@ class FollowState(AbstractRobotState):
     def pipeline(self):
         return self.__pipeline
 
-    def queue_next_state(self, next_state):
-        if self.next_state != type(next_state):
-            self.next_state = type(next_state)
-            self.state_switching_timestamp = current_time_millis()
-        if current_time_millis() - self.state_switching_timestamp > config.STATE_SWITCH_COOLDOWN:
-            return next_state
-        else:
-            return self
-
     def on_update(self, hist):
         pipeline_result = hist[-1]
         logging.debug("FollowState Pipeline results {}".format(hist[-1]))
         # unpack results
         cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
         dev, speed = pipeline_result
-        dev*=-1
+        dev *= -1
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return self.queue_next_state(WaitState())
@@ -170,18 +150,16 @@ class FollowState(AbstractRobotState):
             return self.queue_next_state(TrackState())
         if cam_ok and bt_ok:
             self.last_dev = dev
-            if abs(dev) < 0.2:
-                self.robots_control.rotate(interp1d([-1, 1], [-config.MAX_TURN_SPEED, config.MAX_TURN_SPEED])(dev))
-            else:
-                self.robots_control.forward(speed)
-            return self.queue_next_state(self)
+            self.motor_alignment(dev)
+        else:
+            self.robots_control.forward(speed)
+        return self.queue_next_state(self)
 
 
 class TrackState(AbstractRobotState):
     """ Tracks the user with the camera but stays at the current position"""
 
     def __init__(self):
-
         State.__init__(self)
         self.robots_control = robot.Robot()
         self.last_dev = 0
@@ -194,61 +172,43 @@ class TrackState(AbstractRobotState):
                 # Bluetooth inputs
                 bluetooth_pipelines.user_distance_estimation_pipeline()
             )
-        if config.GRAPHICAL_OUTPUT:
-            def show_result(*_):
-                _, _, _, _, (bbox_ok, bbox) = self.pipeline[0][1][0].results
-                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline[0].results
 
-                # draw bounding box
-                if bbox_ok:
-                    p1 = (int(bbox[0]), int(bbox[1]))
-                    p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
-                    cv2.rectangle(image, p1, p2, (0, 0, 255))
-
-                # add deviation as text
-                if dev_ok:
-                    cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
-
-                cv2.imshow('camtest', image)
-                if cv2.waitKey(1) & 0xff == ord('q'):
-                    sys.exit()
-
-            self.pipeline.execute_callbacks = [show_result]
-
-    def on_exit(self):
-        self.robots_control.stop()
-
-    @property
-    def pipeline(self):
-        return self.__pipeline
+        self.pipeline.execute_callbacks = [self.show_result]
 
 
+def on_exit(self):
+    self.robots_control.stop()
 
-    def on_update(self, hist):
-        pipeline_result = hist[-1]
-        logging.debug("TrackState Pipeline results {}".format(hist[-1]))
 
-        # unpack results
-        cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
-        logging.debug("Values {}{}".format(cam_ok, bt_ok))
-        dev, distance = pipeline_result
-        dev*=-1
-        # if there are no result values go to wait state
-        if not cam_ok and not bt_ok:
-            return WaitState()
-        if not cam_ok and bt_ok:
-            # is bt distance far then go in wait state or timeout is reached go in wait state
-            return SearchState("left" if dev > 0 else "right")
-        if cam_ok and not bt_ok:
-            self.last_dev = dev
-            self.motor_aligment(dev)
-            return self
-        if cam_ok and bt_ok:
-            self.last_dev = dev
-            self.motor_aligment(dev)
-            if distance != bluetooth.UserDistanceEstimationPipeline.Distance.NEAR:
-                return FollowState()
-            return self
+@property
+def pipeline(self):
+    return self.__pipeline
+
+
+def on_update(self, hist):
+    pipeline_result = hist[-1]
+    logging.debug("TrackState Pipeline results {}".format(hist[-1]))
+
+    # unpack results
+    cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+    dev, distance = pipeline_result
+    dev *= -1
+    # if there are no result values go to wait state
+    if not cam_ok and not bt_ok:
+        return self.queue_next_state(WaitState())
+    if not cam_ok and bt_ok:
+        # is bt distance far then go in wait state or timeout is reached go in wait state
+        return self.queue_next_state(SearchState("left" if dev > 0 else "right"))
+    if cam_ok and not bt_ok:
+        self.last_dev = dev
+        self.motor_aligment(dev)
+        return self
+    if cam_ok and bt_ok:
+        self.last_dev = dev
+        self.motor_aligment(dev)
+        if distance != bluetooth.UserDistanceEstimationPipeline.Distance.NEAR:
+            return self.queue_next_state(FollowState())
+        return self.queue_next_state(self)
 
 
 class WaitState(AbstractRobotState):
@@ -267,6 +227,8 @@ class WaitState(AbstractRobotState):
                 bluetooth_pipelines.user_distance_estimation_pipeline()
             )
 
+        self.pipeline.execute_callbacks = [self.show_result]
+
     @property
     def pipeline(self):
         return self.__pipeline
@@ -276,7 +238,6 @@ class WaitState(AbstractRobotState):
         logging.debug("WaitState Pipeline results {}".format(hist[-1]))
         # unpack results
         cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
-        logging.debug("Values {}{}".format(cam_ok,bt_ok))
         dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
