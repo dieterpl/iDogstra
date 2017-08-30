@@ -90,6 +90,8 @@ class FollowState(State):
         State.__init__(self)
         self.robots_control = robot.Robot()
         self.last_dev = 0
+        self.next_state = None
+        self.state_switching_timestamp = None
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
         self.__pipeline = \
@@ -126,6 +128,15 @@ class FollowState(State):
     def pipeline(self):
         return self.__pipeline
 
+    def next_state(self, next_state):
+        if self.next_state != type(next_state):
+            self.next_state = type(next_state)
+            self.state_switching_timestamp = current_time_millis()
+        if current_time_millis() - self.state_switching_timestamp > config.STATE_SWITCH_COOLDOWN:
+            return next_state
+        else:
+            return self
+
     def on_update(self, hist):
         pipeline_result = hist[-1]
         logging.debug("FollowState Pipeline results {}".format(hist[-1]))
@@ -135,12 +146,12 @@ class FollowState(State):
         dev*=-1
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
-            return WaitState()
+            return self.next_state(WaitState())
         if not cam_ok and bt_ok:
             # is bt distance far then go in wait state or timeout is reached go in wait state
-            return SearchState("left" if self.last_dev > 0 else "right")
+            return self.next_state(SearchState("left" if self.last_dev > 0 else "right"))
         if cam_ok and not bt_ok:
-            return TrackState()
+            return self.next_state(TrackState())
         if cam_ok and bt_ok:
             self.last_dev = dev
             if dev < -0.6:
@@ -157,7 +168,7 @@ class FollowState(State):
                 self.robots_control.left(10)
             else:
                 self.robots_control.forward(speed)
-            return self
+            return self.next_state(self)
 
 
 class TrackState(State):
