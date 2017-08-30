@@ -97,7 +97,7 @@ class FollowState(State):
                 # Camera inputs
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
-                bluetooth_pipeline.recommended_speed_pipeline()
+                bluetooth_pipelines.recommended_speed_pipeline()
             )
         if config.GRAPHICAL_OUTPUT:
             def show_result(*_):
