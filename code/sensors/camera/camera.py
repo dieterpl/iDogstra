@@ -5,6 +5,7 @@ import time
 import cv2
 import numpy as np
 import random
+from threading import Thread
 
 from config.config import *
 from sensors.pipeline import Pipeline
@@ -38,26 +39,29 @@ else:
     time.sleep(2)
 
 
-def read():
-    """ Returns a camera image as an array of bgr-values """
-
-    if picamera is None:
-        return camera.read()[1]
-    else:
-        array = picamera.array.PiRGBArray(camera, size=CAMERA_RESOLUTION)
-        camera.capture(array, format='bgr', resize=CAMERA_RESOLUTION, use_video_port=True)
-        return array.array
-
-
 class ReadCameraPipeline(Pipeline):
 
+    def __init__(self):
+        Pipeline.__init__(self)
+
+        self.__last_sucess = False
+        self.__last_capture = None
+
+        Thread(target=self.__read).start()
+
+    def __read(self):
+        while True:
+            if picamera is None:
+                self.__last_sucess, self.__last_capture = camera.read()
+            else:
+                array = picamera.array.PiRGBArray(camera, size=CAMERA_RESOLUTION)
+                camera.capture(array, format='bgr', resize=CAMERA_RESOLUTION, use_video_port=True)
+
+                self.__last_capture = array.array
+                self.__last_sucess = True
+
     def _execute(self, inp):
-        if picamera is None:
-            return camera.read()
-        else:
-            array = picamera.array.PiRGBArray(camera, size=CAMERA_RESOLUTION)
-            camera.capture(array, format='bgr', resize=CAMERA_RESOLUTION, use_video_port=True)
-            return True, array.array
+        return self.__last_sucess and self.__last_capture is not None, self.__last_capture
 
 
 class ConvertColorspacePipeline(Pipeline):
@@ -218,8 +222,13 @@ class FindLegsPipeline(Pipeline):
         result = np.zeros(inp.shape)
 
         height, width = inp.shape
-        for y in range(0, height, 10):
+        segment_towers = []
+        last_segments = []
+        this_segments = []
+        for y in range(int(height/3), height, 10):
             edge_points = []
+            last_segments, this_segments = this_segments, []
+
             for x in range(0, width):
                 if inp[y, x] > 0:
                     edge_points.append(x)
@@ -227,10 +236,37 @@ class FindLegsPipeline(Pipeline):
             for i in range(1, len(edge_points)):
                 x1, x2 = edge_points[i-1], edge_points[i]
 
-                for x in range(x1, x2+1):
-                    result[y, x] = 255
-                for yy in range(max(0, y-10), min(height, y+10)):
-                    result[yy, x1] = 255
-                    result[yy, x2] = 255
+                if 40 < x2 - x1 < 100:
+                    this_tower_idx = None
 
-        return True, result
+                    found_upper = False
+                    for ly, lx1, lx2, tower_idx in last_segments:
+                        ix1, ix2 = max(x1, lx1), min(x2, lx2)
+                        if ix2 <= ix1:
+                            continue  # empty intersection
+                        elif ix2 - ix1 > 0.75 * x2 - x1:
+                            segment_towers[tower_idx].append((y, x1, x2))
+                            this_tower_idx = tower_idx
+                            found_upper = True
+
+                    if not found_upper:
+                        this_tower_idx = len(segment_towers)
+                        segment_towers.append([(y, x1, x2)])
+
+                    this_segments.append((y, x1, x2, this_tower_idx))
+
+        leg_candidates = []
+        for tower in segment_towers:
+            if len(tower) > 1:
+                (top_y, top_x1, top_x2), (bot_y, bot_x1, bot_x2) = tower[0], tower[-1]
+                leg_candidates.append([(int(top_x1 + (top_x2-top_x1)/2), top_y),
+                                       (int(bot_x1 + (bot_x2 - bot_x1)/1), bot_y)])
+
+                for y, x1, x2 in tower:
+                    for x in range(x1, x2):
+                        result[y, x] = 255
+                    for yy in range(max(0, y-10), min(height-1, y+10)):
+                        result[yy, x1] = 255
+                        result[yy, x2] = 255
+
+        return True, (result, leg_candidates)
