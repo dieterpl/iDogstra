@@ -6,7 +6,8 @@ from sensors.camera import camera, camera_pipelines
 from motor import robot
 import logging
 import config
-
+import cv2
+import sys
 
 class SearchState(State):
     """Turn robot in circles until the user is found or timeout occurred"""
