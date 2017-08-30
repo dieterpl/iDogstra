@@ -158,6 +158,7 @@ class TrackState(State):
     def on_update(self, hist):
         pipeline_result = hist[-1]
         logging.debug("TrackState Pipeline results {}".format(hist[-1]))
+        logging.debug("Values {}{}{}".format(cam_ok, bt_ok))
         # unpack results
         cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
         dev, distance = pipeline_result
@@ -217,6 +218,7 @@ class WaitState(State):
         logging.debug("WaitState Pipeline results {}".format(hist[-1]))
         # unpack results
         cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+        logging.debug("Values {}{}{}".format(cam_ok,bt_ok))
         dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
