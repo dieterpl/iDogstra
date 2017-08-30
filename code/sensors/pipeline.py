@@ -50,8 +50,6 @@ class CompositePipeline(Pipeline):
         Pipeline.__init__(self)
 
         self.__pipelines = [s if issubclass(type(s), Pipeline) else AtomicFunctionPipeline(s) for s in pipelines]
-        for p in pipelines:
-            print(type(p), p)
         self._results = None
 
         self.debug_prefix = ""
