@@ -60,3 +60,11 @@ def haarcascade_pipeline(haarfile):
             ("cascades", camera.HaarcascadePipeline(haarfile))
         )
 
+
+def find_legs_pipeline():
+    return \
+        PipelineSequence(
+            ("image", camera.ReadCameraPipeline()),
+            camera.EdgeDetectionPipeline(),
+            ("legs", camera.FindLegsPipeline())
+        )

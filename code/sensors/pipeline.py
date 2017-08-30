@@ -12,6 +12,10 @@ class Pipeline(object):
         self.__succ = False
         self.__output = None
 
+    def reset_pipeline(self):
+        self.__succ = False
+        self.__output = None
+
     @property
     def output(self):
         return self.__output
@@ -33,6 +37,8 @@ class Pipeline(object):
         self._debug_prefix = value
 
     def run_pipeline(self, inp):
+        self.reset_pipeline()
+
         start = current_time_millis()
         succ, out = self._execute(inp)
         exectime = current_time_millis() - start
@@ -90,6 +96,13 @@ class CompositePipeline(Pipeline):
 
         self._results = None
         self.debug_prefix = ""
+
+    @overrides(Pipeline)
+    def reset_pipeline(self):
+        Pipeline.reset_pipeline(self)
+
+        for p in self.pipelines:
+            p.reset_pipeline()
 
     @property
     def named_pipelines(self):
