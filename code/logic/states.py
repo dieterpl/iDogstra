@@ -70,7 +70,7 @@ class SearchState(AbstractRobotState):
                 bluetooth_pipelines.user_distance_estimation_pipeline()
             )
 
-        self.pipeline.execute_callbacks = [self.show_result]
+        #self.pipeline.execute_callbacks = [self.show_result]
 
     def on_enter(self):
         if self.start_spin_direction == "left":
