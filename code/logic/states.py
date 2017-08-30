@@ -170,6 +170,19 @@ class TrackState(State):
             # is bt distance far then go in wait state or timeout is reached go in wait state
             return SearchState("left" if dev > 0 else "right")
         if cam_ok and not bt_ok:
+            self.last_dev = dev
+            if dev < -0.6:
+                self.robots_control.right(50)
+            elif dev < -0.3:
+                self.robots_control.right(30)
+            elif dev < -0.2:
+                self.robots_control.right(10)
+            elif dev > 0.6:
+                self.robots_control.left(50)
+            elif dev > 0.3:
+                self.robots_control.left(30)
+            elif dev > 0.2:
+                self.robots_control.left(10)
             return self
         if cam_ok and bt_ok:
             self.last_dev = dev
