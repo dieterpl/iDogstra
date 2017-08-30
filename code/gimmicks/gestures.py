@@ -24,7 +24,7 @@ class Gesture(Thread):
         while not breakflag:
             for element in emotionArray:
                 if not breakflag:
-                    gs.screen.change_gesture(element)
+                    self.screen.change_gesture(element)
                     time.sleep(1/len(emotionArray))
 
 
