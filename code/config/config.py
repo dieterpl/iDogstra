@@ -16,6 +16,7 @@ ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file
 CODEPATH = os.path.join(ROOT_PATH, "code")
 LOGSPATH = os.path.join(ROOT_PATH, 'logs')
 DATAPATH = os.path.join(ROOT_PATH, "data")
+PICTUREPATH = os.path.join(ROOT_PATH, "assets", "gestures")
 HAARPATH = os.path.join(DATAPATH, "haarcascades")
 
 BT_TARGET_UUID = "6951e12f049945d2930e1fc462c721c8"

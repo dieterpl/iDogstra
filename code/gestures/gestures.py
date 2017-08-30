@@ -1,4 +1,5 @@
 import time  # import the time library for the sleep function
+import config
 from threading import Thread, Condition, Lock
 from screen import Screen
 
@@ -32,8 +33,9 @@ class Gesture(Thread):
     def __next_picture(self):
         picture_frames = Gesture.PICTURES[self.current_gesture]
         picture_number = picture_frame[self.current_frame]
+        picture_name = ("%s_%d.gif" % (self.current_gesture, picture_number))
 
-        return "./pics/%s_%d.gif" % (self.current_gesture, picture_number)
+        return os.path.join(config.PICTUREPATH, picture_name)
 
     def change_gesture(self, gesture):
         if gesture in Gesture.PICTURES.keys():
