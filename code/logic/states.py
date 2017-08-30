@@ -2,7 +2,7 @@ from logic.statemachine import *
 from utils.functions import current_time_millis
 from sensors.bluetooth import bluetooth
 from sensors import pipeline
-from sensors.camera import camera
+from sensors.camera import camera, camera_pipelines
 from motor import robot
 import logging
 import config
@@ -21,19 +21,7 @@ class SearchState(State):
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
-                pipeline.PipelineSequence(
-                    lambda inp: camera.read(),
-                    pipeline.ConjunctiveParallelPipeline(
-                        pipeline.PipelineSequence(
-                            camera.ConvertColorspacePipeline(to="hsv"),
-                            camera.ColorThresholdPipeline(color="magenta"),
-                            camera.ErodeDilatePipeline(),
-                            camera.GetLargestContourPipeline(),
-                        ),
-                        camera.GetImageDimensionsPipeline()
-                    ),
-                    camera.FindYDeviationPipeline()
-                ),
+                camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
                 pipeline.PipelineSequence(
                     pipeline.ConstantPipeline(config.BT_DONGLES),
@@ -57,12 +45,11 @@ class SearchState(State):
         return self.__pipeline
 
     def on_update(self, hist):
-        _, pipeline_result = hist[-1]
-        logging.debug("Search Pipeline results {}".format(hist[-1]))
+        pipeline_result = hist[-1]
+        logging.debug("SearchState Pipeline results {}".format(hist[-1]))
         # unpack results
-        camera_result, distance_result = pipeline_result
-        cam_ok, dev = camera_result
-        bt_ok, distance = distance_result
+        cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+        dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return WaitState()
@@ -89,24 +76,12 @@ class FollowState(State):
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
-                pipeline.PipelineSequence(
-                    lambda inp: camera.read(),
-                    pipeline.ConjunctiveParallelPipeline(
-                        pipeline.PipelineSequence(
-                            camera.ConvertColorspacePipeline(to="hsv"),
-                            camera.ColorThresholdPipeline(color="magenta"),
-                            camera.ErodeDilatePipeline(),
-                            camera.GetLargestContourPipeline(),
-                        ),
-                        camera.GetImageDimensionsPipeline()
-                    ),
-                    camera.FindYDeviationPipeline()
-                ),
+                camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
                 pipeline.PipelineSequence(
                     pipeline.ConstantPipeline(config.BT_DONGLES),
                     bluetooth.SnapshotBTDataPipeline(),
-                    bluetooth.UserDistanceEstimationPipeline()
+                    bluetooth.RecommendedSpeedPipeline()
                 )
             )
 
@@ -118,18 +93,18 @@ class FollowState(State):
         return self.__pipeline
 
     def on_update(self, hist):
-        _, pipeline_result = hist[-1]
+        pipeline_result = hist[-1]
         logging.debug("FollowState Pipeline results {}".format(hist[-1]))
         # unpack results
-        camera_result, distance_result = pipeline_result
-        cam_ok, dev = camera_result
-        bt_ok, speed = distance_result
+        cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+        print(cam_ok, bt_ok)
+        dev, speed = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return WaitState()
         if not cam_ok and bt_ok:
             # is bt distance far then go in wait state or timeout is reached go in wait state
-            return SearchState("left" if dev > 0 else "right")
+            return SearchState("left" if self.last_dev > 0 else "right")
         if cam_ok and not bt_ok:
             return TrackState()
         if cam_ok and bt_ok:
@@ -164,19 +139,7 @@ class TrackState(State):
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
-                pipeline.PipelineSequence(
-                    lambda inp: camera.read(),
-                    pipeline.ConjunctiveParallelPipeline(
-                        pipeline.PipelineSequence(
-                            camera.ConvertColorspacePipeline(to="hsv"),
-                            camera.ColorThresholdPipeline(color="magenta"),
-                            camera.ErodeDilatePipeline(),
-                            camera.GetLargestContourPipeline(),
-                        ),
-                        camera.GetImageDimensionsPipeline()
-                    ),
-                    camera.FindYDeviationPipeline()
-                ),
+                camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
                 pipeline.PipelineSequence(
                     pipeline.ConstantPipeline(config.BT_DONGLES),
@@ -193,12 +156,13 @@ class TrackState(State):
         return self.__pipeline
 
     def on_update(self, hist):
-        _, pipeline_result = hist[-1]
+        pipeline_result = hist[-1]
         logging.debug("TrackState Pipeline results {}".format(hist[-1]))
+
         # unpack results
-        camera_result, distance_result = pipeline_result
-        cam_ok, dev = camera_result
-        bt_ok, distance = distance_result
+        cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+        logging.debug("Values {}{}".format(cam_ok, bt_ok))
+        dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return WaitState()
@@ -206,6 +170,19 @@ class TrackState(State):
             # is bt distance far then go in wait state or timeout is reached go in wait state
             return SearchState("left" if dev > 0 else "right")
         if cam_ok and not bt_ok:
+            self.last_dev = dev
+            if dev < -0.6:
+                self.robots_control.right(50)
+            elif dev < -0.3:
+                self.robots_control.right(30)
+            elif dev < -0.2:
+                self.robots_control.right(10)
+            elif dev > 0.6:
+                self.robots_control.left(50)
+            elif dev > 0.3:
+                self.robots_control.left(30)
+            elif dev > 0.2:
+                self.robots_control.left(10)
             return self
         if cam_ok and bt_ok:
             self.last_dev = dev
@@ -237,19 +214,7 @@ class WaitState(State):
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
-                pipeline.PipelineSequence(
-                    lambda inp: camera.read(),
-                    pipeline.ConjunctiveParallelPipeline(
-                        pipeline.PipelineSequence(
-                            camera.ConvertColorspacePipeline(to="hsv"),
-                            camera.ColorThresholdPipeline(color="magenta"),
-                            camera.ErodeDilatePipeline(),
-                            camera.GetLargestContourPipeline(),
-                        ),
-                        camera.GetImageDimensionsPipeline()
-                    ),
-                    camera.FindYDeviationPipeline()
-                ),
+                camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
                 pipeline.PipelineSequence(
                     pipeline.ConstantPipeline(config.BT_DONGLES),
@@ -263,12 +228,12 @@ class WaitState(State):
         return self.__pipeline
 
     def on_update(self, hist):
-        _, pipeline_result = hist[-1]
+        pipeline_result = hist[-1]
         logging.debug("WaitState Pipeline results {}".format(hist[-1]))
         # unpack results
-        camera_result, distance_result = pipeline_result
-        cam_ok, dev = camera_result
-        bt_ok, distance = distance_result
+        cam_ok, bt_ok = self.pipeline[0].success_state, self.pipeline[1].success_state
+        logging.debug("Values {}{}".format(cam_ok,bt_ok))
+        dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return self
