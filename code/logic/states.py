@@ -121,7 +121,7 @@ class FollowState(AbstractRobotState):
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
-                ("test1",camera_pipelines.color_tracking_pipeline()),
+                ("test1", camera_pipelines.color_tracking_pipeline()),
                 # Bluetooth inputs
                 bluetooth_pipelines.recommended_speed_pipeline()
             )
