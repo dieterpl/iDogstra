@@ -28,3 +28,21 @@ SEARCH_SPEED = 40
 SEARCH_TIMEOUT = 10 * 1000
 
 MAX_TURN_SPEED = 50
+
+
+## Bluetooth Config
+
+### Configures how the speed is recommended using bluetooth
+BT_MIN_SPEED = 15  # Min speed used during speed recommendation
+BT_MOVEMENT_RISS_THRESHOLD = 60  # Min rssi value needed for speed recommendation
+BT_MULTIPLIER = 3.0  # Multiplies the recommended speed
+
+### Configures the distance estimation thresholds
+BT_DISTANCE_THRESHOLDS = {
+    "far": 80
+    "medium": 60
+    "near": 0
+}
+
+### Misc
+BT_TIME_THRESHOLD = 2000  # The time in ms from which bt data is collected

@@ -8,10 +8,11 @@ import bluetooth._bluetooth as bluez
 import math
 import time
 import logging
-
 from enum import Enum
 from collections import deque, namedtuple
 from threading import Thread, Lock
+
+import config
 from utils.functions import current_time_millis, overrides
 from sensors.pipeline import Pipeline
 
@@ -116,9 +117,6 @@ class DataList:
         return math.sqrt(self.variance())
 
 
-DEFAULT_THRESHOLD = 2000
-
-
 class BTDongle:
     """Manages a single bluetooth dongle and stores the received data.
     The data is stored in a double ended queue (deque) which allows
@@ -190,11 +188,11 @@ class BTDongle:
         while True:
             self.scan()
 
-    def snapshot_data(self, threshold=DEFAULT_THRESHOLD):
+    def snapshot_data(self):
         """Returns a snapshot of the data in form of a DataList object.
         This contains all data that has been collected in the last threshold
         milliseconds"""
-        threshold = current_time_millis() - threshold
+        threshold = current_time_millis() - config.BT_TIME_THRESHOLD
 
         data_list = []
         self.lock.acquire()
@@ -211,9 +209,9 @@ class SnapshotBTDataPipeline(Pipeline):
     """A pipeline that takes a list of BTDongle objects and extracts a snapshot
     of the collected data"""
 
-    def __init__(self, threshold=2000):
+    def __init__(self):
         Pipeline.__init__(self)
-        self.threshold = threshold
+        self.threshold = config.BT_TIME_THRESHOLD
 
     @overrides(Pipeline)
     def _execute(self, inp):
@@ -228,11 +226,11 @@ class RecommendedSpeedPipeline(Pipeline):
     """A pipeline that takes multiple DataList objects and recommends a speed
     for the roboter based on the signal strenght"""
 
-    def __init__(self, min_speed=15, threshold=60, multiplier=3.0):
+    def __init__(self):
         Pipeline.__init__(self)
-        self.min_speed = min_speed
-        self.threshold = threshold
-        self.multiplier = multiplier
+        self.min_speed = config.BT_MIN_SPEED
+        self.threshold = config.BT_MOVEMENT_THRESHOLD
+        self.multiplier = config.BT_MULTIPLIER
 
     @overrides(Pipeline)
     def _execute(self, inp):
@@ -261,11 +259,11 @@ class UserDistanceEstimationPipeline(Pipeline):
         MEDIUM = 2
         NEAR = 1
 
-    def __init__(self, **thresholds):
+    def __init__(self):
         Pipeline.__init__(self)
-        self.far_threshold = thresholds.get(self.Distance.FAR, 80)
-        self.medium_threshold = thresholds.get(self.Distance.MEDIUM, 60)
-        self.near_threshold = thresholds.get(self.Distance.NEAR, 0);
+        self.far_threshold = config.BT_DISTANCE_THRESHOLDS["far"]
+        self.medium_threshold = config.BT_DISTANCE_THRESHOLDS["medium"]
+        self.near_thresholds = config.BT_DISTANCE_THRESHOLDS["near"]
 
     @overrides(Pipeline)
     def _execute(self, inp):
