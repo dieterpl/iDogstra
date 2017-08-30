@@ -10,7 +10,7 @@ GRAPHICAL_OUTPUT = True  # enable or disable graphical output
 
 TRACKING_ALGORITHM = 'TLD'  # algorithm to use for object tracking in images
 
-USE_USB_CAMERA = True
+USE_USB_CAMERA = False
 # the paths to relevant directories of the project
 ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir, os.path.pardir))
 CODEPATH = os.path.join(ROOT_PATH, "code")
