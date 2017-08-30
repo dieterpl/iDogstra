@@ -2,7 +2,7 @@ import os
 
 CAMERA_RESOLUTION = (640, 480)  # the resolution to use for the raspberry pi camera
 
-DETECTION_SIZE_THRESHOLD = .01  # minimum size of a colored object, relative to the total image size
+DETECTION_SIZE_THRESHOLD = .001  # minimum size of a colored object, relative to the total image size
 
 DEBUG_MODE = True  # enable or disable debug mode
 
@@ -26,11 +26,11 @@ BT_DONGLES = []
 
 STATE_SWITCH_COOLDOWN = 1000
 
-SEARCH_SPEED = 40
+SEARCH_SPEED = 30
 
 SEARCH_TIMEOUT = 10000
 
-MAX_TURN_SPEED = 50
+MAX_TURN_SPEED = 30
 
 ## Bluetooth Config
 
