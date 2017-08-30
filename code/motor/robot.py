@@ -23,6 +23,14 @@ if brickpi3 is not None:
             self.default_speed = speed
             self.current_speed = 0
 
+        def rotate(self, speed=None):
+            if speed<0:
+                self.left(speed*-1)
+            elif speed > 0:
+                self.right(speed)
+            else:
+                self.stop()
+
         def forward(self, speed=None):
             if speed is None:
                 print('using default speed')

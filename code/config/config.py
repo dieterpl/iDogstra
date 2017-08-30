@@ -2,7 +2,7 @@ import os
 
 CAMERA_RESOLUTION = (640, 480)  # the resolution to use for the raspberry pi camera
 
-DETECTION_SIZE_THRESHOLD = .1  # minimum size of a colored object, relative to the total image size
+DETECTION_SIZE_THRESHOLD = .001  # minimum size of a colored object, relative to the total image size
 
 DEBUG_MODE = True  # enable or disable debug mode
 
@@ -22,3 +22,31 @@ BT_TARGET_UUID = "6951e12f049945d2930e1fc462c721c8"
 
 BT_DONGLES = []
 
+# MOVEMENT CONFIG
+
+STATE_SWITCH_COOLDOWN = 1000
+
+SEARCH_SPEED = 40
+
+SEARCH_TIMEOUT = 10000
+
+MAX_TURN_SPEED = 70
+
+
+
+## Bluetooth Config
+
+### Configures how the speed is recommended using bluetooth
+BT_MIN_SPEED = 20  # Min speed used during speed recommendation
+BT_MOVEMENT_RSSI_THRESHOLD = 65  # Min rssi value needed for speed recommendation
+BT_MULTIPLIER = 6.0  # Multiplies the recommended speed
+
+### Configures the distance estimation thresholds
+BT_DISTANCE_THRESHOLDS = {
+    "far": 80,
+    "medium": 60,
+    "near": 0
+}
+
+### Misc
+BT_TIME_THRESHOLD = 1800  # The time in ms from which bt data is collected
