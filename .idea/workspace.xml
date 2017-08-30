@@ -16,8 +16,8 @@
       <file leaf-file-name="gestures.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/code/gimmicks/gestures.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="525">
-              <caret line="69" column="9" lean-forward="false" selection-start-line="69" selection-start-column="9" selection-end-line="69" selection-end-column="9" />
+            <state relative-caret-position="400">
+              <caret line="52" column="57" lean-forward="false" selection-start-line="52" selection-start-column="57" selection-end-line="52" selection-end-column="57" />
               <folding>
                 <element signature="e#0#61#0" expanded="true" />
               </folding>
@@ -844,8 +844,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/code/gimmicks/gestures.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="525">
-          <caret line="69" column="9" lean-forward="false" selection-start-line="69" selection-start-column="9" selection-end-line="69" selection-end-column="9" />
+        <state relative-caret-position="400">
+          <caret line="52" column="57" lean-forward="false" selection-start-line="52" selection-start-column="57" selection-end-line="52" selection-end-column="57" />
           <folding>
             <element signature="e#0#61#0" expanded="true" />
           </folding>

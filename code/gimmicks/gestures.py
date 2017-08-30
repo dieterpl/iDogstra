@@ -49,14 +49,20 @@ class Gestures():
 
 
     def doEmotion(self, breakflag, emotionArray):
+        """
+        Does an Emotion, general Method for alle EMOTIONS
+        :param breakflag: breaks if statement is TRUE
+        :param emotionArray: see Gesture Enum:= Array of pictures to iterate
+        :return:
+        """
         while not breakflag:
             for element in emotionArray:
                 if not breakflag:
                     gs.screen.change_gesture(element)
                     time.sleep(1/len(emotionArray))
 
-def swap(flag, time):
-    time.sleep(time)
+def swap(flag, t):
+    time.sleep(t)
     flag = False;
     print("now breaking")
 
