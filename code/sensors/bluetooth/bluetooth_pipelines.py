@@ -1,5 +1,6 @@
 from sensors.bluetooth import bluetooth
 from sensors import pipeline
+import config
 
 
 def recommended_speed_pipeline():
@@ -8,6 +9,7 @@ def recommended_speed_pipeline():
         bluetooth.SnapshotBTDataPipeline(),
         bluetooth.RecommendedSpeedPipeline()
     )
+
 
 def user_distance_estimation_pipeline():
     return pipeline.PipelineSequence(
