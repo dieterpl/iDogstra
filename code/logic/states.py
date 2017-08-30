@@ -149,8 +149,8 @@ class TrackState(State):
             )
         if config.GRAPHICAL_OUTPUT:
             def show_result(*_):
-                _, _, _, _, (bbox_ok, bbox) = self.pipeline[0].results
-                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline.results
+                _, _, _, _, (bbox_ok, bbox) = self.pipeline[0][1][0].results
+                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline[0].results
 
                 # draw bounding box
                 if bbox_ok:
