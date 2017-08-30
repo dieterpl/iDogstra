@@ -8,6 +8,7 @@ import numpy as np
 from config.config import *
 from sensors.pipeline import Pipeline
 from utils.functions import overrides
+from scipy.interpolate import interp1d
 
 if os.uname().machine == 'armv7l':  # probably runnig on RaspPi
     import picamera
@@ -80,8 +81,12 @@ class ColorThresholdPipeline(Pipeline):
                 self.threshold_lower = np.array([15, 50, 50])
                 self.threshold_upper = np.array([25, 255, 255])
             elif color == 'magenta':
-                self.threshold_lower = np.array([150, 20, 50])
-                self.threshold_upper = np.array([175, 255, 255])
+                self.threshold_lower = np.array([interp1d([0, 360], [0, 180])(300),
+                                                 interp1d([0, 100], [0, 255])(20),
+                                                 interp1d([0, 100], [0, 255])(20)])
+                self.threshold_upper = np.array([interp1d([0, 360], [0, 180])(330),
+                                                 interp1d([0, 100], [0, 255])(100),
+                                                 interp1d([0, 100], [0, 255])(100)])
             else:
                 raise ValueError('Unsupported color', color)
         elif type(color) == tuple:
