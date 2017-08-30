@@ -190,3 +190,14 @@ class EdgeDetectionPipeline(Pipeline):
     def _execute(self, inp):
         return True, cv2.Canny(inp, self.threshold_lower, self.threshold_upper)
 
+
+class HaarcascadePipeline(Pipeline):
+
+    def __init__(self, haarfile):
+        Pipeline.__init__(self)
+        self.detector = cv2.CascadeClassifier(haarfile)
+        print(haarfile, os.path.exists(haarfile))
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        return True, self.detector.detectMultiScale(inp)

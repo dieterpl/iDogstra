@@ -51,3 +51,12 @@ def edge_detection_pipeline(hysteresis_lower=100, hysteresis_upper=200):
             ("edges", camera.EdgeDetectionPipeline(threshold_lower=hysteresis_lower, threshold_upper=hysteresis_upper))
         )
 
+
+def haarcascade_pipeline(haarfile):
+    return \
+        PipelineSequence(
+            ("image", camera.ReadCameraPipeline()),
+            camera.ConvertColorspacePipeline("grayscale"),
+            ("cascades", camera.HaarcascadePipeline(haarfile))
+        )
+

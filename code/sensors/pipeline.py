@@ -5,7 +5,7 @@ import logging
 class Pipeline(object):
     """ Base object for all pipelines"""
 
-    def __init__(self, name=None):
+    def __init__(self):
         self.execute_callbacks = []
         self._debug_prefix = ""
 
