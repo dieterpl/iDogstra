@@ -3,6 +3,8 @@ from utils.functions import current_time_millis
 from sensors.bluetooth import bluetooth, bluetooth_pipelines
 from sensors import pipeline
 from sensors.camera import camera, camera_pipelines
+from sensors.ultrasonic import ultrasonic_pipelines, ultrasonic
+from sensors.infrared import infrared_piplelines, infrared
 from motor import robot
 import logging
 import config
@@ -10,11 +12,21 @@ import cv2
 import sys
 from scipy.interpolate import interp1d
 
+__ultrasonic = None
+__infrared = None
 
 class IDog(StateMachine):
 
     def __init__(self):
         StateMachine.__init__(self)
+
+        global __ultrasonic
+        __ultrasonic = ultrasonic.UltraSonic()
+        __ultrasonic.start_thread()
+
+        global __infrared
+        __infrared = infrared.InfraRed()
+        __infrared.start_thread()
 
         logging.debug("Starting BT-Dongles")
         config.BT_DONGLES = [bluetooth.BTDongle(i, config.BT_TARGET_UUID)
@@ -234,12 +246,18 @@ class WaitState(AbstractRobotState):
 
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
+        global __ultrasonic, __infrared
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
-                bluetooth_pipelines.user_distance_estimation_pipeline()
+                bluetooth_pipelines.user_distance_estimation_pipeline(),
+                # Ultrasonic inputs
+                ultrasonic_pipelines.get_distance_pipeline(__ultrasonic),
+                # Infrared inputs
+                ultrasonic_pipelines.get_distance_pipeline(__infrared),
+
             )
 
         self.pipeline.execute_callbacks = [self.show_result]
