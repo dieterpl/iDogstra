@@ -7,11 +7,11 @@ class Gesture(Thread):
 
     PICTURES = {
         "default": "default.gif",
-        "wait": [1, 2],
-        "follow": [1, 2, 3, 4, 5, 4, 3, 2, 1, 6, 7, 8, 9, 8, 7, 6],
-        "track": [1, 2, 3, 2],
-        "search": [1, 2, 3, 4, 5, 6, 7, 8, 9],
-        "dodge": [1, 2],
+        "wait": [0, 1],
+        "follow": [0, 1, 2, 3, 4, 3, 2, 1, 0, 5, 6, 7, 8, 7, 6, 5],
+        "track": [0, 1, 2, 1],
+        "search": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+        "dodge": [0, 1],
     }
 
     def __init__(self):
