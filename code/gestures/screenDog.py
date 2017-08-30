@@ -1,5 +1,6 @@
 import tkinter as tk
 import time
+#from numpy import ndarray
 from threading import Thread
 
 
@@ -23,9 +24,24 @@ class ScreenDog:
         search7 = r"dogsearch7.gif"
         search8 = r"dogsearch8.gif"
         search9 = r"dogsearch9.gif"
+        follow0 = r"follow0.gif"
+        follow1 = r"follow0.gif"
+        follow2 = r"follow0.gif"
+        follow3 = r"follow0.gif"
+        follow4 = r"follow0.gif"
+        follow01 = r"follow0.gif"
+        follow02 = r"follow0.gif"
+        follow03 = r"follow0.gif"
+        follow04 = r"follow0.gif"
+
 
         searchArray = ([search1, search2, search3, search4, search5, search6, search7, search8, search9])
         sleepArray = ([sleep1, sleep2])
+        followArray = ([follow0,follow1,follow2,follow3,follow4,follow3,follow2,follow1,follow0,follow01,follow02,follow03,follow04,follow03,follow02,follow01])
+        #followArray = ndarray((4,),str)
+
+        #for x in range (0, len(followArray)-1):
+            #followArray[x] = r"follow"+x+".gif"
 
     def __init__(self):
         """

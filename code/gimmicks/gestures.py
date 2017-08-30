@@ -47,8 +47,9 @@ class Gesture(Thread):
         :return:
         """
 
-
 if __name__ == '__main__':
     gesture = Gesture()
     gesture.start()
     gesture.doEmotion(flag, gesture.screen.Gesture.searchArray)
+    gesture.doEmotion(True, gesture.screen.Gesture.followArray)
+
