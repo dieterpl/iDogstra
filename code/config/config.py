@@ -10,7 +10,7 @@ GRAPHICAL_OUTPUT = True  # enable or disable graphical output
 
 TRACKING_ALGORITHM = 'TLD'  # algorithm to use for object tracking in images
 
-USE_USB_CAMERA = False
+USE_USB_CAMERA = True
 # the paths to relevant directories of the project
 ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir, os.path.pardir))
 CODEPATH = os.path.join(ROOT_PATH, "code")
@@ -37,9 +37,9 @@ MAX_TURN_SPEED = 70
 ## Bluetooth Config
 
 ### Configures how the speed is recommended using bluetooth
-BT_MIN_SPEED = 15  # Min speed used during speed recommendation
-BT_MOVEMENT_RSSI_THRESHOLD = 60  # Min rssi value needed for speed recommendation
-BT_MULTIPLIER = 7.0  # Multiplies the recommended speed
+BT_MIN_SPEED = 20  # Min speed used during speed recommendation
+BT_MOVEMENT_RSSI_THRESHOLD = 65  # Min rssi value needed for speed recommendation
+BT_MULTIPLIER = 6.0  # Multiplies the recommended speed
 
 ### Configures the distance estimation thresholds
 BT_DISTANCE_THRESHOLDS = {
@@ -49,4 +49,4 @@ BT_DISTANCE_THRESHOLDS = {
 }
 
 ### Misc
-BT_TIME_THRESHOLD = 2000  # The time in ms from which bt data is collected
+BT_TIME_THRESHOLD = 1800  # The time in ms from which bt data is collected
