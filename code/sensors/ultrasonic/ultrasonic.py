@@ -98,7 +98,7 @@ class UltraSonic:
             self.lock.acquire()
             if len(self.data_deque) == 0:
                 return None
-            return sum(self.data_deque) / len(self.data_deque)
+            return sum(r[1] for r in self.data_deque) / len(self.data_deque)
         finally:
             self.lock.release()
 
