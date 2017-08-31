@@ -14,7 +14,6 @@ from scipy.interpolate import interp1d
 
 
 class IDog(StateMachine):
-
     def __init__(self):
         StateMachine.__init__(self)
 
@@ -31,7 +30,7 @@ class IDog(StateMachine):
         # Bluetooth
         logging.debug("Starting BT-Dongles")
         self.bt_dongles = [bluetooth.BTDongle(i, config.BT_TARGET_UUID)
-                             for i in config.BT_DONGLE_IDS]
+                           for i in config.BT_DONGLE_IDS]
         for dongle in self.bt_dongles:
             dongle.start()
 
@@ -39,7 +38,6 @@ class IDog(StateMachine):
 
 
 class AbstractRobotState(State):
-
     def __init__(self, state_machine):
         State.__init__(self)
         self.robots_control = robot.Robot()
@@ -131,7 +129,9 @@ class SearchState(AbstractRobotState):
         dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
-            return WaitState(self.state_machine)
+            if current_time_millis() - self.start_time > config.SEARCH_TIMEOUT:
+                return WaitState(self.state_machine)
+            return self
         if not cam_ok and bt_ok:
             # is bt distance far then go in wait state or timeout is reached go
             #  in wait state
@@ -270,10 +270,10 @@ class WaitState(AbstractRobotState):
                 bluetooth_pipelines.user_distance_estimation_pipeline(
                     self.state_machine.bt_dongles),
                 # Ultrasonic inputs
-                ultrasonic_pipelines.get_distance_pipeline(
+                ultrasonic_pipelines.get_movement_pipeline(
                     self.state_machine.ultrasonic),
                 # Infrared inputs
-                infrared_piplelines.get_distance_pipeline(
+                infrared_piplelines.get_movement_pipeline(
                     self.state_machine.infrared),
 
             )
@@ -290,17 +290,20 @@ class WaitState(AbstractRobotState):
         # unpack results
         cam_ok, bt_ok, us_ok, ir_ok = self.pipeline["y_deviation"].success_state, \
                                       self.pipeline["user_distance"].success_state, \
-                                      self.pipeline["us_distance"].success_state, \
-                                      self.pipeline["ir_distance"].success_state
+                                      self.pipeline["us_change"].success_state, \
+                                      self.pipeline["ir_change"].success_state
 
-        dev, distance = pipeline_result
+        dev, distance, _, _ = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
+            if us_ok or ir_ok:
+                return SearchState(self.state_machine)
             return self
         if not cam_ok and bt_ok:
             # is bt distance far then go in wait state or timeout is reached go
             # in wait state
-            if distance == bluetooth.UserDistanceEstimationPipeline.Distance.NEAR:
+            if distance == bluetooth.UserDistanceEstimationPipeline.Distance.NEAR \
+                    or us_ok or ir_ok:
                 return SearchState(self.state_machine)
             else:
                 return self
