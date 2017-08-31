@@ -234,7 +234,6 @@ class TrackState(AbstractRobotState):
         # unpack results
         cam_ok, bt_ok = self.pipeline["y_deviation"].success_state, self.pipeline["user_distance"].success_state
         dev, distance = pipeline_result
-        dev *= -1
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return self.queue_next_state(WaitState(self.state_machine))
