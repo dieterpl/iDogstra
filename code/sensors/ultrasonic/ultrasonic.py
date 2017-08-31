@@ -46,10 +46,12 @@ class UltraSonic:
             print ("started Data acc")
             # setze Trigger auf HIGH
             GPIO.output(config.US_GPIO_TRIGGER, True)
+            print("1")
 
             # setze Trigger nach 0.01ms aus LOW
             time.sleep(0.01)
             GPIO.output(config.US_GPIO_TRIGGER, False)
+            print("2")
 
             StartZeit = time.time()
             StopZeit = time.time()
@@ -59,12 +61,14 @@ class UltraSonic:
             # speichere Startzeit
             while GPIO.input(config.US_GPIO_ECHO) == 0 and current_time_millis()-timeout<100:
                 StartZeit = time.time()
+            print("3")
 
             timeout = current_time_millis()
 
             # speichere Ankunftszeit
             while GPIO.input(config.US_GPIO_ECHO) == 1  and current_time_millis()-timeout<100:
                 StopZeit = time.time()
+            print("4")
 
             # Zeit Differenz zwischen Start und Ankunft
             TimeElapsed = StopZeit - StartZeit
@@ -73,7 +77,9 @@ class UltraSonic:
             distance = (TimeElapsed * 34300) / 2
 
             try:
+                print("5")
                 self.lock.acquire()
+                print("6")
                 self.data_deque.append(DataTuple(current_time_millis(),min(distance, config.US_MAX_VALUE)))
             finally:
                 self.lock.release()
