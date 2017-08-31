@@ -39,5 +39,5 @@ class BTTestState(State):
         return self.__pipeline
 
     def on_update(self, hist):
-        print (hist[:1])
+        print (hist[-1])
         return self
