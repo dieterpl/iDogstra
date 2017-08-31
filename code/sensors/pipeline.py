@@ -176,7 +176,7 @@ class AbstractParallelPipeline(CompositePipeline):
 
     @overrides(CompositePipeline)
     def _execute(self, inp):
-        threads = [Thread(target=p.run_pipeline, args=inp) for p in self.pipelines]
+        threads = [Thread(target=p.run_pipeline, args=(inp)) for p in self.pipelines]
 
         for thread in threads:
             thread.start()
