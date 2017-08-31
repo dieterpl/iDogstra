@@ -52,7 +52,7 @@ class AbstractRobotState(State):
         if abs(dev) > 0.2:
             value = interp1d([-1, 1], [-config.MAX_TURN_SPEED, config.MAX_TURN_SPEED])(dev)
             logging.debug("Current Turn Speed".format(value))
-            self.state_machine.robots_control.rotate(min(config.MIN_TURN_SPEED, abs(value))*numpy.sign(value))
+            self.state_machine.robots_control.rotate(max(config.MIN_TURN_SPEED, abs(value))*numpy.sign(value))
 
     def show_result(self, *_):
         if config.GRAPHICAL_OUTPUT:
