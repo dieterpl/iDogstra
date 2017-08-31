@@ -219,6 +219,7 @@ class FindColorState(State):
 
         self.__pipeline = camera_pipelines.color_tracking_pipeline()
         # self.__pipeline = camera_pipelines.color_tracking_dbscan_pipeline()
+        # self.__pipeline = camera_pipelines.fast_color_tracking_pipeline("magenta")
 
         if GRAPHICAL_OUTPUT:
             def show_result(*_):

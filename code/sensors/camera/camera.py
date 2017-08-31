@@ -5,6 +5,7 @@ import sklearn.cluster
 
 import cv2
 import numpy as np
+import itertools
 import random
 from threading import Thread
 
@@ -141,7 +142,6 @@ class GetLargestContourPipeline(Pipeline):
 
         # only proceed if at least one contour was found
         if len(cnts) > 0:
-            start = current_time_millis()
             largest_contour = max(cnts, key=cv2.contourArea)
 
             if cv2.contourArea(largest_contour) > inp.shape[0] * inp.shape[1] * self.__min_contour_size:
@@ -149,6 +149,81 @@ class GetLargestContourPipeline(Pipeline):
                 return True, bbox
 
         return False, None
+
+
+class FastColorDetectionPipeline(Pipeline):
+
+    def __init__(self, color):
+        Pipeline.__init__(self)
+
+        if type(color) == str:
+            if color == 'red':
+                self.threshold_lower = np.array([140, 50, 50])
+                self.threshold_upper = np.array([160, 255, 255])
+            elif color == 'yellow':
+                self.threshold_lower = np.array([30, 50, 50])
+                self.threshold_upper = np.array([70, 255, 255])
+            elif color == 'orange':
+                self.threshold_lower = np.array([15, 50, 50])
+                self.threshold_upper = np.array([25, 255, 255])
+            elif color == 'magenta':
+                self.threshold_lower = np.array([interp1d([0, 360], [0, 180])(300),
+                                                 interp1d([0, 100], [0, 255])(10),
+                                                 interp1d([0, 100], [0, 255])(10)])
+                self.threshold_upper = np.array([interp1d([0, 360], [0, 180])(330),
+                                                 interp1d([0, 100], [0, 255])(100),
+                                                 interp1d([0, 100], [0, 255])(100)])
+            else:
+                raise ValueError('Unsupported color', color)
+        elif type(color) == tuple:
+            self.threshold_lower, self.threshold_upper = color
+        else:
+            raise ValueError('Unsupported argument type', type(color), '(must be str or tuple)')
+
+    def _execute(self, inp):
+        height, width = inp.shape
+
+        startt = current_time_millis()
+        horizontal_segments = []
+        for y in range(0, height, SCANLINE_DISTANCE):
+            start = None
+            for x in range(0, width):
+                if self.__pixel_in_range(inp[y, x]):
+                    if start is None:
+                        start = x
+                elif start is not None and x - start > SCANLINE_DISTANCE:
+                    horizontal_segments.append((y, start, x))
+                    start = None
+        print("HSCAN", current_time_millis() - startt)
+
+        startt = current_time_millis()
+        vertical_segments = []
+        for x in range(0, width, SCANLINE_DISTANCE):
+            start = None
+            for y in range(0, height):
+                if self.__pixel_in_range(inp[y, x]):
+                    if start is None:
+                        start = y
+                elif start is not None and y - start > SCANLINE_DISTANCE:
+                    vertical_segments.append((x, start, y))
+                    start = None
+        print("VSCAN", current_time_millis() - startt)
+
+        startt = current_time_millis()
+        largest_bbox = None
+        largest_area = 0
+        for (hy, hx1, hx2), (vx, vy1, vy2) in itertools.product(horizontal_segments, vertical_segments):
+            if vy1 <= hy <= vy2 and hx1 <= vx <= hx2:
+                w, h = hx2 - hx1, vy2 - vy1
+                if w*h > largest_area:
+                    largest_bbox = (hx1, vy1, w, h)
+        print("BBOX", current_time_millis() - startt)
+
+        return largest_bbox is None, largest_bbox
+
+    def __pixel_in_range(self, pixel):
+        return pixel > 0
+        #return np.all(pixel >= self.threshold_lower) and np.all(pixel <= self.threshold_upper)
 
 
 class TrackBBOXPipeline(Pipeline):
