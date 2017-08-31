@@ -11,7 +11,7 @@ from threading import Thread
 
 from config.config import *
 from sensors.pipeline import Pipeline
-from utils.functions import overrides, get_class_name, current_time_millis
+from utils.functions import overrides, get_class_name, current_time_millis, deprecated
 from scipy.interpolate import interp1d
 
 if os.uname().machine == 'armv7l':  # probably runnig on RaspPi
@@ -67,6 +67,7 @@ class _ReadCameraPipeline(Pipeline):
 
 
 class ConvertColorspacePipeline(Pipeline):
+    """ Converts an image to a target colorspace. The input image is assumed to be in BGR. """
 
     def __init__(self, to='hsv'):
         Pipeline.__init__(self)
@@ -75,6 +76,10 @@ class ConvertColorspacePipeline(Pipeline):
 
     @overrides(Pipeline)
     def _execute(self, inp):
+        """
+        :param inp: BGR-image (np.array)
+        :return: image in the target color space (np.array)
+        """
         if self.__target_colorspace == "hsv":
             return True, cv2.cvtColor(inp, cv2.COLOR_BGR2HSV)
         elif self.__target_colorspace == "grayscale":
@@ -85,6 +90,7 @@ class ConvertColorspacePipeline(Pipeline):
 
 
 class ColorThresholdPipeline(Pipeline):
+    """ Creates a binary image where white pixels are in the given color threshold  """
 
     def __init__(self, color):
         Pipeline.__init__(self)
@@ -115,20 +121,30 @@ class ColorThresholdPipeline(Pipeline):
 
     @overrides(Pipeline)
     def _execute(self, inp):
+        """
+        :param inp: An image (np.array)
+        :return: A binary image (np.array)
+        """
         colmask = cv2.inRange(inp, self.threshold_lower, self.threshold_upper)
         return True, colmask
 
 
 class ErodeDilatePipeline(Pipeline):
+    """ Applies an erode and dilate filter on an image """
 
     @overrides(Pipeline)
     def _execute(self, inp):
+        """
+        :param inp: an image (np.array)
+        :return: the filtered image (np.array)
+        """
         x = cv2.erode(inp, None, iterations=2)
         x = cv2.dilate(x, None, iterations=2)
         return True, x
 
 
 class GetLargestContourPipeline(Pipeline):
+    """ Finds the largest contour in the image and returns its bounding box"""
 
     def __init__(self, min_contour_size=DETECTION_SIZE_THRESHOLD):
         Pipeline.__init__(self)
@@ -137,8 +153,11 @@ class GetLargestContourPipeline(Pipeline):
 
     @overrides(Pipeline)
     def _execute(self, inp):
-        start = current_time_millis()
-        _, cnts, _ = cv2.findContours(inp, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        """
+        :param inp: a binary image (np.array)
+        :return: a bounding box (tuple (x, y, w, h) )
+        """
+        _, cnts, _ = cv2.findContours(inp, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
         # only proceed if at least one contour was found
         if len(cnts) > 0:
@@ -152,6 +171,7 @@ class GetLargestContourPipeline(Pipeline):
 
 
 class FastColorDetectionPipeline(Pipeline):
+    """ A heuristical color detection approach. Not actually fast. """
 
     def __init__(self, color):
         Pipeline.__init__(self)
@@ -227,6 +247,7 @@ class FastColorDetectionPipeline(Pipeline):
 
 
 class TrackBBOXPipeline(Pipeline):
+    """ Tracks an initial bbox over several frames. """
     supported_tracking_algorithms = ['MIL', 'BOOSTING', 'KCF', 'TLC', 'MEDIANFLOW', 'GOTURN']
 
     def __init__(self, initial_frame, initial_bbox, tracking_algorithm='MIL'):
@@ -240,16 +261,25 @@ class TrackBBOXPipeline(Pipeline):
 
     @overrides(Pipeline)
     def _execute(self, inp):
+        """
+        :param inp: an image (np.array)
+        :return: the bounding box as it was tracked in the image ( tuple (x, y, w, h) )
+        """
         return self.__tracker.update(inp)
 
 
 class FindYDeviationPipeline(Pipeline):
+    """ Finds the deviation of a bounding box on the x-axis"""
 
     def __init__(self):
         Pipeline.__init__(self)
 
     @overrides(Pipeline)
     def _execute(self, inp):
+        """
+        :param inp: a bounding box and the image coordinates (tuple)
+        :return: the deviation of the bounding box along the x axis (float in [-1, 1])
+        """
         (left_x, _, width, _), (_, image_width, _) = inp
         mid_x = image_width / 2
         max_dev = mid_x
@@ -260,13 +290,19 @@ class FindYDeviationPipeline(Pipeline):
 
 
 class GetImageDimensionsPipeline(Pipeline):
+    """ Returns the dimensions of the image """
 
     @overrides(Pipeline)
     def _execute(self, inp):
+        """
+        :param inp: an image (np.array)
+        :return: the dimensions of the image ( tuple (h, w) )
+        """
         return True, inp.shape
 
 
 class EdgeDetectionPipeline(Pipeline):
+    """ Applies canny edge detection on an image """
 
     def __init__(self, threshold_lower=100, threshold_upper=200):
         Pipeline.__init__(self)
@@ -276,10 +312,15 @@ class EdgeDetectionPipeline(Pipeline):
 
     @overrides(Pipeline)
     def _execute(self, inp):
+        """
+        :param inp: an image (np.array)
+        :return: an image containing the edges of the input image (np.array)
+        """
         return True, cv2.Canny(inp, self.threshold_lower, self.threshold_upper)
 
 
 class HaarcascadePipeline(Pipeline):
+    """ Applies HAAR Cascade detection on an input image """
 
     def __init__(self, haarfile):
         Pipeline.__init__(self)
@@ -287,9 +328,14 @@ class HaarcascadePipeline(Pipeline):
 
     @overrides(Pipeline)
     def _execute(self, inp):
+        """
+        :param inp: an image (np.array)
+        :return: a list of bounding boxes for the found object (list)
+        """
         return True, self.detector.detectMultiScale(inp)
 
 
+@deprecated
 class DBSCANPipeline(Pipeline):
 
     def __init__(self, eps, min_neighs):
@@ -323,6 +369,7 @@ class DBSCANPipeline(Pipeline):
         return True, (min_x, min_y, max_x-min_x, max_y-min_y)
 
 
+@deprecated
 class FindLegsPipeline(Pipeline):
 
     def __init__(self):
@@ -384,6 +431,7 @@ class FindLegsPipeline(Pipeline):
 
 
 class KalmanFilterPipeline(Pipeline):
+    """ Applies a Kalman Filter on an input signal"""
 
     def __init__(self, process_noise=.001, sensor_noise=.4):
         Pipeline.__init__(self)
@@ -395,6 +443,11 @@ class KalmanFilterPipeline(Pipeline):
         self.__kalman_gain = 1
 
     def _execute(self, inp):
+        """
+        :param inp: a signal (float)
+        :return: the filtered signal (float)
+        """
+        
         # predict
         self.__error = self.__error + self.__process_noise
 
