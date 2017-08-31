@@ -3,6 +3,7 @@ import time  # import the time library for the sleep function
 from threading import Thread, Condition, Lock
 from config import config
 from screen import Screen
+from sound import Sound
 
 
 class Gesture(Thread):
@@ -24,11 +25,14 @@ class Gesture(Thread):
 
         self.current_gesture = "default"
         self.current_frame = 0
+        # DISPLAY
+        self.screen = Screen()
         # set picture delay to add up to exactly 1s for each picture sequence
         # self.picture_delay = 1 / len(Gesture.PICTURES["default"])
         self.picture_delay = 4
-        self.screen = Screen()
-        self.gesture_running = False
+
+        # SOUND
+        self.sound_control = Sound()
 
         # show default picture after initialization
         self.screen.change_picture(self.__get_picture("default.gif"))
@@ -53,8 +57,7 @@ class Gesture(Thread):
             self.current_gesture = gesture
             self.current_frame = 0
             self.picture_delay = 1 / len(Gesture.PICTURES[gesture])
-
-            # play sound(gesture)
+            self.sound_control.do_sound(gesture)
 
     def run(self):
         print("Gestures running")
