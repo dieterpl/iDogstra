@@ -24,14 +24,22 @@ if brickpi3 is not None:
             self.current_speed = 0
 
         def rotate(self, speed=None):
-            if speed<0:
-                self.left(speed*-1)
+            """
+                rotates in a direction with a speed
+                left if speed < 0
+                right if speed > 0
+            """
+            if speed < 0:
+                self.left(speed * -1)
             elif speed > 0:
                 self.right(speed)
             else:
                 self.stop()
 
         def forward(self, speed=None):
+            """
+                drives forward with a speed (0, 100)
+            """
             if speed is None:
                 print('using default speed')
                 speed = self.default_speed
@@ -41,6 +49,9 @@ if brickpi3 is not None:
             self.movement_state = 'forward'
 
         def backward(self, speed=None):
+            """
+                drives backward with a speed (0, 100)
+            """
             if speed is None:
                 print('using default speed')
                 speed = self.default_speed
@@ -50,6 +61,9 @@ if brickpi3 is not None:
             self.movement_state = 'backward'
 
         def left(self, speed=None):
+            """
+                drives left with a speed (0, 100)
+            """
             if speed is None:
                 print('using default speed')
                 speed = self.default_speed
@@ -60,6 +74,9 @@ if brickpi3 is not None:
             self.movement_state = 'left'
 
         def right(self, speed=None):
+            """
+                drives right with a speed (0, 100)
+            """
             if speed is None:
                 print('using default speed')
                 speed = self.default_speed
@@ -70,6 +87,9 @@ if brickpi3 is not None:
             self.movement_state = 'right'
 
         def stop(self):
+            """
+                stops the robot by easing speed towards 0
+            """
             while(self.current_speed > 0):
                 self.current_speed -= 1
 
@@ -113,6 +133,9 @@ if brickpi3 is not None:
                 self.movement_state = 'right'
 
         def move_by_degree(self, direction, degree):
+            """
+                rotates left or right by degree (0, 360)
+            """
             bpdegree = self.degree_to_bpdegree(degree)
 
             if direction == 'left_by_degree':
@@ -144,6 +167,9 @@ if brickpi3 is not None:
             self.stop()
 
         def __move_with_key(self, key):
+            """
+                provides a key left or right by degree (0, 360)
+            """
             if key == '' and self.movement_state != 'stop':
                 self.stop()
             elif key == 'w':
@@ -168,6 +194,15 @@ if brickpi3 is not None:
                 self.reset_all()
 
         def cli(self):
+            """
+                opens a command line interface to give the robot stepwise instructions
+                > command speed duration
+                > degreecommand degree
+                command: left,right,forward,backward
+                speed: [0 - 100]
+                duration: seconds
+                degreecommand: left_by_degree, right_by_degree
+            """
             directions = ['left', 'right', 'forward', 'backward']
             directions_by_degree = ['left_by_degree', 'right_by_degree']
 

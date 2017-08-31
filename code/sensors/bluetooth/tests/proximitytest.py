@@ -6,10 +6,11 @@ import time
 from sensors.bluetooth.bluetooth import BTDongle, SnapshotBTDataPipeline, \
     RecommendedSpeedPipeline
 from sensors.pipeline import create_sequential_pipeline, ConstantPipeline
-from motor import movement
+from motor import robot
 
 
 DEV_COUNT = 2
+robot_control = robot.Robot()
 
 
 def avg(dongles):
@@ -44,9 +45,9 @@ def main():
         succ, speed = pipeline.run_pipeline(None)
         print(succ, speed)
         if speed == 0:
-            movement.stop()
+            robot.stop()
         else:
-            movement.forward(speed)
+            robot.forward(speed)
         time.sleep(0.4)
 
 if __name__ == "__main__":
