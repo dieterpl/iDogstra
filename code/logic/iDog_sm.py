@@ -337,18 +337,24 @@ class WaitState(AbstractRobotState):
         dev, distance, _, _ = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
+
             if (us_ok or ir_ok) and current_time_millis() - self.start_time > config.IF_US_START_DELAY:
+                print("1")
                 return SearchState(self.state_machine)
             return self
         if not cam_ok and bt_ok:
+
             # is bt distance far then go in wait state or timeout is reached go
             # in wait state
             if distance == bluetooth.UserDistanceEstimationPipeline.Distance.NEAR \
                     or us_ok or ir_ok:
+                print("2")
                 return SearchState(self.state_machine)
             else:
                 return self
         if cam_ok and not bt_ok:
+            print("3")
             return TrackState(self.state_machine)
         if cam_ok and bt_ok:
+            print("4")
             return FollowState(self.state_machine)
