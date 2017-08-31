@@ -18,14 +18,14 @@ def color_tracking_pipeline(color="magenta"):
             ("image", camera.READ_CAMERA_PIPELINE),
             ConjunctiveParallelPipeline(
                 PipelineSequence(
-                    camera.ConvertColorspacePipeline(to='hsv'),
-                    camera.ColorThresholdPipeline(color=color),
-                    camera.ErodeDilatePipeline(),
+                    ("hsv_image", camera.ConvertColorspacePipeline(to='hsv')),
+                    ("threshold", camera.ColorThresholdPipeline(color=color)),
+                    ("filtered", camera.ErodeDilatePipeline()),
                     ("contour_bbox", camera.GetLargestContourPipeline())
                 ),
                 camera.GetImageDimensionsPipeline()
             ),
-            camera.FindYDeviationPipeline(),
+            ("raw_y_deviation", camera.FindYDeviationPipeline()),
             ("y_deviation", camera.KalmanFilterPipeline())
         )
 

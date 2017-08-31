@@ -447,7 +447,7 @@ class KalmanFilterPipeline(Pipeline):
         :param inp: a signal (float)
         :return: the filtered signal (float)
         """
-        
+
         # predict
         self.__error = self.__error + self.__process_noise
 
