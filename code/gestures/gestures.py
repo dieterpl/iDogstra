@@ -18,6 +18,7 @@ class Gesture(Thread):
 
     def __init__(self):
         Thread.__init__(self)
+        self.daemon = True
         self.paused = False
         self.pause_condition = Condition(Lock())
 
@@ -41,7 +42,6 @@ class Gesture(Thread):
 
         picture_number = picture_frame[self.current_frame]
         picture_name = ("%s_%d.gif" % (self.current_gesture, picture_number))
-        print(picture_name)
 
         return self.__get_picture(picture_name)
 
