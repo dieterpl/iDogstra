@@ -14,9 +14,10 @@ except ModuleNotFoundError:
           "raspberry pi?). S module will not be available.")
     GPIO = None
 
+DataTuple = namedtuple("DataTuple", "time distance")
 
 class UltraSonic:
-    DataTuple = namedtuple("DataTuple", "time distance")
+
 
     def __init__(self):
         """
@@ -93,9 +94,9 @@ class UltraSonic:
         under_avg = []
         for i in reversed(self.data_deque):
             if i.time > upper_threshold:
-                upper_avg.append(i.value)
+                upper_avg.append(i.distance)
             if under_threshold < i.time < upper_threshold:
-                under_avg.append(i.value)
+                under_avg.append(i.distance)
 
         if len(upper_avg) == 0 or len(under_avg) == 0:
             return False
