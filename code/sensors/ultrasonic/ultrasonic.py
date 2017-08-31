@@ -70,6 +70,7 @@ class UltraSonic:
             try:
                 self.lock.acquire()
                 self.data_deque.append(DataTuple(current_time_millis(),min(distance, config.US_MAX_VALUE)))
+                print(self.data_deque)
             finally:
                 self.lock.release()
             self.remove_old_data()
