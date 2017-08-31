@@ -36,10 +36,9 @@ else:
     # camera.resolution = PYCAMERA_RESOLUTION
     camera.framerate = 32
     camera.exposure_mode = "antishake"
-    time.sleep(2)
 
 
-class ReadCameraPipeline(Pipeline):
+class _ReadCameraPipeline(Pipeline):
 
     def __init__(self):
         Pipeline.__init__(self)
@@ -48,7 +47,8 @@ class ReadCameraPipeline(Pipeline):
         self.__last_capture = None
 
         Thread(target=self.__read).start()
-
+        time.sleep(2)
+        
     def __read(self):
         while True:
             if picamera is None:
@@ -270,3 +270,6 @@ class FindLegsPipeline(Pipeline):
                         result[yy, x2] = 255
 
         return True, (result, leg_candidates)
+
+
+READ_CAMERA_PIPELINE = _ReadCameraPipeline()

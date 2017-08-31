@@ -70,12 +70,12 @@ class CompositePipeline(Pipeline):
     def __init__(self, *pipelines):
         Pipeline.__init__(self)
 
-        self.__named_pipelines = {}
+        self.named_pipelines = {}
 
         self.__pipelines = []
         for p in pipelines:
             if issubclass(type(p), CompositePipeline):  # element is a composite pipeline
-                self.__named_pipelines.update(p.named_pipelines)
+                self.named_pipelines.update(p.named_pipelines)
                 self.__pipelines.append(p)
             elif issubclass(type(p), Pipeline):  # element is a pipeline, but NOT a composite pipeline
                 self.__pipelines.append(p)
@@ -83,15 +83,15 @@ class CompositePipeline(Pipeline):
                 name = p[0]
                 # check type of first element
                 if issubclass(type(p[1]), CompositePipeline):
-                    self.__named_pipelines.update(p[1].named_pipeline)
+                    self.named_pipelines.update(p[1].named_pipeline)
                     toappend = p[1]
                 elif issubclass(type(p[1]), Pipeline):
                     toappend = p[1]
                 else:
                     toappend = AtomicFunctionPipeline(p[1])
-                if name in self.__named_pipelines:
+                if name in self.named_pipelines:
                     logging.warning("Name '{}' already exists in the CompositePipeline".format(name))
-                self.__named_pipelines[name] = toappend
+                self.named_pipelines[name] = toappend
                 self.__pipelines.append(toappend)
             else:
                 self.__pipelines.append(AtomicFunctionPipeline(p))
@@ -105,10 +105,6 @@ class CompositePipeline(Pipeline):
 
         for p in self.pipelines:
             p.reset_pipeline()
-
-    @property
-    def named_pipelines(self):
-        return self.__named_pipelines
 
     @property
     def debug_prefix(self):
@@ -175,11 +171,11 @@ class PipelineSequence(CompositePipeline):
 class AbstractParallelPipeline(CompositePipeline):
 
     def __init__(self, *pipelines):
-        CompositePipeline.__init__(*pipelines)
+        CompositePipeline.__init__(self, *pipelines)
 
     @overrides(CompositePipeline)
     def _execute(self, inp):
-        threads = [Thread(target=p.run_pipeline, args=inp) for p in self.pipelines]
+        threads = [Thread(target=p.run_pipeline, args=(inp,)) for p in self.pipelines]
 
         for thread in threads:
             thread.start()
