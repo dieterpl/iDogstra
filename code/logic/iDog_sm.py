@@ -6,12 +6,14 @@ from sensors.camera import camera, camera_pipelines
 from sensors.ultrasonic import ultrasonic_pipelines, ultrasonic
 from sensors.infrared import infrared_piplelines, infrared
 from motor import robot
+from gestures import gestures
 import logging
 import config
 import cv2
 import sys
 from scipy.interpolate import interp1d
 import numpy
+
 
 class IDog(StateMachine):
     def __init__(self):
@@ -37,6 +39,7 @@ class IDog(StateMachine):
         # RobotControl
         logging.debug("Starting RobotControl")
         self.robots_control = robot.Robot()
+        self.gesture_control = gestures.Gesture()
 
         self._current_state.first_state = SearchState(self)
 
@@ -115,6 +118,8 @@ class SearchState(AbstractRobotState):
         self.pipeline.execute_callbacks = [self.show_result]
 
     def on_enter(self):
+        self.state_machine.gesture_control.change_gesture("search")
+
         if self.start_spin_direction == "left":
             self.state_machine.robots_control.left(config.SEARCH_SPEED)
         else:
@@ -177,6 +182,9 @@ class FollowState(AbstractRobotState):
 
         self.pipeline.execute_callbacks = [self.show_result]
 
+    def on_enter(self):
+        self.state_machine.gesture_control.change_gesture("follow")
+
     def on_exit(self):
         self.state_machine.robots_control.stop()
 
@@ -230,6 +238,9 @@ class TrackState(AbstractRobotState):
             )
 
         self.pipeline.execute_callbacks = [self.show_result]
+
+    def on_enter(self):
+        self.state_machine.gesture_control.change_gesture("track")
 
     def on_exit(self):
         self.state_machine.robots_control.stop()
@@ -297,6 +308,7 @@ class WaitState(AbstractRobotState):
         return self.__pipeline
 
     def on_enter(self):
+        self.state_machine.gesture_control.change_gesture("wait")
         self.start_time = current_time_millis()
 
     def on_update(self, hist):

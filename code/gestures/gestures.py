@@ -37,6 +37,8 @@ class Gesture(Thread):
         # show default picture after initialization
         self.screen.change_picture(self.__get_picture("default.gif"))
 
+        self.start()
+
     def __next_picture(self):
         picture_frame = Gesture.PICTURES[self.current_gesture]
 
