@@ -8,11 +8,12 @@ try:
     import brickpi3
     BP = brickpi3.BrickPi3()
 except ModuleNotFoundError:
-    print("WARNING: Could not import module brickpi3 (not running on a raspberry pi?). Movement module will not "
-          "be available.")
+    print("WARNING: Could not import module brickpi3 (not running on a \
+            raspberry pi?). Movement module will not be available.")
     brickpi3 = None
 
 DataTuple = namedtuple("DataTuple", "time distance")
+
 
 class InfraRed:
     def __init__(self):
@@ -51,7 +52,6 @@ class InfraRed:
                     self.lock.release()
                 self.remove_old_data()
 
-
     def remove_old_data(self, threshold=config.IR_DATA_ACC_THRESHOLD):
         """Removes data tuples from the queue that are older
         than threshold milliseconds"""
@@ -80,8 +80,8 @@ class InfraRed:
                 break
 
     def start_thread(self):
-          if_t = Thread(target=self.accumulate_distance)
-          if_t.start()
+        if_t = Thread(target=self.accumulate_distance)
+        if_t.start()
 
     def __len__(self):
         """Returns the amount of data that is present in the queue"""
@@ -131,7 +131,6 @@ class InfraRed:
         if abs(upper_avg - under_avg) > distance_threshold:
             return True
         return False
-
 
 
 class IRGetDistancePipeline(Pipeline):
