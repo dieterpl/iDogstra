@@ -54,12 +54,16 @@ class UltraSonic:
             StartZeit = time.time()
             StopZeit = time.time()
 
+            timeout = current_time_millis()
+
             # speichere Startzeit
-            while GPIO.input(config.US_GPIO_ECHO) == 0:
+            while GPIO.input(config.US_GPIO_ECHO) == 0 and current_time_millis()-timeout<100:
                 StartZeit = time.time()
 
+            timeout = current_time_millis()
+
             # speichere Ankunftszeit
-            while GPIO.input(config.US_GPIO_ECHO) == 1:
+            while GPIO.input(config.US_GPIO_ECHO) == 1  and current_time_millis()-timeout<100:
                 StopZeit = time.time()
 
             # Zeit Differenz zwischen Start und Ankunft
