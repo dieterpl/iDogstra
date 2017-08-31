@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="5781bbcc-a065-4f2d-8aa2-d212b91cea7b" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/code/logic/iDog_sm.py" afterPath="$PROJECT_DIR$/code/logic/iDog_sm.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/code/logic/statemachine.py" afterPath="$PROJECT_DIR$/code/logic/statemachine.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -23,14 +24,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="bluetooth.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/code/sensors/bluetooth/bluetooth.py">
+      <file leaf-file-name="statemachine.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/code/logic/statemachine.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="546">
-              <caret line="276" column="25" lean-forward="false" selection-start-line="276" selection-start-column="25" selection-end-line="276" selection-end-column="25" />
-              <folding>
-                <element signature="e#126#135#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="208">
+              <caret line="33" column="39" lean-forward="false" selection-start-line="33" selection-start-column="39" selection-end-line="33" selection-end-column="39" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -83,11 +82,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="iDog_sm.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="iDog_sm.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code/logic/iDog_sm.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="429">
-              <caret line="349" column="41" lean-forward="true" selection-start-line="349" selection-start-column="41" selection-end-line="349" selection-end-column="41" />
+            <state relative-caret-position="208">
+              <caret line="224" column="30" lean-forward="false" selection-start-line="224" selection-start-column="30" selection-end-line="224" selection-end-column="30" />
               <folding>
                 <element signature="e#0#32#0" expanded="true" />
               </folding>
@@ -165,6 +164,7 @@
         <option value="$PROJECT_DIR$/code/sensors/ultrasonic/ultrasonic.py" />
         <option value="$PROJECT_DIR$/code/config/config.py" />
         <option value="$PROJECT_DIR$/code/logic/iDog_sm.py" />
+        <option value="$PROJECT_DIR$/code/logic/statemachine.py" />
       </list>
     </option>
   </component>
@@ -457,7 +457,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/code/gimmicks/gestures.py" />
     <entry file="file://$PROJECT_DIR$/code/motor/head.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1375">
@@ -731,14 +730,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/code/logic/statemachine.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="42">
-          <caret line="5" column="15" lean-forward="false" selection-start-line="5" selection-start-column="14" selection-end-line="5" selection-end-column="15" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/code/sensors/ultrasonic/ultrasonic_pipelines.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -769,11 +760,29 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/code/logic/iDog_sm.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="429">
-          <caret line="349" column="41" lean-forward="true" selection-start-line="349" selection-start-column="41" selection-end-line="349" selection-end-column="41" />
+        <state relative-caret-position="208">
+          <caret line="224" column="30" lean-forward="false" selection-start-line="224" selection-start-column="30" selection-end-line="224" selection-end-column="30" />
           <folding>
             <element signature="e#0#32#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code/sensors/bluetooth/bluetooth.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="546">
+          <caret line="276" column="25" lean-forward="false" selection-start-line="276" selection-start-column="25" selection-end-line="276" selection-end-column="25" />
+          <folding>
+            <element signature="e#126#135#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code/logic/statemachine.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="208">
+          <caret line="33" column="39" lean-forward="false" selection-start-line="33" selection-start-column="39" selection-end-line="33" selection-end-column="39" />
+          <folding />
         </state>
       </provider>
     </entry>

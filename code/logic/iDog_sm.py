@@ -223,7 +223,6 @@ class FollowState(AbstractRobotState):
             if ir_ok and distance < config.MAX_IR_DISTANCE:
                 return self.queue_next_state(TrackState(self.state_machine))
             if abs(dev) < 0.2:
-                print("BT_speed",speed)
                 self.state_machine.robots_control.forward(speed*config.FORWARD_SPEED_MULT)
             return self.queue_next_state(self)
 
@@ -339,7 +338,6 @@ class WaitState(AbstractRobotState):
         if not cam_ok and not bt_ok:
 
             if (us_ok or ir_ok) and current_time_millis() - self.start_time > config.IF_US_START_DELAY:
-                print("1")
                 return SearchState(self.state_machine)
             return self
         if not cam_ok and bt_ok:
@@ -348,13 +346,10 @@ class WaitState(AbstractRobotState):
             # in wait state
             if distance == bluetooth.UserDistanceEstimationPipeline.Distance.NEAR \
                     or ((us_ok or ir_ok) and current_time_millis() - self.start_time > config.IF_US_START_DELAY):
-                print("2")
                 return SearchState(self.state_machine)
             else:
                 return self
         if cam_ok and not bt_ok:
-            print("3")
             return TrackState(self.state_machine)
         if cam_ok and bt_ok:
-            print("4")
             return FollowState(self.state_machine)
