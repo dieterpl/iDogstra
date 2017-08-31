@@ -11,7 +11,7 @@ import config
 import cv2
 import sys
 from scipy.interpolate import interp1d
-
+import numpy
 
 class IDog(StateMachine):
     def __init__(self):
@@ -51,8 +51,8 @@ class AbstractRobotState(State):
     def motor_alignment(self, dev):
         if abs(dev) > 0.2:
             value = interp1d([-1, 1], [-config.MAX_TURN_SPEED, config.MAX_TURN_SPEED])(dev)
-            print (value)
-            self.state_machine.robots_control.rotate(value)
+            logging.debug("Current Turn Speed".format(value))
+            self.state_machine.robots_control.rotate(min(config.MIN_TURN_SPEED, abs(value))*numpy.sign(value))
 
     def show_result(self, *_):
         if config.GRAPHICAL_OUTPUT:
