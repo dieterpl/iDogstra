@@ -193,7 +193,7 @@ class FollowState(AbstractRobotState):
                         self.pipeline["bt_speed"].success_state
         logging.debug("FollowState Pipeline results {}".format(cam_ok))
         dev, speed, distance = pipeline_result
-
+        print ("irdist",distance)
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return self.queue_next_state(WaitState(self.state_machine))
