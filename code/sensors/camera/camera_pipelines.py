@@ -18,10 +18,44 @@ def color_tracking_pipeline(color="magenta"):
             ("image", camera.READ_CAMERA_PIPELINE),
             ConjunctiveParallelPipeline(
                 PipelineSequence(
+                    ("hsv_image", camera.ConvertColorspacePipeline(to='hsv')),
+                    ("threshold", camera.ColorThresholdPipeline(color=color)),
+                    ("filtered", camera.ErodeDilatePipeline()),
+                    ("contour_bbox", camera.GetLargestContourPipeline())
+                ),
+                camera.GetImageDimensionsPipeline()
+            ),
+            ("raw_y_deviation", camera.FindYDeviationPipeline()),
+            ("y_deviation", camera.KalmanFilterPipeline())
+        )
+
+
+def fast_color_tracking_pipeline(color="magenta"):
+    return \
+        PipelineSequence(
+            ("image", camera.READ_CAMERA_PIPELINE),
+            ConjunctiveParallelPipeline(
+                PipelineSequence(
+                    camera.ConvertColorspacePipeline(to='hsv'),
+                    camera.ColorThresholdPipeline(color),
+                    ("contour_bbox", camera.FastColorDetectionPipeline(color)),
+                ),
+                camera.GetImageDimensionsPipeline()
+            ),
+            ("y_deviation", camera.FindYDeviationPipeline())
+        )
+
+
+def color_tracking_dbscan_pipeline(color="magenta"):
+    return \
+        PipelineSequence(
+            ("image", camera.READ_CAMERA_PIPELINE),
+            ConjunctiveParallelPipeline(
+                PipelineSequence(
                     camera.ConvertColorspacePipeline(to='hsv'),
                     camera.ColorThresholdPipeline(color=color),
                     camera.ErodeDilatePipeline(),
-                    ("contour_bbox", camera.GetLargestContourPipeline())
+                    ("contour_bbox", camera.DBSCANPipeline(eps=1.3, min_neighs=5))
                 ),
                 camera.GetImageDimensionsPipeline()
             ),

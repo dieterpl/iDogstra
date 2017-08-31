@@ -29,6 +29,8 @@ class CameraTestSM(StateMachine):
             self._current_state.first_state = DetectPersonState()
         elif testmode == "find-legs":
             self._current_state.first_state = FindLegsState()
+        elif testmode == "show-steps":
+            self._current_state.first_state = ShowColorTrackingPipelineStepsState()
         else:
             logging.warning("Unkown testmode '{}'. Falling back to show-image".format(testmode))
             self._current_state.first_state = ShowImageState()
@@ -212,12 +214,76 @@ class FindColorStateToTrack(State):
             return self
 
 
+class ShowColorTrackingPipelineStepsState(State):
+
+    def __init__(self):
+        State.__init__(self)
+
+        self.__pipeline = camera_pipelines.color_tracking_pipeline()
+
+        if GRAPHICAL_OUTPUT:
+            def show_result(*_):
+                bbox_ok, bbox = self.pipeline["contour_bbox"].result
+                image = self.pipeline["image"].output
+                hsv_image = self.pipeline["hsv_image"].output
+                threshold = self.pipeline["threshold"].output
+                filtered = self.pipeline["filtered"].output
+                dev_ok, dev = self.pipeline["y_deviation"].result
+                raw_dev_ok, raw_dev = self.pipeline["raw_y_deviation"].result
+
+                # draw bounding box
+                bbox_image = image.copy()
+                if bbox_ok:
+                    p1 = (int(bbox[0]), int(bbox[1]))
+                    p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+                    cv2.rectangle(bbox_image, p1, p2, (0, 0, 255))
+
+                # add deviation as text
+                if dev_ok:
+                    cv2.putText(bbox_image, str(dev), (0, image.shape[0] - 5),
+                                cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
+                if raw_dev_ok:
+                    cv2.putText(bbox_image, str(raw_dev), (image.shape[1] - 50, image.shape[0] - 5),
+                                cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6, [0, 255, 0])
+
+                cv2.imshow("image", image)
+                cv2.imshow("hsv_image", hsv_image)
+                cv2.imshow("threshold", threshold)
+                cv2.imshow("filtered", filtered)
+                cv2.imshow("bbox", bbox_image)
+                if cv2.waitKey(1) & 0xff == ord('q'):
+                    sys.exit()
+
+            self.pipeline.execute_callbacks = [show_result]
+
+    def on_enter(self):
+        if GRAPHICAL_OUTPUT:
+            cv2.namedWindow("image", cv2.WINDOW_AUTOSIZE)
+            cv2.namedWindow("hsv_image", cv2.WINDOW_AUTOSIZE)
+            cv2.namedWindow("threshold", cv2.WINDOW_AUTOSIZE)
+            cv2.namedWindow("filtered", cv2.WINDOW_AUTOSIZE)
+            cv2.namedWindow("bbox", cv2.WINDOW_AUTOSIZE)
+
+    def on_exit(self):
+        if GRAPHICAL_OUTPUT:
+            cv2.destroyAllWindows()
+
+    @property
+    def pipeline(self):
+        return self.__pipeline
+
+    def on_update(self, hist):
+        return self
+
+
 class FindColorState(State):
 
     def __init__(self):
         State.__init__(self)
 
         self.__pipeline = camera_pipelines.color_tracking_pipeline()
+        # self.__pipeline = camera_pipelines.color_tracking_dbscan_pipeline()
+        # self.__pipeline = camera_pipelines.fast_color_tracking_pipeline("magenta")
 
         if GRAPHICAL_OUTPUT:
             def show_result(*_):
@@ -262,7 +328,7 @@ class ShowImageState(State):
 
     def __init__(self):
         State.__init__(self)
-        self.__pipeline = camera.ReadCameraPipeline()
+        self.__pipeline = camera.READ_CAMERA_PIPELINE
 
         if GRAPHICAL_OUTPUT:
             def show_result(_, image):
@@ -404,23 +470,13 @@ class TestYDeviationState(State):
     def __init__(self):
         State.__init__(self)
 
-        self.__pipeline = \
-            pipeline.PipelineSequence(
-                lambda inp: camera.read(),
-                pipeline.ConjunctiveParallelPipeline(
-                    pipeline.PipelineSequence(
-                        camera_pipelines.color_filter_pipeline(),
-                        camera.GetLargestContourPipeline()
-                    ),
-                    camera.GetImageDimensionsPipeline()
-                ),
-                camera.FindYDeviationPipeline()
-            )
+        self.__pipeline = camera_pipelines.color_tracking_pipeline("magenta")
 
         if GRAPHICAL_OUTPUT:
             def show_result(*_):
-                _, _, (bbox_ok, bbox) = self.pipeline[1][0].results
-                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline.results
+                bbox_ok, bbox = self.pipeline["contour_bbox"].result
+                image = self.pipeline["image"].output
+                dev_ok, dev = self.pipeline["y_deviation"].result
 
                 # draw bounding box
                 if bbox_ok:

@@ -2,6 +2,7 @@ from utils.functions import current_time_millis, overrides, get_class_name, depr
 from threading import Thread
 import logging
 import numpy as np
+from config.config import *
 
 
 class Pipeline(object):
@@ -50,7 +51,7 @@ class Pipeline(object):
             cb(inp, out)
         callbacktime = current_time_millis() - start
 
-        logging.info(self.debug_prefix + "Executing pipeline {} took {}ms (callbacktime: {}ms)".format(
+        logging.debug(self.debug_prefix + "Executing pipeline {} took {}ms (callbacktime: {}ms)".format(
             self.__class__.__name__, exectime, callbacktime))
 
         self.__succ = succ
@@ -173,8 +174,25 @@ class AbstractParallelPipeline(CompositePipeline):
     def __init__(self, *pipelines):
         CompositePipeline.__init__(self, *pipelines)
 
+        self.use_parallel = USE_TRUE_PARALLEL_PIPELINES
+
     @overrides(CompositePipeline)
     def _execute(self, inp):
+        return self._execute_parallel(inp) if self.use_parallel else self._execute_parallel(inp)
+
+    def _execute_sequential(self, inp):
+        results = []
+
+        for pipeline in self.pipelines:
+            out = pipeline.run_pipeline(inp)
+            succ = pipeline.success_state
+            results.append((succ, out))
+
+        out = self.combine_outputs([p.output for p in self.pipelines])
+        succ = self.combine_success([p.success_state for p in self.pipelines])
+        return out, succ
+
+    def _execute_parallel(self, inp):
         threads = [Thread(target=p.run_pipeline, args=(inp,)) for p in self.pipelines]
 
         for thread in threads:

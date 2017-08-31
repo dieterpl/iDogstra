@@ -1,6 +1,7 @@
 import os
 
 CAMERA_RESOLUTION = (640, 480)  # the resolution to use for the raspberry pi camera
+SCANLINE_DISTANCE = 5
 
 DETECTION_SIZE_THRESHOLD = .001  # minimum size of a colored object, relative to the total image size
 
