@@ -50,8 +50,9 @@ class AbstractRobotState(State):
 
     def motor_alignment(self, dev):
         if abs(dev) > 0.2:
-            self.state_machine.robots_control.rotate(interp1d([-1, 1], [
-                -config.MAX_TURN_SPEED, config.MAX_TURN_SPEED])(dev))
+            value = interp1d([-1, 1], [-config.MAX_TURN_SPEED, config.MAX_TURN_SPEED])(dev)
+            print (value)
+            self.state_machine.robots_control.rotate(value)
 
     def show_result(self, *_):
         if config.GRAPHICAL_OUTPUT:
