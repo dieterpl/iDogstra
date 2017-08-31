@@ -8,7 +8,7 @@ from screen import Screen
 class Gesture(Thread):
 
     PICTURES = {
-        "default": "default.gif",
+        "default": "default_new.gif",
         "wait": [0, 1],
         "follow": [0, 1, 2, 3, 4, 3, 2, 1, 0, 5, 6, 7, 8, 7, 6, 5],
         "track": [0, 1, 2, 1],
@@ -54,15 +54,15 @@ class Gesture(Thread):
             self.current_frame = 0
             self.picture_delay = 1 / len(Gesture.PICTURES[gesture])
 
+            # play sound(gesture)
+
     def run(self):
         print("Gestures running")
         while True:
             with self.pause_condition:
                 while self.paused:
-                    print("paused")
                     self.pause_condition.wait()
 
-                print("running")
                 if self.current_gesture != "default":
                     picture_path = self.__next_picture()
                     self.current_frame += 1
