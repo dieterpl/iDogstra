@@ -38,7 +38,7 @@ else:
     camera.exposure_mode = "antishake"
 
 
-class ReadCameraPipeline(Pipeline):
+class _ReadCameraPipeline(Pipeline):
 
     def __init__(self):
         Pipeline.__init__(self)
@@ -270,3 +270,6 @@ class FindLegsPipeline(Pipeline):
                         result[yy, x2] = 255
 
         return True, (result, leg_candidates)
+
+
+READ_CAMERA_PIPELINE = _ReadCameraPipeline()
