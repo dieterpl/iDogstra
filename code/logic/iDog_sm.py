@@ -12,35 +12,35 @@ import cv2
 import sys
 from scipy.interpolate import interp1d
 
-__ultrasonic = None
-__infrared = None
-__bt_dongles = None
 
 class IDog(StateMachine):
 
     def __init__(self):
         StateMachine.__init__(self)
 
-        global __ultrasonic
-        __ultrasonic = ultrasonic.UltraSonic()
-        __ultrasonic.start_thread()
+        # Ultrasonic
+        logging.debug("Starting US-Sensor")
+        self.ultrasonic = ultrasonic.UltraSonic()
+        self.ultrasonic.start_thread()
 
-        global __infrared
-        __infrared = infrared.InfraRed()
-        __infrared.start_thread()
+        # Infrared
+        logging.debug("Starting IR-Sensor")
+        self.infrared = infrared.InfraRed()
+        self.infrared.start_thread()
 
+        # Bluetooth
         logging.debug("Starting BT-Dongles")
-        global __bt_dongles
-        __bt_dongles = [bluetooth.BTDongle(i, config.BT_TARGET_UUID)
+        self.bt_dongles = [bluetooth.BTDongle(i, config.BT_TARGET_UUID)
                              for i in config.BT_DONGLE_IDS]
-        for dongle in __bt_dongles:
+        for dongle in self.bt_dongles:
             dongle.start()
 
-        self._current_state.first_state = SearchState()
+        self._current_state.first_state = SearchState(self)
 
 
 class AbstractRobotState(State):
-    def __init__(self):
+
+    def __init__(self, state_machine):
         State.__init__(self)
         self.robots_control = robot.Robot()
         self.next_state = None
@@ -80,23 +80,30 @@ class AbstractRobotState(State):
         else:
             return self
 
+    @property
+    def pipeline(self):
+        raise NotImplementedError()
+
+    def on_update(self, hist):
+        raise NotImplementedError()
+
 
 class SearchState(AbstractRobotState):
     """Turn robot in circles until the user is found or timeout occurred"""
 
-    def __init__(self, start_spin_direction="left"):
-        AbstractRobotState.__init__(self)
+    def __init__(self, state_machine, start_spin_direction="left"):
+        AbstractRobotState.__init__(self, state_machine)
         self.start_time = None
         self.start_spin_direction = start_spin_direction
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
-        print(type(pipeline), pipeline)
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
-                bluetooth_pipelines.user_distance_estimation_pipeline()
+                bluetooth_pipelines.user_distance_estimation_pipeline(
+                    self.state_machine.bt_dongles)
             )
 
         self.pipeline.execute_callbacks = [self.show_result]
@@ -123,24 +130,25 @@ class SearchState(AbstractRobotState):
         dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
-            return WaitState()
+            return WaitState(self.state_machine)
         if not cam_ok and bt_ok:
-            # is bt distance far then go in wait state or timeout is reached go in wait state
+            # is bt distance far then go in wait state or timeout is reached go
+            #  in wait state
             if current_time_millis() - self.start_time > config.SEARCH_TIMEOUT or \
                             distance == bluetooth.UserDistanceEstimationPipeline.Distance.FAR:
-                return WaitState()
+                return WaitState(self.state_machine)
             return self
         if cam_ok and not bt_ok:
-            return TrackState()
+            return TrackState(self.state_machine)
         if cam_ok and bt_ok:
-            return FollowState()
+            return FollowState(self.state_machine)
 
 
 class FollowState(AbstractRobotState):
     """ Follows the user using the camera and bt by moving the robot"""
 
-    def __init__(self):
-        AbstractRobotState.__init__(self)
+    def __init__(self, state_machine):
+        AbstractRobotState.__init__(self, state_machine)
         self.robots_control = robot.Robot()
         self.last_dev = 0
 
@@ -151,7 +159,8 @@ class FollowState(AbstractRobotState):
                 # Camera inputs
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
-                bluetooth_pipelines.recommended_speed_pipeline()
+                bluetooth_pipelines.recommended_speed_pipeline(
+                    self.state_machine.bt_dongles)
             )
 
         self.pipeline.execute_callbacks = [self.show_result]
@@ -174,12 +183,13 @@ class FollowState(AbstractRobotState):
 
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
-            return self.queue_next_state(WaitState())
+            return self.queue_next_state(WaitState(self.state_machine))
         if not cam_ok and bt_ok:
-            # is bt distance far then go in wait state or timeout is reached go in wait state
-            return self.queue_next_state(SearchState("left" if self.last_dev > 0 else "right"))
+            # is bt distance far then go in wait state or timeout is reached go
+            # in wait state
+            return self.queue_next_state(SearchState(self.state_machine, "left" if self.last_dev > 0 else "right"))
         if cam_ok and not bt_ok:
-            return self.queue_next_state(TrackState())
+            return self.queue_next_state(TrackState(self.state_machine))
         if cam_ok and bt_ok:
             self.last_dev = dev
             self.motor_alignment(dev)
@@ -191,8 +201,8 @@ class FollowState(AbstractRobotState):
 class TrackState(AbstractRobotState):
     """ Tracks the user with the camera but stays at the current position"""
 
-    def __init__(self):
-        AbstractRobotState.__init__(self)
+    def __init__(self, state_machine):
+        AbstractRobotState.__init__(self, state_machine)
         self.robots_control = robot.Robot()
         self.last_dev = 0
         # Create a pipeline that reads both camara and bluetooth inputs
@@ -202,7 +212,8 @@ class TrackState(AbstractRobotState):
                 # Camera inputs
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
-                bluetooth_pipelines.user_distance_estimation_pipeline()
+                bluetooth_pipelines.user_distance_estimation_pipeline(
+                    self.state_machine.bt_dongles)
             )
 
         self.pipeline.execute_callbacks = [self.show_result]
@@ -224,41 +235,45 @@ class TrackState(AbstractRobotState):
         dev *= -1
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
-            return self.queue_next_state(WaitState())
+            return self.queue_next_state(WaitState(self.state_machine))
         if not cam_ok and bt_ok:
-            # is bt distance far then go in wait state or timeout is reached go in wait state
-            return self.queue_next_state(SearchState("left" if dev > 0 else "right"))
+            # is bt distance far then go in wait state or timeout is reached go
+            # in wait state
+            return self.queue_next_state(SearchState(
+                self.state_machine, "left" if dev > 0 else "right"))
         if cam_ok and not bt_ok:
             self.last_dev = dev
-            self.motor_aligment(dev)
+            self.motor_alignment(dev)
             return self
         if cam_ok and bt_ok:
             self.last_dev = dev
-            self.motor_aligment(dev)
+            self.motor_alignment(dev)
             if distance != bluetooth.UserDistanceEstimationPipeline.Distance.NEAR:
-                return self.queue_next_state(FollowState())
+                return self.queue_next_state(FollowState(self.state_machine))
             return self.queue_next_state(self)
 
 
 class WaitState(AbstractRobotState):
     """ waits until bt is near or woken up by other sensors"""
 
-    def __init__(self):
-        AbstractRobotState.__init__(self)
+    def __init__(self, state_machine):
+        AbstractRobotState.__init__(self, state_machine)
 
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
-        global __ultrasonic, __infrared
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
-                bluetooth_pipelines.user_distance_estimation_pipeline(),
+                bluetooth_pipelines.user_distance_estimation_pipeline(
+                    self.state_machine.bt_dongles),
                 # Ultrasonic inputs
-                ultrasonic_pipelines.get_distance_pipeline(__ultrasonic),
+                ultrasonic_pipelines.get_distance_pipeline(
+                    self.state_machine.ultrasonic),
                 # Infrared inputs
-                infrared_piplelines.get_distance_pipeline(__infrared)
+                infrared_piplelines.get_distance_pipeline(
+                    self.state_machine.infrared),
 
             )
 
@@ -282,12 +297,13 @@ class WaitState(AbstractRobotState):
         if not cam_ok and not bt_ok:
             return self
         if not cam_ok and bt_ok:
-            # is bt distance far then go in wait state or timeout is reached go in wait state
+            # is bt distance far then go in wait state or timeout is reached go
+            # in wait state
             if distance == bluetooth.UserDistanceEstimationPipeline.Distance.NEAR:
-                return SearchState()
+                return SearchState(self.state_machine)
             else:
                 return self
         if cam_ok and not bt_ok:
-            return TrackState()
+            return TrackState(self.state_machine)
         if cam_ok and bt_ok:
-            return FollowState()
+            return FollowState(self.state_machine)
