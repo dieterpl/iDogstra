@@ -1,5 +1,7 @@
 from utils.functions import current_time_millis, overrides, get_class_name, deprecated
+from threading import Thread
 import logging
+import numpy as np
 
 
 class Pipeline(object):
@@ -68,12 +70,12 @@ class CompositePipeline(Pipeline):
     def __init__(self, *pipelines):
         Pipeline.__init__(self)
 
-        self.__named_pipelines = {}
+        self.named_pipelines = {}
 
         self.__pipelines = []
         for p in pipelines:
             if issubclass(type(p), CompositePipeline):  # element is a composite pipeline
-                self.__named_pipelines.update(p.named_pipelines)
+                self.named_pipelines.update(p.named_pipelines)
                 self.__pipelines.append(p)
             elif issubclass(type(p), Pipeline):  # element is a pipeline, but NOT a composite pipeline
                 self.__pipelines.append(p)
@@ -81,15 +83,15 @@ class CompositePipeline(Pipeline):
                 name = p[0]
                 # check type of first element
                 if issubclass(type(p[1]), CompositePipeline):
-                    self.__named_pipelines.update(p[1].named_pipeline)
+                    self.named_pipelines.update(p[1].named_pipeline)
                     toappend = p[1]
                 elif issubclass(type(p[1]), Pipeline):
                     toappend = p[1]
                 else:
                     toappend = AtomicFunctionPipeline(p[1])
-                if name in self.__named_pipelines:
+                if name in self.named_pipelines:
                     logging.warning("Name '{}' already exists in the CompositePipeline".format(name))
-                self.__named_pipelines[name] = toappend
+                self.named_pipelines[name] = toappend
                 self.__pipelines.append(toappend)
             else:
                 self.__pipelines.append(AtomicFunctionPipeline(p))
@@ -103,10 +105,6 @@ class CompositePipeline(Pipeline):
 
         for p in self.pipelines:
             p.reset_pipeline()
-
-    @property
-    def named_pipelines(self):
-        return self.__named_pipelines
 
     @property
     def debug_prefix(self):
@@ -170,7 +168,32 @@ class PipelineSequence(CompositePipeline):
         return "[PipelineSequence|{} steps: {}]".format(len(self.pipelines), '->'.join(str(p) for p in self.pipelines))
 
 
-class ConjunctiveParallelPipeline(CompositePipeline):
+class AbstractParallelPipeline(CompositePipeline):
+
+    def __init__(self, *pipelines):
+        CompositePipeline.__init__(self, *pipelines)
+
+    @overrides(CompositePipeline)
+    def _execute(self, inp):
+        threads = [Thread(target=p.run_pipeline, args=inp) for p in self.pipelines]
+
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+
+        out = self.combine_outputs([p.output for p in self.pipelines])
+        succ = self.combine_success([p.success_state for p in self.pipelines])
+        return succ, out
+
+    def combine_outputs(self, outputs):
+        raise NotImplementedError()
+
+    def combine_success(self, successes):
+        raise NotImplementedError()
+
+
+class ConjunctiveParallelPipeline(AbstractParallelPipeline):
     """
     Runs several pipelines in parallel and then combines their output.
     The result is a tuple that contains the success flag, which is true, if all
@@ -179,28 +202,22 @@ class ConjunctiveParallelPipeline(CompositePipeline):
     """
 
     def __init__(self, *pipelines):
-        CompositePipeline.__init__(self, *pipelines)
+        AbstractParallelPipeline.__init__(self, *pipelines)
 
-    @overrides(CompositePipeline)
-    def _execute(self, inp):
-        # todo use threads
-        self._results = []
-        succ = True
-        for pipeline in self.pipelines:
-            curr_out = pipeline.run_pipeline(inp)
-            curr_succ = pipeline.success_state
-            self._results.append((curr_succ, curr_out))
-            if not curr_succ:
-                succ = False
+    @overrides(AbstractParallelPipeline)
+    def combine_outputs(self, outputs):
+        return tuple(outputs)
 
-        return succ, tuple(r[1] for r in self.results)
+    @overrides(AbstractParallelPipeline)
+    def combine_success(self, successes):
+        return np.all(successes)
 
     def __str__(self):
         return "[ConjunctiveParallelPipeline|{} pipelines: {}]".format(
             len(self.pipelines), '||'.join(str(p) for p in self.pipelines))
 
 
-class DisjunctiveParallelPipeline(CompositePipeline):
+class DisjunctiveParallelPipeline(AbstractParallelPipeline):
     """
     Runs several pipelines in parallel and then combines their output.
     The result is a tuple that contains the success flag, which is true, if at
@@ -209,21 +226,15 @@ class DisjunctiveParallelPipeline(CompositePipeline):
     """
 
     def __init__(self, *pipelines):
-        CompositePipeline.__init__(self, *pipelines)
+        AbstractParallelPipeline.__init__(self, *pipelines)
 
-    @overrides(Pipeline)
-    def _execute(self, inp):
-        # todo use threads
-        self._results = []
-        succ = False
-        for pipeline in self.pipelines:
-            curr_out = pipeline.run_pipeline(inp)
-            curr_succ = pipeline.success_state
-            self._results.append((curr_succ, curr_out))
-            if curr_succ:
-                succ = True
+    @overrides(AbstractParallelPipeline)
+    def combine_outputs(self, outputs):
+        return tuple(outputs)
 
-        return succ, tuple(r[1] for r in self._results)
+    @overrides(AbstractParallelPipeline)
+    def combine_success(self, successes):
+        return np.any(successes)
 
     def __str__(self):
         return "[ConjunctiveParallelPipeline|{} pipelines: {}]".format(

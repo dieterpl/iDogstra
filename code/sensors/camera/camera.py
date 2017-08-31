@@ -35,7 +35,6 @@ else:
     # camera.resolution = PYCAMERA_RESOLUTION
     camera.framerate = 32
     camera.exposure_mode = "antishake"
-    time.sleep(2)
 
 
 class ReadCameraPipeline(Pipeline):
@@ -47,7 +46,8 @@ class ReadCameraPipeline(Pipeline):
         self.__last_capture = None
 
         Thread(target=self.__read).start()
-
+        time.sleep(2)
+        
     def __read(self):
         while True:
             if picamera is None:
