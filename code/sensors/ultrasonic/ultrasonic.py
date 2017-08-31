@@ -104,7 +104,7 @@ class UltraSonic:
         upper_avg = []
         under_avg = []
 
-        print("asdf")
+        print(self.data_deque)
 
         try:
             self.lock.acquire()
