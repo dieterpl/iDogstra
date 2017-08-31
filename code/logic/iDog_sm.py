@@ -206,7 +206,7 @@ class FollowState(AbstractRobotState):
 
         logging.debug("FollowState Pipeline results {}".format(cam_ok))
         dev, speed, distance = pipeline_result
-
+        print(speed)
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return self.queue_next_state(WaitState(self.state_machine))
@@ -336,8 +336,7 @@ class WaitState(AbstractRobotState):
         dev, distance, _, _ = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
-            if (
-                us_ok or ir_ok) and current_time_millis() - self.start_time > config.IF_US_START_DELAY:
+            if (us_ok or ir_ok) and current_time_millis() - self.start_time > config.IF_US_START_DELAY:
                 return SearchState(self.state_machine)
             return self
         if not cam_ok and bt_ok:

@@ -127,7 +127,7 @@ class InfraRed:
             return False
         upper_avg = sum(upper_avg) / len(upper_avg)
         under_avg = sum(under_avg) / len(under_avg)
-        print("IR",upper_avg,under_avg)
+
         if abs(upper_avg - under_avg) > distance_threshold:
             return True
         return False
