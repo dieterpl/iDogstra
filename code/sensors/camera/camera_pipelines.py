@@ -29,6 +29,23 @@ def color_tracking_pipeline(color="magenta"):
         )
 
 
+def color_tracking_dbscan_pipeline(color="magenta"):
+    return \
+        PipelineSequence(
+            ("image", camera.READ_CAMERA_PIPELINE),
+            ConjunctiveParallelPipeline(
+                PipelineSequence(
+                    camera.ConvertColorspacePipeline(to='hsv'),
+                    camera.ColorThresholdPipeline(color=color),
+                    camera.ErodeDilatePipeline(),
+                    ("contour_bbox", camera.DBSCANPipeline(eps=1.3, min_neighs=5))
+                ),
+                camera.GetImageDimensionsPipeline()
+            ),
+            ("y_deviation", camera.FindYDeviationPipeline())
+        )
+
+
 def box_tracking_pipeline(frame, bbox):
     return \
         PipelineSequence(

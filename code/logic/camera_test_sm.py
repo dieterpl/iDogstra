@@ -218,6 +218,7 @@ class FindColorState(State):
         State.__init__(self)
 
         self.__pipeline = camera_pipelines.color_tracking_pipeline()
+        # self.__pipeline = camera_pipelines.color_tracking_dbscan_pipeline()
 
         if GRAPHICAL_OUTPUT:
             def show_result(*_):

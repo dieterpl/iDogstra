@@ -1,6 +1,7 @@
 import logging
 import sys
 import time
+import sklearn.cluster
 
 import cv2
 import numpy as np
@@ -9,7 +10,7 @@ from threading import Thread
 
 from config.config import *
 from sensors.pipeline import Pipeline
-from utils.functions import overrides
+from utils.functions import overrides, get_class_name, current_time_millis
 from scipy.interpolate import interp1d
 
 if os.uname().machine == 'armv7l':  # probably runnig on RaspPi
@@ -135,10 +136,12 @@ class GetLargestContourPipeline(Pipeline):
 
     @overrides(Pipeline)
     def _execute(self, inp):
-        _, cnts, _ = cv2.findContours(inp.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        start = current_time_millis()
+        _, cnts, _ = cv2.findContours(inp, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
         # only proceed if at least one contour was found
         if len(cnts) > 0:
+            start = current_time_millis()
             largest_contour = max(cnts, key=cv2.contourArea)
 
             if cv2.contourArea(largest_contour) > inp.shape[0] * inp.shape[1] * self.__min_contour_size:
@@ -212,6 +215,39 @@ class HaarcascadePipeline(Pipeline):
         return True, self.detector.detectMultiScale(inp)
 
 
+class DBSCANPipeline(Pipeline):
+
+    def __init__(self, eps, min_neighs):
+        Pipeline.__init__(self)
+
+        self.__eps = eps
+        self.__min_neighs = min_neighs
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        points = []
+        height, width = inp.shape
+        for y in range(0, height):
+            for x in range(0, width):
+                points.append(np.array([x, y]))
+        points = np.array(points)
+
+        dbscan = sklearn.cluster.DBSCAN(eps=self.__eps, min_samples=self.__min_neighs)
+        labels = dbscan.fit_predict(points)
+
+        unique, counts = np.unique(labels, return_counts=True)
+        l_max = unique[np.argmax(counts)]
+
+        largest_cluster = [p for i, p in enumerate(points) if labels[i] == l_max]
+
+        min_x = min(largest_cluster, key=lambda p: p[0])
+        max_x = min(largest_cluster, key=lambda p: p[0])
+        min_y = min(largest_cluster, key=lambda p: p[1])
+        max_y = min(largest_cluster, key=lambda p: p[1])
+
+        return True, (min_x, min_y, max_x-min_x, max_y-min_y)
+
+
 class FindLegsPipeline(Pipeline):
 
     def __init__(self):
@@ -273,3 +309,4 @@ class FindLegsPipeline(Pipeline):
 
 
 READ_CAMERA_PIPELINE = _ReadCameraPipeline()
+
