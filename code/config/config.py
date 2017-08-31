@@ -18,10 +18,6 @@ LOGSPATH = os.path.join(ROOT_PATH, 'logs')
 DATAPATH = os.path.join(ROOT_PATH, "data")
 HAARPATH = os.path.join(DATAPATH, "haarcascades")
 
-BT_TARGET_UUID = "6951e12f049945d2930e1fc462c721c8"
-
-BT_DONGLES = []
-
 # MOVEMENT CONFIG
 
 STATE_SWITCH_COOLDOWN = 1000
@@ -34,6 +30,7 @@ MAX_TURN_SPEED = 70
 
 # Bluetooth Config
 
+BT_TARGET_UUID = "6951e12f049945d2930e1fc462c721c8"  # The uuid of the bt beacon
 BT_DONGLE_IDS = list(range(2))  # The device ids of the bt dongles to use
 
 # - Configures how the speed is recommended using bluetooth
