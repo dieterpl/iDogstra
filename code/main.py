@@ -2,13 +2,14 @@ import argparse
 import logging
 import time
 from sensors.bluetooth import bluetooth
-from logic import camera_test_sm, iDog_sm
+from logic import camera_test_sm, iDog_sm, bt_test_sm
 from config import *
 
 
 known_state_machines = {
     "test-camera": camera_test_sm.CameraTestSM,
-    "default": iDog_sm.IDog
+    "default": iDog_sm.IDog,
+    "bt-test": bt_test_sm.BTTestSM
 }
 
 
