@@ -347,7 +347,7 @@ class WaitState(AbstractRobotState):
             # is bt distance far then go in wait state or timeout is reached go
             # in wait state
             if distance == bluetooth.UserDistanceEstimationPipeline.Distance.NEAR \
-                    or us_ok or ir_ok:
+                    or ((us_ok or ir_ok) and current_time_millis() - self.start_time > config.IF_US_START_DELAY):
                 print("2")
                 return SearchState(self.state_machine)
             else:
