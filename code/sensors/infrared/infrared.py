@@ -88,6 +88,30 @@ class InfraRed:
             return None
         return sum(self.data_deque) / len(self.data_deque)
 
+    def check_if_sensor_data_changed(self, time_threshold=500, distance_threshold=10):
+        """ Return true if data changed by distance threshold in time_threshold"""
+        if len(self.data_deque) == 0:
+            return None
+        upper_threshold = current_time_millis() - time_threshold
+        under_threshold = current_time_millis() - time_threshold*2
+        upper_avg = []
+        under_avg = []
+        for i in range(len(self.data_deque, 0, -1)):
+            if self.data_deque[i].time > upper_threshold:
+                upper_avg.append(self.data_deque[i].value)
+            if under_threshold < self.data_deque[i].time < upper_threshold:
+                under_avg.append(self.data_deque[i].value)
+
+        if len(upper_avg) == 0 or len(under_avg) == 0:
+            return False
+        upper_avg = sum(upper_avg) / len(upper_avg)
+        under_avg = sum(under_avg) / len(under_avg)
+
+        if abs(under_avg - under_avg) < distance_threshold:
+            return True
+        return False
+
+
 
 class IRGetDistancePipeline(Pipeline):
     """A pipeline that returns the distance measured by the US sensors"""
@@ -101,6 +125,21 @@ class IRGetDistancePipeline(Pipeline):
         if len(inp) == 0:
             return False, None
         return True, inp.get_avg_value()
+
+
+class IRGetMovementPipeline(Pipeline):
+    """A pipeline that returns the distance measured by the US sensors"""
+
+    def __init__(self):
+        Pipeline.__init__(self)
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        """Takes an UltraSonic object and returns the average value."""
+        result = inp.check_if_sensor_data_changed()
+        if not result:
+            return False, None
+        return True, result
 
 #if __name__ == '__main__':
 #    with InfraRed() as ir:
