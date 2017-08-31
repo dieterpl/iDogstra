@@ -24,7 +24,8 @@ class Gesture(Thread):
         self.current_gesture = "default"
         self.current_frame = 0
         # set picture delay to add up to exactly 1s for each picture sequence
-        self.picture_delay = 1 / len(Gesture.PICTURES["default"])
+        # self.picture_delay = 1 / len(Gesture.PICTURES["default"])
+        self.picture_delay = 4
         self.screen = Screen()
         self.gesture_running = False
 
@@ -58,8 +59,10 @@ class Gesture(Thread):
         while True:
             with self.pause_condition:
                 while self.paused:
+                    print("paused")
                     self.pause_condition.wait()
 
+                print("running")
                 if self.current_gesture != "default":
                     picture_path = self.__next_picture()
                     self.current_frame += 1
