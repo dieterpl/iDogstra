@@ -4,7 +4,7 @@ CAMERA_RESOLUTION = (640, 480)  # the resolution to use for the raspberry pi cam
 
 DETECTION_SIZE_THRESHOLD = .001  # minimum size of a colored object, relative to the total image size
 
-DEBUG_MODE = True  # enable or disable debug mode
+DEBUG_MODE = False  # enable or disable debug mode
 
 GRAPHICAL_OUTPUT = True  # enable or disable graphical output
 
