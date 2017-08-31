@@ -14,7 +14,7 @@ import numpy
 
 class BTTestSM(StateMachine):
 
-    def __init__(self, testmode="show-image"):
+    def __init__(self):
         StateMachine.__init__(self)
 
         # Bluetooth
