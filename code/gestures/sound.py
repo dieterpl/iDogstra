@@ -7,6 +7,13 @@ class Sound:
 
     def __init__(self):
         pygame.mixer.init()
+        self.sounds = {
+            "wait": "snort.wav",  # schnarchen
+            "track": "pant.wav",  # hecheln
+            "search": "whimper.wav",  # fiepen
+            "follow": "bark.wav",  # bellen
+            "dodge": "gnar.wav",  # knurren
+        }
 
     def do_sound(self, gesture):
         sound_file = get_sound_from_gesture(gesture)
@@ -17,9 +24,4 @@ class Sound:
                 continue
 
     def get_sound_from_gesture(self, gesture):
-        if gesture == "wait" return "snort.wav"  # schnarchen
-        elif gesture == "track" return "pant.wav"  # hecheln
-        elif gesture == "search" return "whimper.wav"  # fiepen
-        elif gesture == "follow" return "bark.wav"  # bellen
-        elif gesture == "dodge" return "gnar.wav"  # knurren
-        else return ""
+        return self.sounds.get(gesture, "")
