@@ -50,7 +50,8 @@ class AbstractRobotState(State):
 
     def motor_alignment(self, dev):
         if abs(dev) > 0.2:
-            self.state_machine.robots_control.rotate(interp1d([-1, 1], [-config.MAX_TURN_SPEED, config.MAX_TURN_SPEED])(dev))
+            self.state_machine.robots_control.rotate(interp1d([-1, 1], [
+                -config.MAX_TURN_SPEED, config.MAX_TURN_SPEED])(dev))
 
     def show_result(self, *_):
         if config.GRAPHICAL_OUTPUT:
@@ -66,7 +67,8 @@ class AbstractRobotState(State):
 
             # add deviation as text
             if dev_ok:
-                cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6,
+                cv2.putText(image, str(dev), (0, image.shape[0] - 5),
+                            cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6,
                             [0, 255, 0])
 
             if image is not None:
@@ -129,7 +131,8 @@ class SearchState(AbstractRobotState):
         pipeline_result = hist[-1]
         logging.debug("SearchState Pipeline results {}".format(hist[-1]))
         # unpack results
-        cam_ok, bt_ok = self.pipeline["y_deviation"].success_state, self.pipeline["user_distance"].success_state
+        cam_ok, bt_ok = self.pipeline["y_deviation"].success_state, \
+                        self.pipeline["user_distance"].success_state
         dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
@@ -164,7 +167,11 @@ class FollowState(AbstractRobotState):
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
                 bluetooth_pipelines.recommended_speed_pipeline(
-                    self.state_machine.bt_dongles)
+                    self.state_machine.bt_dongles),
+
+                infrared_piplelines.get_distance_pipeline(
+                    self.state_machine.infrared)
+
             )
 
         self.pipeline.execute_callbacks = [self.show_result]
@@ -181,9 +188,10 @@ class FollowState(AbstractRobotState):
 
         logging.debug("FollowState Pipeline results {}".format(hist[-1]))
         # unpack results
-        cam_ok, bt_ok = self.pipeline["y_deviation"].success_state, self.pipeline["bt_speed"].success_state
+        cam_ok, bt_ok = self.pipeline["y_deviation"].success_state, \
+                        self.pipeline["bt_speed"].success_state
         logging.debug("FollowState Pipeline results {}".format(cam_ok))
-        dev, speed = pipeline_result
+        dev, speed, distance = pipeline_result
 
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
@@ -191,13 +199,14 @@ class FollowState(AbstractRobotState):
         if not cam_ok and bt_ok:
             # is bt distance far then go in wait state or timeout is reached go
             # in wait state
-            return self.queue_next_state(SearchState(self.state_machine, "left" if self.last_dev > 0 else "right"))
+            return self.queue_next_state(SearchState(self.state_machine,
+                                                     "left" if self.last_dev > 0 else "right"))
         if cam_ok and not bt_ok:
             return self.queue_next_state(TrackState(self.state_machine))
         if cam_ok and bt_ok:
             self.last_dev = dev
             self.motor_alignment(dev)
-            if abs(dev) < 0.2:
+            if abs(dev) < 0.2 and distance>50:
                 self.state_machine.robots_control.forward(speed)
             return self.queue_next_state(self)
 
@@ -233,7 +242,8 @@ class TrackState(AbstractRobotState):
         logging.debug("TrackState Pipeline results {}".format(hist[-1]))
 
         # unpack results
-        cam_ok, bt_ok = self.pipeline["y_deviation"].success_state, self.pipeline["user_distance"].success_state
+        cam_ok, bt_ok = self.pipeline["y_deviation"].success_state, \
+                        self.pipeline["user_distance"].success_state
         dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
@@ -275,7 +285,7 @@ class WaitState(AbstractRobotState):
                     self.state_machine.ultrasonic),
                 # Infrared inputs
                 infrared_piplelines.get_movement_pipeline(
-                    self.state_machine.infrared),
+                    self.state_machine.infrared)
 
             )
 
@@ -292,15 +302,18 @@ class WaitState(AbstractRobotState):
         pipeline_result = hist[-1]
         logging.debug("WaitState Pipeline results {}".format(hist[-1]))
         # unpack results
-        cam_ok, bt_ok, us_ok, ir_ok = self.pipeline["y_deviation"].success_state, \
-                                      self.pipeline["user_distance"].success_state, \
+        cam_ok, bt_ok, us_ok, ir_ok = self.pipeline[
+                                          "y_deviation"].success_state, \
+                                      self.pipeline[
+                                          "user_distance"].success_state, \
                                       self.pipeline["us_change"].success_state, \
                                       self.pipeline["ir_change"].success_state
 
         dev, distance, _, _ = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
-            if (us_ok or ir_ok) and current_time_millis()-self.start_time>config.IF_US_START_DELAY:
+            if (
+                us_ok or ir_ok) and current_time_millis() - self.start_time > config.IF_US_START_DELAY:
                 return SearchState(self.state_machine)
             return self
         if not cam_ok and bt_ok:
