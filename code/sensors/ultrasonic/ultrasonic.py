@@ -1,7 +1,7 @@
 # Bibliotheken einbinden
 import time
 from collections import deque, namedtuple
-from threading import Thread
+from threading import Thread, Lock
 
 import config
 from sensors.pipeline import Pipeline
@@ -33,6 +33,7 @@ class UltraSonic:
         GPIO.setup(config.US_GPIO_TRIGGER, GPIO.OUT)
         GPIO.setup(config.US_GPIO_ECHO, GPIO.IN)
 
+        self.lock = Lock()
         self.data_deque = deque()
 
     def accumulate_distance(self):
@@ -66,7 +67,11 @@ class UltraSonic:
             # und durch 2 teilen, da hin und zurueck
             distance = (TimeElapsed * 34300) / 2
 
-            self.data_deque.append(DataTuple(current_time_millis(),min(distance, config.US_MAX_VALUE)))
+            try:
+                self.lock.acquire()
+                self.data_deque.append(DataTuple(current_time_millis(),min(distance, config.US_MAX_VALUE)))
+            finally:
+                self.lock.release()
             self.remove_old_data()
 
     def remove_old_data(self, threshold=1000):
@@ -75,28 +80,41 @@ class UltraSonic:
 
         threshold = current_time_millis() - threshold
 
-        while len(self.data_deque) > 0 and self.data_deque[0].time < threshold:
-            self.data_deque.popleft()
+        try:
+            self.lock.acquire()
+            while len(self.data_deque) > 0 and self.data_deque[0].time < threshold:
+                self.data_deque.popleft()
+        finally:
+            self.lock.release()
 
     def get_avg_value(self):
         """ Returns the average of the measured data"""
-        if len(self.data_deque) == 0:
-            return None
-        return sum(self.data_deque) / len(self.data_deque)
+        try:
+            self.lock.acquire()
+            if len(self.data_deque) == 0:
+                return None
+            return sum(self.data_deque) / len(self.data_deque)
+        finally:
+            self.lock.release()
 
     def check_us_sensor_data_changed(self, time_threshold=500, distance_threshold=10):
         """ Return true if data changed by more than distance threshold in time_threshold"""
-        if len(self.data_deque) == 0:
-            return None
         upper_threshold = current_time_millis() - time_threshold
         under_threshold = current_time_millis() - time_threshold*2
         upper_avg = []
         under_avg = []
-        for i in reversed(self.data_deque):
-            if i.time > upper_threshold:
-                upper_avg.append(i.distance)
-            if under_threshold < i.time < upper_threshold:
-                under_avg.append(i.distance)
+
+        try:
+            self.lock.acquire()
+            if len(self.data_deque) == 0:
+                return None
+            for i in reversed(self.data_deque):
+                if i.time > upper_threshold:
+                    upper_avg.append(i.distance)
+                if under_threshold < i.time < upper_threshold:
+                    under_avg.append(i.distance)
+        finally:
+            self.lock.release()
 
         if len(upper_avg) == 0 or len(under_avg) == 0:
             return False
@@ -113,7 +131,11 @@ class UltraSonic:
         # ensure that old data is being deleted before counting the elements
         # in the queue
         self.remove_old_data()
-        return len(self.data_deque)
+        try:
+            self.lock.acquire()
+            return len(self.data_deque)
+        finally:
+            self.lock.release()
 
     def clean_up(self):
         GPIO.cleanup()

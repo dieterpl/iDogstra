@@ -152,10 +152,12 @@ class BTDongle:
         than threshold milliseconds"""
 
         threshold = current_time_millis() - threshold
-        self.lock.acquire()
-        while(len(self.data) > 0 and self.data[0].time < threshold):
-            self.data.popleft()
-        self.lock.release()
+        try:
+            self.lock.acquire()
+            while(len(self.data) > 0 and self.data[0].time < threshold):
+                self.data.popleft()
+        finally:
+            self.lock.release()
 
     def add_data(self, rssi):
         """Adds a new rssi value. This also calls self.remove_old_data()"""
@@ -169,10 +171,12 @@ class BTDongle:
         # Remove old entries from the queue that are older than 10 sec
         self.remove_old_data()
         # Add the new rssi value to the data queue
-        self.lock.acquire()
-        self.data.append(DataTuple(
-            current_time_millis(), abs(rssi) + self.offset))
-        self.lock.release()
+        try:
+            self.lock.acquire()
+            self.data.append(DataTuple(
+                current_time_millis(), abs(rssi) + self.offset))
+        finally:
+            self.lock.release()
 
     def scan(self):
         """Scans a single time for ble beacons"""
@@ -195,13 +199,15 @@ class BTDongle:
         threshold = current_time_millis() - config.BT_TIME_THRESHOLD
 
         data_list = []
-        self.lock.acquire()
-        for t in reversed(self.data):
-            # Stop when data is too old
-            if t.time < threshold:
-                break
-            data_list.append(t)
-        self.lock.release()
+        try:
+            self.lock.acquire()
+            for t in reversed(self.data):
+                # Stop when data is too old
+                if t.time < threshold:
+                    break
+                data_list.append(t)
+        finally:
+            self.lock.release()
         return DataList(threshold, data_list)
 
 
