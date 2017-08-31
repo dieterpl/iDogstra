@@ -32,6 +32,7 @@ class StateMachine(object):
         if state is not self._current_state:
             self._current_state.on_exit()
             self._current_state = state
+            print("current state", state)
             state.on_enter()
 
 

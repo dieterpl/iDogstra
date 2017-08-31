@@ -104,14 +104,18 @@ class UltraSonic:
         upper_avg = []
         under_avg = []
 
+        print(self.data_deque)
+
         try:
             self.lock.acquire()
             if len(self.data_deque) == 0:
                 return None
             for i in reversed(self.data_deque):
                 if i.time > upper_threshold:
+                    print("found upper")
                     upper_avg.append(i.distance)
                 if under_threshold < i.time < upper_threshold:
+                    print("found under")
                     under_avg.append(i.distance)
         finally:
             self.lock.release()
