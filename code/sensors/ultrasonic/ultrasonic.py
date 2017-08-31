@@ -43,6 +43,7 @@ class UltraSonic:
         """
 
         while True:
+            print ("started Data acc")
             # setze Trigger auf HIGH
             GPIO.output(config.US_GPIO_TRIGGER, True)
 
@@ -72,6 +73,7 @@ class UltraSonic:
                 self.data_deque.append(DataTuple(current_time_millis(),min(distance, config.US_MAX_VALUE)))
             finally:
                 self.lock.release()
+            print("ended Data acc")
             self.remove_old_data()
 
     def remove_old_data(self, threshold=1000):
