@@ -35,7 +35,7 @@ class Gesture(Thread):
         picture_frame = Gesture.PICTURES[self.current_gesture]
 
         # necessary if gesture is changed and
-        if(self.current_frame > len(picture_frame)):
+        if(self.current_frame >= len(picture_frame)):
             self.current_frame = 0
 
         picture_number = picture_frame[self.current_frame]
@@ -50,6 +50,7 @@ class Gesture(Thread):
     def change_gesture(self, gesture):
         if gesture in Gesture.PICTURES.keys():
             self.current_gesture = gesture
+            self.current_frame = 0
             self.picture_delay = 1 / len(Gesture.PICTURES[gesture])
 
     def run(self):
@@ -61,8 +62,8 @@ class Gesture(Thread):
 
                 if self.current_gesture != "default":
                     picture_path = self.__next_picture()
-                    self.screen.change_picture(picture_path)
                     self.current_frame += 1
+                    self.screen.change_picture(picture_path)
 
                     time.sleep(self.picture_delay)
 
