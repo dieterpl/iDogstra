@@ -275,7 +275,7 @@ class TrackState(AbstractRobotState):
             # is bt distance far then go in wait state or timeout is reached go
             # in wait state
             return self.queue_next_state(SearchState(
-                self.state_machine, "left" if dev > 0 else "right"))
+                self.state_machine, "left" if self.last_dev > 0 else "right"))
         if cam_ok and not bt_ok:
             self.last_dev = dev
             self.motor_alignment(dev)
