@@ -16,12 +16,9 @@ class Sound:
         }
 
     def do_sound(self, gesture):
-        sound_file = get_sound_from_gesture(gesture)
+        sound_file = self.sounds.get(gesture, "")
         if(sound_file != ""):
             pygame.mixer.music.load(os.path.join(config.SOUNDPATH, sound_file))
             pygame.mixer.music.play()
             while pygame.mixer.music.get_busy():
                 continue
-
-    def get_sound_from_gesture(self, gesture):
-        return self.sounds.get(gesture, "")
