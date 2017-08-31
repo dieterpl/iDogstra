@@ -13,25 +13,7 @@ class Screen:
         """
         self.imgPath = os.path.join(config.PICTUREPATH, initial_picture)
 
-        self.__init_root()
-        self.__init_window()
-
         self.__show_window()
-
-    def __init_root(self):
-        # set the dimensions of the screen
-        # and where it is placed
-        self.root = tk.Tk()
-        self.root.geometry('%dx%d+%d+%d' % (800, 480, 0, 0))
-        self.root.attributes('-alpha', 0.0)  # For icon
-        self.root.lower()
-        self.root.iconify()
-
-    def __init_window(self):
-        self.window = tk.Toplevel(self.root)
-        self.window.geometry("800x480")  # Whatever size
-        self.window.overrideredirect(1)  # Remove border
-        self.window.attributes('-topmost', 1)
 
     def __open_window(self):
         """
@@ -39,6 +21,16 @@ class Screen:
         :return: -
         """
         # Whatever buttons, etc
+        self.root = tk.Tk()
+        self.root.geometry('%dx%d+%d+%d' % (800, 480, 0, 0))
+        self.root.attributes('-alpha', 0.0)  # For icon
+        self.root.lower()
+        self.root.iconify()
+
+        self.window = tk.Toplevel(self.root)
+        self.window.geometry("800x480")  # Whatever size
+        self.window.overrideredirect(1)  # Remove border
+        self.window.attributes('-topmost', 1)
 
         self.photo = tk.PhotoImage(file=self.imgPath)
         self.label = tk.Label(self.window, image=self.photo)
