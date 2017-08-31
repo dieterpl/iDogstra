@@ -45,6 +45,7 @@ class AbstractRobotState(State):
         self.robots_control = robot.Robot()
         self.next_state = None
         self.state_switching_timestamp = None
+        self.state_machine = state_machine
 
     def motor_alignment(self, dev):
         if abs(dev) > 0.2:
