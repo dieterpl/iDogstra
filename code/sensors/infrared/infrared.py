@@ -43,7 +43,7 @@ class InfraRed:
             except brickpi3.SensorError as error:
                 value = None
             if value:
-                self.data_deque.append(self.DataTuple(current_time_millis(), value))
+                self.data_deque.append(DataTuple(current_time_millis(), value))
                 self.remove_old_data()
 
 

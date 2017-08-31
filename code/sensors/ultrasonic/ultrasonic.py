@@ -65,7 +65,7 @@ class UltraSonic:
             # und durch 2 teilen, da hin und zurueck
             distance = (TimeElapsed * 34300) / 2
 
-            self.data_deque.append(self.DataTuple(current_time_millis(),min(distance, config.US_MAX_VALUE)))
+            self.data_deque.append(DataTuple(current_time_millis(),min(distance, config.US_MAX_VALUE)))
             self.remove_old_data()
 
     def remove_old_data(self, threshold=1000):
