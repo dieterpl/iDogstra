@@ -74,7 +74,6 @@ class CompositePipeline(Pipeline):
 
         self.__pipelines = []
         for p in pipelines:
-            print("hello", p)
             if issubclass(type(p), CompositePipeline):  # element is a composite pipeline
                 self.named_pipelines.update(p.named_pipelines)
                 self.__pipelines.append(p)
