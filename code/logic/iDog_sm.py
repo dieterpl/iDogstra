@@ -206,7 +206,7 @@ class FollowState(AbstractRobotState):
 
         logging.debug("FollowState Pipeline results {}".format(cam_ok))
         dev, speed, distance = pipeline_result
-        print(speed)
+
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             return self.queue_next_state(WaitState(self.state_machine))
@@ -223,6 +223,7 @@ class FollowState(AbstractRobotState):
             if ir_ok and distance < config.MAX_IR_DISTANCE:
                 return self.queue_next_state(TrackState(self.state_machine))
             if abs(dev) < 0.2:
+                print("BT_speed",speed)
                 self.state_machine.robots_control.forward(speed*config.FORWARD_SPEED_MULT)
             return self.queue_next_state(self)
 

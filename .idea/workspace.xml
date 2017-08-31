@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5781bbcc-a065-4f2d-8aa2-d212b91cea7b" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/code/config/config.py" afterPath="$PROJECT_DIR$/code/config/config.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/code/logic/iDog_sm.py" afterPath="$PROJECT_DIR$/code/logic/iDog_sm.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/code/sensors/infrared/infrared.py" afterPath="$PROJECT_DIR$/code/sensors/infrared/infrared.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/code/sensors/ultrasonic/ultrasonic.py" afterPath="$PROJECT_DIR$/code/sensors/ultrasonic/ultrasonic.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -18,8 +18,8 @@
       <file leaf-file-name="config.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code/config/config.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="30" column="19" lean-forward="false" selection-start-line="30" selection-start-column="19" selection-end-line="30" selection-end-column="19" />
+            <state relative-caret-position="532">
+              <caret line="38" column="24" lean-forward="false" selection-start-line="38" selection-start-column="24" selection-end-line="38" selection-end-column="24" />
               <folding />
             </state>
           </provider>
@@ -61,11 +61,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ultrasonic.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ultrasonic.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code/sensors/ultrasonic/ultrasonic.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="222">
-              <caret line="127" column="8" lean-forward="false" selection-start-line="127" selection-start-column="8" selection-end-line="127" selection-end-column="8" />
+            <state relative-caret-position="219">
+              <caret line="127" column="0" lean-forward="false" selection-start-line="127" selection-start-column="0" selection-end-line="127" selection-end-column="0" />
               <folding>
                 <element signature="e#25#36#0" expanded="true" />
               </folding>
@@ -85,11 +85,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="iDog_sm.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="iDog_sm.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/code/logic/iDog_sm.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="222">
-              <caret line="208" column="13" lean-forward="false" selection-start-line="208" selection-start-column="8" selection-end-line="208" selection-end-column="13" />
+            <state relative-caret-position="444">
+              <caret line="148" column="32" lean-forward="false" selection-start-line="148" selection-start-column="23" selection-end-line="148" selection-end-column="32" />
               <folding>
                 <element signature="e#0#32#0" expanded="true" />
               </folding>
@@ -163,10 +163,10 @@
         <option value="$PROJECT_DIR$/sound.py" />
         <option value="$PROJECT_DIR$/../../sound.py" />
         <option value="$PROJECT_DIR$/code/gestures/sound.py" />
-        <option value="$PROJECT_DIR$/code/config/config.py" />
-        <option value="$PROJECT_DIR$/code/logic/iDog_sm.py" />
         <option value="$PROJECT_DIR$/code/sensors/infrared/infrared.py" />
         <option value="$PROJECT_DIR$/code/sensors/ultrasonic/ultrasonic.py" />
+        <option value="$PROJECT_DIR$/code/config/config.py" />
+        <option value="$PROJECT_DIR$/code/logic/iDog_sm.py" />
       </list>
     </option>
   </component>
@@ -723,24 +723,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/code/config/config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="30" column="19" lean-forward="false" selection-start-line="30" selection-start-column="19" selection-end-line="30" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/code/logic/iDog_sm.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="208" column="13" lean-forward="false" selection-start-line="208" selection-start-column="8" selection-end-line="208" selection-end-column="13" />
-          <folding>
-            <element signature="e#0#32#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/code/sensors/infrared/infrared.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="555">
@@ -771,10 +753,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/code/sensors/ultrasonic/ultrasonic.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="127" column="8" lean-forward="false" selection-start-line="127" selection-start-column="8" selection-end-line="127" selection-end-column="8" />
+        <state relative-caret-position="219">
+          <caret line="127" column="0" lean-forward="false" selection-start-line="127" selection-start-column="0" selection-end-line="127" selection-end-column="0" />
           <folding>
             <element signature="e#25#36#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code/config/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="532">
+          <caret line="38" column="24" lean-forward="false" selection-start-line="38" selection-start-column="24" selection-end-line="38" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code/logic/iDog_sm.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="444">
+          <caret line="148" column="32" lean-forward="false" selection-start-line="148" selection-start-column="23" selection-end-line="148" selection-end-column="32" />
+          <folding>
+            <element signature="e#0#32#0" expanded="true" />
           </folding>
         </state>
       </provider>
