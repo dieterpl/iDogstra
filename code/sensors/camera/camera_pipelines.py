@@ -7,8 +7,8 @@ def color_filter_pipeline(color="magenta"):
         PipelineSequence(
             camera.READ_CAMERA_PIPELINE,
             camera.ConvertColorspacePipeline(to='hsv'),
-            camera.ColorThresholdPipeline(color=color),
-            camera.ErodeDilatePipeline()
+            camera.ColorThresholdPipeline(color=color)#,
+            #camera.ErodeDilatePipeline()
         )
 
 
@@ -20,7 +20,7 @@ def color_tracking_pipeline(color="magenta"):
                 PipelineSequence(
                     camera.ConvertColorspacePipeline(to='hsv'),
                     camera.ColorThresholdPipeline(color=color),
-                    camera.ErodeDilatePipeline(),
+                    #camera.ErodeDilatePipeline(),
                     ("contour_bbox", camera.GetLargestContourPipeline())
                 ),
                 camera.GetImageDimensionsPipeline()
