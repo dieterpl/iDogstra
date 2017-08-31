@@ -4,10 +4,13 @@ import time
 
 import cv2
 import numpy as np
+import random
+from threading import Thread
 
 from config.config import *
 from sensors.pipeline import Pipeline
 from utils.functions import overrides
+from scipy.interpolate import interp1d
 
 if os.uname().machine == 'armv7l':  # probably runnig on RaspPi
     import picamera
@@ -32,18 +35,33 @@ else:
     camera = picamera.PiCamera()
     # camera.resolution = PYCAMERA_RESOLUTION
     camera.framerate = 32
-    time.sleep(2)
+    camera.exposure_mode = "antishake"
 
 
-def read():
-    """ Returns a camera image as an array of bgr-values """
+class ReadCameraPipeline(Pipeline):
 
-    if picamera is None:
-        return camera.read()[1]
-    else:
-        array = picamera.array.PiRGBArray(camera, size=CAMERA_RESOLUTION)
-        camera.capture(array, format='bgr', resize=CAMERA_RESOLUTION, use_video_port=True)
-        return array.array
+    def __init__(self):
+        Pipeline.__init__(self)
+
+        self.__last_sucess = False
+        self.__last_capture = None
+
+        Thread(target=self.__read).start()
+        time.sleep(2)
+        
+    def __read(self):
+        while True:
+            if picamera is None:
+                self.__last_sucess, self.__last_capture = camera.read()
+            else:
+                array = picamera.array.PiRGBArray(camera, size=CAMERA_RESOLUTION)
+                camera.capture(array, format='bgr', resize=CAMERA_RESOLUTION, use_video_port=True)
+
+                self.__last_capture = array.array
+                self.__last_sucess = True
+
+    def _execute(self, inp):
+        return self.__last_sucess and self.__last_capture is not None, self.__last_capture
 
 
 class ConvertColorspacePipeline(Pipeline):
@@ -80,8 +98,12 @@ class ColorThresholdPipeline(Pipeline):
                 self.threshold_lower = np.array([15, 50, 50])
                 self.threshold_upper = np.array([25, 255, 255])
             elif color == 'magenta':
-                self.threshold_lower = np.array([155, 20, 20])
-                self.threshold_upper = np.array([175, 255, 255])
+                self.threshold_lower = np.array([interp1d([0, 360], [0, 180])(300),
+                                                 interp1d([0, 100], [0, 255])(10),
+                                                 interp1d([0, 100], [0, 255])(10)])
+                self.threshold_upper = np.array([interp1d([0, 360], [0, 180])(330),
+                                                 interp1d([0, 100], [0, 255])(100),
+                                                 interp1d([0, 100], [0, 255])(100)])
             else:
                 raise ValueError('Unsupported color', color)
         elif type(color) == tuple:
@@ -178,3 +200,73 @@ class EdgeDetectionPipeline(Pipeline):
     def _execute(self, inp):
         return True, cv2.Canny(inp, self.threshold_lower, self.threshold_upper)
 
+
+class HaarcascadePipeline(Pipeline):
+
+    def __init__(self, haarfile):
+        Pipeline.__init__(self)
+        self.detector = cv2.CascadeClassifier(haarfile)
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        return True, self.detector.detectMultiScale(inp)
+
+
+class FindLegsPipeline(Pipeline):
+
+    def __init__(self):
+        Pipeline.__init__(self)
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        result = np.zeros(inp.shape)
+
+        height, width = inp.shape
+        segment_towers = []
+        last_segments = []
+        this_segments = []
+        for y in range(int(height/3), height, 10):
+            edge_points = []
+            last_segments, this_segments = this_segments, []
+
+            for x in range(0, width):
+                if inp[y, x] > 0:
+                    edge_points.append(x)
+
+            for i in range(1, len(edge_points)):
+                x1, x2 = edge_points[i-1], edge_points[i]
+
+                if 40 < x2 - x1 < 100:
+                    this_tower_idx = None
+
+                    found_upper = False
+                    for ly, lx1, lx2, tower_idx in last_segments:
+                        ix1, ix2 = max(x1, lx1), min(x2, lx2)
+                        if ix2 <= ix1:
+                            continue  # empty intersection
+                        elif ix2 - ix1 > 0.75 * x2 - x1:
+                            segment_towers[tower_idx].append((y, x1, x2))
+                            this_tower_idx = tower_idx
+                            found_upper = True
+
+                    if not found_upper:
+                        this_tower_idx = len(segment_towers)
+                        segment_towers.append([(y, x1, x2)])
+
+                    this_segments.append((y, x1, x2, this_tower_idx))
+
+        leg_candidates = []
+        for tower in segment_towers:
+            if len(tower) > 1:
+                (top_y, top_x1, top_x2), (bot_y, bot_x1, bot_x2) = tower[0], tower[-1]
+                leg_candidates.append([(int(top_x1 + (top_x2-top_x1)/2), top_y),
+                                       (int(bot_x1 + (bot_x2 - bot_x1)/1), bot_y)])
+
+                for y, x1, x2 in tower:
+                    for x in range(x1, x2):
+                        result[y, x] = 255
+                    for yy in range(max(0, y-10), min(height-1, y+10)):
+                        result[yy, x1] = 255
+                        result[yy, x2] = 255
+
+        return True, (result, leg_candidates)
