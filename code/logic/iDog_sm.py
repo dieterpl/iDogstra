@@ -206,8 +206,8 @@ class FollowState(AbstractRobotState):
         if cam_ok and bt_ok:
             self.last_dev = dev
             self.motor_alignment(dev)
-            if abs(dev) < 0.2 and distance>50:
-                self.state_machine.robots_control.forward(speed)
+            if abs(dev) < 0.2 and distance > 50:
+                self.state_machine.robots_control.forward(speed*config.FORWARD_SPEED_MULT)
             return self.queue_next_state(self)
 
 
