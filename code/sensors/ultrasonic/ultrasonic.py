@@ -91,7 +91,7 @@ class UltraSonic:
         under_threshold = current_time_millis() - time_threshold*2
         upper_avg = []
         under_avg = []
-        for i in range(len(self.data_deque, 0, -1)):
+        for i in reversed(self.data_deque):
             if self.data_deque[i].time > upper_threshold:
                 upper_avg.append(self.data_deque[i].value)
             if under_threshold < self.data_deque[i].time < upper_threshold:
