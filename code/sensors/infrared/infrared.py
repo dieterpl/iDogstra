@@ -89,7 +89,7 @@ class InfraRed:
         return sum(self.data_deque) / len(self.data_deque)
 
     def check_if_sensor_data_changed(self, time_threshold=500, distance_threshold=10):
-        """ Return true if data changed by distance threshold in time_threshold"""
+        """ Return true if data changed by more than distance threshold in time_threshold"""
         if len(self.data_deque) == 0:
             return None
         upper_threshold = current_time_millis() - time_threshold
@@ -107,7 +107,7 @@ class InfraRed:
         upper_avg = sum(upper_avg) / len(upper_avg)
         under_avg = sum(under_avg) / len(under_avg)
 
-        if abs(under_avg - under_avg) < distance_threshold:
+        if abs(upper_avg - under_avg) > distance_threshold:
             return True
         return False
 
