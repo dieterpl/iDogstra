@@ -32,7 +32,7 @@ class Gesture(Thread):
         self.screen.change_picture(self.__get_picture("default.gif"))
 
     def __next_picture(self):
-        picture_frames = Gesture.PICTURES[self.current_gesture]
+        picture_frame = Gesture.PICTURES[self.current_gesture]
         picture_number = picture_frame[self.current_frame]
         picture_name = ("%s_%d.gif" % (self.current_gesture, picture_number))
         print(picture_name)
@@ -55,11 +55,12 @@ class Gesture(Thread):
                 while self.paused:
                     self.pause_condition.wait()
 
-                picture_path = self.__next_picture()
-                self.screen.change_picture(picture_path)
-                self.current_frame += 1
+                if self.current_gesture != "default":
+                    picture_path = self.__next_picture()
+                    self.screen.change_picture(picture_path)
+                    self.current_frame += 1
 
-                time.sleep(self.picture_delay)
+                    time.sleep(self.picture_delay)
             time.sleep(5)
 
         print("Gestures stopping")
