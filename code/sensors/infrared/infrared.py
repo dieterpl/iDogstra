@@ -102,6 +102,9 @@ class IRGetDistancePipeline(Pipeline):
             return False, None
         return True, inp.get_avg_value()
 
+
+
+
 #if __name__ == '__main__':
 #    with InfraRed() as ir:
 #        for i in range(0,100):

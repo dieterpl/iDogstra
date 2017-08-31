@@ -256,7 +256,7 @@ class WaitState(AbstractRobotState):
                 # Ultrasonic inputs
                 ultrasonic_pipelines.get_distance_pipeline(__ultrasonic),
                 # Infrared inputs
-                ultrasonic_pipelines.get_distance_pipeline(__infrared),
+                infrared_piplelines.get_distance_pipeline(__infrared)
 
             )
 
@@ -270,7 +270,8 @@ class WaitState(AbstractRobotState):
         pipeline_result = hist[-1]
         logging.debug("WaitState Pipeline results {}".format(hist[-1]))
         # unpack results
-        cam_ok, bt_ok = self.pipeline["y_deviation"].success_state, self.pipeline["user_distance"].success_state
+        cam_ok, bt_ok, us_ok, ir_ok = self.pipeline["y_deviation"].success_state, \
+                                      self.pipeline["user_distance"].success_state
         dev, distance = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
