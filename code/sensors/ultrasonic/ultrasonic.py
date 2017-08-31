@@ -102,7 +102,7 @@ class UltraSonic:
         finally:
             self.lock.release()
 
-    def check_us_sensor_data_changed(self, time_threshold=500, distance_threshold=10):
+    def check_us_sensor_data_changed(self, time_threshold=500, distance_threshold=100):
         """ Return true if data changed by more than distance threshold in time_threshold"""
         upper_threshold = current_time_millis() - time_threshold
         under_threshold = current_time_millis() - time_threshold*2
