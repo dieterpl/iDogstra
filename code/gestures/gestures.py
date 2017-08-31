@@ -2,8 +2,8 @@ import os
 import time  # import the time library for the sleep function
 from threading import Thread, Condition, Lock
 from config import config
-from screen import Screen
-from sound import Sound
+from gestures.screen import Screen
+from gestures.sound import Sound
 
 
 class Gesture(Thread):
