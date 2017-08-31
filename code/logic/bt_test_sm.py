@@ -23,14 +23,14 @@ class BTTestSM(StateMachine):
                            for i in config.BT_DONGLE_IDS]
         for dongle in self.bt_dongles:
             dongle.start()
-        self._current_state.first_state = BTTestState()
+        self._current_state.first_state = BTTestState(self)
 
 
 class BTTestState(State):
-    def __init__(self):
+    def __init__(self,state_machine):
         State.__init__(self)
-
-        self.__pipeline = bluetooth_pipelines.user_distance_estimation_pipeline()
+        self.state_machine = state_machine
+        self.__pipeline = bluetooth_pipelines.user_distance_estimation_pipeline(self.state_machine.bt_dongles)
 
 
 
