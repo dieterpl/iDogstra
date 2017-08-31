@@ -4,6 +4,7 @@ import logging
 import numpy as np
 from config.config import *
 
+
 class Pipeline(object):
     """ Base object for all pipelines"""
 
@@ -50,7 +51,7 @@ class Pipeline(object):
             cb(inp, out)
         callbacktime = current_time_millis() - start
 
-        logging.info(self.debug_prefix + "Executing pipeline {} took {}ms (callbacktime: {}ms)".format(
+        logging.debug(self.debug_prefix + "Executing pipeline {} took {}ms (callbacktime: {}ms)".format(
             self.__class__.__name__, exectime, callbacktime))
 
         self.__succ = succ

@@ -264,7 +264,7 @@ class ShowImageState(State):
 
     def __init__(self):
         State.__init__(self)
-        self.__pipeline = camera.ReadCameraPipeline()
+        self.__pipeline = camera.READ_CAMERA_PIPELINE
 
         if GRAPHICAL_OUTPUT:
             def show_result(_, image):
@@ -406,23 +406,13 @@ class TestYDeviationState(State):
     def __init__(self):
         State.__init__(self)
 
-        self.__pipeline = \
-            pipeline.PipelineSequence(
-                lambda inp: camera.read(),
-                pipeline.ConjunctiveParallelPipeline(
-                    pipeline.PipelineSequence(
-                        camera_pipelines.color_filter_pipeline(),
-                        camera.GetLargestContourPipeline()
-                    ),
-                    camera.GetImageDimensionsPipeline()
-                ),
-                camera.FindYDeviationPipeline()
-            )
+        self.__pipeline = camera_pipelines.color_tracking_pipeline("magenta")
 
         if GRAPHICAL_OUTPUT:
             def show_result(*_):
-                _, _, (bbox_ok, bbox) = self.pipeline[1][0].results
-                _, (image_ok, image), _, (dev_ok, dev) = self.pipeline.results
+                bbox_ok, bbox = self.pipeline["contour_bbox"].result
+                image = self.pipeline["image"].output
+                dev_ok, dev = self.pipeline["y_deviation"].result
 
                 # draw bounding box
                 if bbox_ok:

@@ -383,5 +383,28 @@ class FindLegsPipeline(Pipeline):
         return True, (result, leg_candidates)
 
 
+class KalmanFilterPipeline(Pipeline):
+
+    def __init__(self, process_noise=.001, sensor_noise=.4):
+        Pipeline.__init__(self)
+
+        self.__state = 0
+        self.__error = 1
+        self.__process_noise = process_noise
+        self.__sensor_noise = sensor_noise
+        self.__kalman_gain = 1
+
+    def _execute(self, inp):
+        # predict
+        self.__error = self.__error + self.__process_noise
+
+        # update
+        self.__kalman_gain = self.__error / (self.__error + self.__process_noise)
+        self.__state = self.__state + self.__kalman_gain * (inp - self.__state)
+        self.__error = (1 - self.__kalman_gain) * self.__process_noise
+
+        return True, self.__state
+
+
 READ_CAMERA_PIPELINE = _ReadCameraPipeline()
 

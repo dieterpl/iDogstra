@@ -25,7 +25,8 @@ def color_tracking_pipeline(color="magenta"):
                 ),
                 camera.GetImageDimensionsPipeline()
             ),
-            ("y_deviation", camera.FindYDeviationPipeline())
+            camera.FindYDeviationPipeline(),
+            ("y_deviation", camera.KalmanFilterPipeline())
         )
 
 
