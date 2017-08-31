@@ -8,6 +8,7 @@ def get_distance_pipeline(ir):
         ("ir_distance", infrared.IRGetDistancePipeline())
     )
 
+
 def get_movement_pipeline(ir):
     return pipeline.PipelineSequence(
         pipeline.ConstantPipeline(ir),
