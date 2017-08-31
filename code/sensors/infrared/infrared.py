@@ -97,10 +97,10 @@ class InfraRed:
         upper_avg = []
         under_avg = []
         for i in reversed(self.data_deque):
-            if self.data_deque[i].time > upper_threshold:
-                upper_avg.append(self.data_deque[i].value)
-            if under_threshold < self.data_deque[i].time < upper_threshold:
-                under_avg.append(self.data_deque[i].value)
+            if i.time > upper_threshold:
+                upper_avg.append(i.value)
+            if under_threshold < i.time < upper_threshold:
+                under_avg.append(i.value)
 
         if len(upper_avg) == 0 or len(under_avg) == 0:
             return False
