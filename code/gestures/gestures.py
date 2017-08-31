@@ -33,6 +33,11 @@ class Gesture(Thread):
 
     def __next_picture(self):
         picture_frame = Gesture.PICTURES[self.current_gesture]
+
+        # necessary if gesture is changed and
+        if(self.current_frame > len(picture_frame)):
+            self.current_frame = 0
+
         picture_number = picture_frame[self.current_frame]
         picture_name = ("%s_%d.gif" % (self.current_gesture, picture_number))
         print(picture_name)
@@ -45,7 +50,6 @@ class Gesture(Thread):
     def change_gesture(self, gesture):
         if gesture in Gesture.PICTURES.keys():
             self.current_gesture = gesture
-            self.current_frame = 0
             self.picture_delay = 1 / len(Gesture.PICTURES[gesture])
 
     def run(self):
@@ -61,7 +65,6 @@ class Gesture(Thread):
                     self.current_frame += 1
 
                     time.sleep(self.picture_delay)
-            time.sleep(5)
 
         print("Gestures stopping")
 
