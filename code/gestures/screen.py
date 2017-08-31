@@ -1,8 +1,8 @@
 import os
-import config
 import tkinter as tk
 import time
 from threading import Thread
+from config import config
 
 
 class Screen:
