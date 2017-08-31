@@ -66,7 +66,8 @@ class AbstractRobotState(State):
                 cv2.putText(image, str(dev), (0, image.shape[0] - 5), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, .6,
                             [0, 255, 0])
 
-            cv2.imshow("camtest", image)
+            if image is not None:
+                cv2.imshow("camtest", image)
             if cv2.waitKey(1) & 0xff == ord("q"):
                 sys.exit()
 
