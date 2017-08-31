@@ -34,20 +34,23 @@ class IDog(StateMachine):
         for dongle in self.bt_dongles:
             dongle.start()
 
+        # RobotControl
+        logging.debug("Starting RobotControl")
+        self.robots_control = robot.Robot()
+
         self._current_state.first_state = SearchState(self)
 
 
 class AbstractRobotState(State):
     def __init__(self, state_machine):
         State.__init__(self)
-        self.robots_control = robot.Robot()
         self.next_state = None
         self.state_switching_timestamp = None
         self.state_machine = state_machine
 
     def motor_alignment(self, dev):
         if abs(dev) > 0.2:
-            self.robots_control.rotate(interp1d([-1, 1], [-config.MAX_TURN_SPEED, config.MAX_TURN_SPEED])(dev))
+            self.state_machine.robots_control.rotate(interp1d([-1, 1], [-config.MAX_TURN_SPEED, config.MAX_TURN_SPEED])(dev))
 
     def show_result(self, *_):
         if config.GRAPHICAL_OUTPUT:
@@ -110,13 +113,13 @@ class SearchState(AbstractRobotState):
 
     def on_enter(self):
         if self.start_spin_direction == "left":
-            self.robots_control.left(config.SEARCH_SPEED)
+            self.state_machine.robots_control.left(config.SEARCH_SPEED)
         else:
-            self.robots_control.right(config.SEARCH_SPEED)
+            self.state_machine.robots_control.right(config.SEARCH_SPEED)
         self.start_time = current_time_millis()
 
     def on_exit(self):
-        self.robots_control.stop()
+        self.state_machine.robots_control.stop()
 
     @property
     def pipeline(self):
@@ -131,19 +134,19 @@ class SearchState(AbstractRobotState):
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             if current_time_millis() - self.start_time > config.SEARCH_TIMEOUT:
-                return WaitState(self.state_machine)
+                return WaitState(self.state_machine.state_machine)
             return self
         if not cam_ok and bt_ok:
             # is bt distance far then go in wait state or timeout is reached go
             #  in wait state
             if current_time_millis() - self.start_time > config.SEARCH_TIMEOUT or \
                             distance == bluetooth.UserDistanceEstimationPipeline.Distance.FAR:
-                return WaitState(self.state_machine)
+                return WaitState(self.state_machine.state_machine)
             return self
         if cam_ok and not bt_ok:
-            return TrackState(self.state_machine)
+            return TrackState(self.state_machine.state_machine)
         if cam_ok and bt_ok:
-            return FollowState(self.state_machine)
+            return FollowState(self.state_machine.state_machine)
 
 
 class FollowState(AbstractRobotState):
@@ -151,7 +154,6 @@ class FollowState(AbstractRobotState):
 
     def __init__(self, state_machine):
         AbstractRobotState.__init__(self, state_machine)
-        self.robots_control = robot.Robot()
         self.last_dev = 0
 
         # Create a pipeline that reads both camara and bluetooth inputs
@@ -168,7 +170,7 @@ class FollowState(AbstractRobotState):
         self.pipeline.execute_callbacks = [self.show_result]
 
     def on_exit(self):
-        self.robots_control.stop()
+        self.state_machine.robots_control.stop()
 
     @property
     def pipeline(self):
@@ -196,7 +198,7 @@ class FollowState(AbstractRobotState):
             self.last_dev = dev
             self.motor_alignment(dev)
             if abs(dev) < 0.2:
-                self.robots_control.forward(speed)
+                self.state_machine.robots_control.forward(speed)
             return self.queue_next_state(self)
 
 
@@ -205,7 +207,6 @@ class TrackState(AbstractRobotState):
 
     def __init__(self, state_machine):
         AbstractRobotState.__init__(self, state_machine)
-        self.robots_control = robot.Robot()
         self.last_dev = 0
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
@@ -221,7 +222,7 @@ class TrackState(AbstractRobotState):
         self.pipeline.execute_callbacks = [self.show_result]
 
     def on_exit(self):
-        self.robots_control.stop()
+        self.state_machine.robots_control.stop()
 
     @property
     def pipeline(self):
