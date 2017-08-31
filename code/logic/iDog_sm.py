@@ -134,19 +134,19 @@ class SearchState(AbstractRobotState):
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
             if current_time_millis() - self.start_time > config.SEARCH_TIMEOUT:
-                return WaitState(self.state_machine.state_machine)
+                return WaitState(self.state_machine)
             return self
         if not cam_ok and bt_ok:
             # is bt distance far then go in wait state or timeout is reached go
             #  in wait state
             if current_time_millis() - self.start_time > config.SEARCH_TIMEOUT or \
                             distance == bluetooth.UserDistanceEstimationPipeline.Distance.FAR:
-                return WaitState(self.state_machine.state_machine)
+                return WaitState(self.state_machine)
             return self
         if cam_ok and not bt_ok:
-            return TrackState(self.state_machine.state_machine)
+            return TrackState(self.state_machine)
         if cam_ok and bt_ok:
-            return FollowState(self.state_machine.state_machine)
+            return FollowState(self.state_machine)
 
 
 class FollowState(AbstractRobotState):
