@@ -3,7 +3,7 @@ from collections import deque, namedtuple
 from threading import Thread, Lock
 from utils.functions import current_time_millis, overrides
 from sensors.pipeline import Pipeline
-
+import config
 try:
     import brickpi3
     BP = brickpi3.BrickPi3()
@@ -52,7 +52,7 @@ class InfraRed:
                 self.remove_old_data()
 
 
-    def remove_old_data(self, threshold=1000):
+    def remove_old_data(self, threshold=config.IR_DATA_ACC_THRESHOLD):
         """Removes data tuples from the queue that are older
         than threshold milliseconds"""
 
@@ -105,7 +105,7 @@ class InfraRed:
         finally:
             self.lock.release()
 
-    def check_if_sensor_data_changed(self, time_threshold=500, distance_threshold=10):
+    def check_if_sensor_data_changed(self, time_threshold=config.IR_TIME_THRESHOLD, distance_threshold=config.IR_DISTANCE_THRESHOLD):
         """ Return true if data changed by more than distance threshold in time_threshold"""
         upper_threshold = current_time_millis() - time_threshold
         under_threshold = current_time_millis() - time_threshold*2
@@ -127,7 +127,7 @@ class InfraRed:
             return False
         upper_avg = sum(upper_avg) / len(upper_avg)
         under_avg = sum(under_avg) / len(under_avg)
-
+        print("IR",upper_avg,under_avg)
         if abs(upper_avg - under_avg) > distance_threshold:
             return True
         return False

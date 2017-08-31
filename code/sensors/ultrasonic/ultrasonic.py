@@ -79,7 +79,7 @@ class UltraSonic:
                 self.lock.release()
             self.remove_old_data()
 
-    def remove_old_data(self, threshold=1000):
+    def remove_old_data(self, threshold=config.US_DATA_ACC_THRESHOLD):
         """Removes data tuples from the queue that are older
         than threshold milliseconds"""
 
@@ -102,7 +102,7 @@ class UltraSonic:
         finally:
             self.lock.release()
 
-    def check_us_sensor_data_changed(self, time_threshold=500, distance_threshold=75):
+    def check_us_sensor_data_changed(self, time_threshold=config.US_TIME_THRESHOLD, distance_threshold=config.US_DISTANCE_THRESHOLD):
         """ Return true if data changed by more than distance threshold in time_threshold"""
         upper_threshold = current_time_millis() - time_threshold
         under_threshold = current_time_millis() - time_threshold*2

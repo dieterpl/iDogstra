@@ -259,7 +259,7 @@ class WaitState(AbstractRobotState):
 
     def __init__(self, state_machine):
         AbstractRobotState.__init__(self, state_machine)
-
+        self.start_time = None
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
         self.__pipeline = \
@@ -284,6 +284,9 @@ class WaitState(AbstractRobotState):
     def pipeline(self):
         return self.__pipeline
 
+    def on_enter(self):
+        self.start_time = current_time_millis()
+
     def on_update(self, hist):
         pipeline_result = hist[-1]
         logging.debug("WaitState Pipeline results {}".format(hist[-1]))
@@ -296,7 +299,7 @@ class WaitState(AbstractRobotState):
         dev, distance, _, _ = pipeline_result
         # if there are no result values go to wait state
         if not cam_ok and not bt_ok:
-            if us_ok or ir_ok:
+            if (us_ok or ir_ok) and current_time_millis()-self.start_time>config.IF_US_START_DELAY:
                 return SearchState(self.state_machine)
             return self
         if not cam_ok and bt_ok:
