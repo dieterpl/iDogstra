@@ -172,6 +172,7 @@ class USGetMovementPipeline(Pipeline):
     @overrides(Pipeline)
     def _execute(self, inp):
         """Takes an UltraSonic object and returns the average value."""
+        print (inp.self.lock)
         result = inp.check_us_sensor_data_changed()
         if not result:
             return False, None
