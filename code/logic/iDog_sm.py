@@ -90,13 +90,14 @@ class SearchState(AbstractRobotState):
         self.start_spin_direction = start_spin_direction
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
-        print(type(pipeline), pipeline)
+        global __bt_dongles
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
-                bluetooth_pipelines.user_distance_estimation_pipeline()
+                bluetooth_pipelines.user_distance_estimation_pipeline(
+                    __bt_dongles)
             )
 
         self.pipeline.execute_callbacks = [self.show_result]
@@ -146,12 +147,13 @@ class FollowState(AbstractRobotState):
 
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
+        global __bt_dongles
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
-                bluetooth_pipelines.recommended_speed_pipeline()
+                bluetooth_pipelines.recommended_speed_pipeline(__bt_dongles)
             )
 
         self.pipeline.execute_callbacks = [self.show_result]
@@ -197,12 +199,14 @@ class TrackState(AbstractRobotState):
         self.last_dev = 0
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
+        global __bt_dongles
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
-                bluetooth_pipelines.user_distance_estimation_pipeline()
+                bluetooth_pipelines.user_distance_estimation_pipeline(
+                    __bt_dongles)
             )
 
         self.pipeline.execute_callbacks = [self.show_result]
@@ -248,13 +252,14 @@ class WaitState(AbstractRobotState):
 
         # Create a pipeline that reads both camara and bluetooth inputs
         # parallel and processes them sequentially
-        global __ultrasonic, __infrared
+        global __bt_dongles, __ultrasonic, __infrared
         self.__pipeline = \
             pipeline.DisjunctiveParallelPipeline(
                 # Camera inputs
                 camera_pipelines.color_tracking_pipeline(),
                 # Bluetooth inputs
-                bluetooth_pipelines.user_distance_estimation_pipeline(),
+                bluetooth_pipelines.user_distance_estimation_pipeline(
+                    __bt_dongles),
                 # Ultrasonic inputs
                 ultrasonic_pipelines.get_distance_pipeline(__ultrasonic),
                 # Infrared inputs
