@@ -144,6 +144,22 @@ class EmptyPipeline(Pipeline):
         return True, inp
 
 
+class RepeatPipeline(Pipeline):
+
+    def __init__(self, pipeline):
+        Pipeline.__init__(self)
+        self.__pipeline = pipeline
+
+    @overrides(Pipeline)
+    def _execute(self, inp):
+        while True:
+            out = self.__pipeline.run_pipeline(inp)
+            succ = self.__pipeline.success_state
+
+            if succ:
+                return True, out
+
+
 class PipelineSequence(CompositePipeline):
     """ Chains several pipelines and executes them sequentially"""
 
@@ -175,7 +191,7 @@ class AbstractParallelPipeline(CompositePipeline):
 
     @overrides(CompositePipeline)
     def _execute(self, inp):
-        threads = [Thread(target=p.run_pipeline, args=inp) for p in self.pipelines]
+        threads = [Thread(target=p.run_pipeline, args=(inp,)) for p in self.pipelines]
 
         for thread in threads:
             thread.start()

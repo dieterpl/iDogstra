@@ -15,6 +15,7 @@ class AudioTestSM(StateMachine):
         StateMachine.__init__(self)
 
         self._current_state.first_state = CheckFrequencyState()
+        #self._current_state.first_state = PrintFrequencyState()
 
 
 class CheckFrequencyState(State):
@@ -23,10 +24,46 @@ class CheckFrequencyState(State):
         State.__init__(self)
 
         self.__pipeline = pipeline.PipelineSequence(
-            microphone.ReadMicrophonePipeline(device=4),
+            pipeline.ConjunctiveParallelPipeline(
+                *[
+                    pipeline.RepeatPipeline(
+                        pipeline.PipelineSequence(
+                            microphone.ReadMicrophonePipeline(device=d["index"]),
+                            microphone.FFTPipeline(),
+                            microphone.FilterFrequencyPipeline(freq=AUDIO_FREQ),
+                            microphone.SignalStartPipeline(threshold=d["threshold"])
+                        )
+                    ) for d in AUDIO_DEVICES
+                ]),
+            microphone.ComputeDeltaTimePipeline()
+        )
+
+        # self.__pipeline = pipeline.PipelineSequence(
+        #     pipeline.ConjunctiveParallelPipeline(
+        #         *[microphone.FindSignalTimePipeline(
+        #             device=d["index"], freq=AUDIO_FREQ, threshold=d["threshold"]) for d in AUDIO_DEVICES]
+        #     ),
+        #     microphone.ComputeDeltaTimePipeline()
+        # )
+
+    @property
+    def pipeline(self):
+        return self.__pipeline
+
+    def on_update(self, hist):
+        #print(self.pipeline.output)
+        return self
+
+
+class PrintFrequencyState(State):
+
+    def __init__(self):
+        State.__init__(self)
+
+        self.__pipeline = pipeline.PipelineSequence(
+            microphone.ReadMicrophonePipeline(device=0),
             microphone.FFTPipeline(),
-            microphone.FilterFrequencyPipeline(freq=14079),
-            microphone.SignalStartEndPipeline()
+            microphone.FilterFrequencyPipeline(freq=AUDIO_FREQ),
         )
 
     @property
@@ -34,12 +71,5 @@ class CheckFrequencyState(State):
         return self.__pipeline
 
     def on_update(self, hist):
-        sig = self.pipeline.output
-
-        if sig > 0:
-            print("Signal started!")
-        elif sig < 0:
-            print("Signal ended!")
-
         return self
 

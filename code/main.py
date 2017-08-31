@@ -24,7 +24,8 @@ def main():
     else:
         logging.debug("Starting application with state machine {}".format(sm))
         sm_class = known_state_machines[sm]
-        sm_class(*smargs).run()
+        sm_object = sm_class(*smargs)
+        sm_object.run()
 
 
 def __parse_args():

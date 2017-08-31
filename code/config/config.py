@@ -13,11 +13,16 @@ TRACKING_ALGORITHM = 'TLD'  # algorithm to use for object tracking in images
 USE_TRUE_PARALLEL_PIPELINES = True  # use multithreading in parallel pipelines
 
 AUDIO_CHUNK = 2048
-AUDIO_FREQ = 15 #14079
+AUDIO_FREQ = 14079 #14079
 AUDIO_RATE = 44100
-AUDIO_DEVICES = [
-    {"index": 0, "threshold": 5000},
-    {"index": 6, "threshold": 5000}]
+AUDIO_DEVICES = [{
+    "index": 0,
+    "threshold": 10000
+}, {
+    "index": 6,
+    "threshold": 10000
+}
+]
 
 USE_USB_CAMERA = False
 # the paths to relevant directories of the project

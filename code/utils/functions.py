@@ -8,6 +8,11 @@ def current_time_millis():
     return int(round(time.time() * 1000))
 
 
+def current_time_micros():
+    """ Returns the current system time in microseconds """
+    return int(round(time.time() * 1E6))
+
+
 def overrides(interface_class):
     """ This method can be used as an @override annotation.
     Inspired by http://stackoverflow.com/questions/1167617/in-python-how-do-i-indicate-im-overriding-a-method

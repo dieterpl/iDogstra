@@ -19,7 +19,7 @@ else:
 
 # create and setup the camera object
 if picamera is None or USE_USB_CAMERA:
-    camera = cv2.VideoCapture(0 if picamera is None else 0)
+    camera = cv2.VideoCapture(1 if picamera is None else 0)
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_RESOLUTION[0])
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_RESOLUTION[1])
     # camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)

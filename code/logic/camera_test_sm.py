@@ -50,9 +50,12 @@ class FindLegsState(State):
                     print(leg[0], leg[1])
                     cv2.line(image, leg[0], leg[1], (0, 0, 255))
 
-                cv2.imshow("camera", image)
-                cv2.imshow("edges", edges)
-                cv2.imshow("legs", legs)
+                if image is not None:
+                    cv2.imshow("camera", image)
+                if edges is not None:
+                    cv2.imshow("edges", edges)
+                if legs is not None:
+                    cv2.imshow("legs", legs)
 
                 if cv2.waitKey(1) & 0xff == ord('q'):
                     sys.exit()
@@ -296,15 +299,17 @@ class ShowEdgesState(State):
 
     def __init__(self):
         State.__init__(self)
-        self.__pipeline = camera_pipelines.edge_detection_pipeline(100, 200)
+        self.__pipeline = camera_pipelines.edge_detection_pipeline(50, 150)
 
         if GRAPHICAL_OUTPUT:
             def show_result(*_):
                 image = self.pipeline["image"].output
                 edges = self.pipeline["edges"].output
-                
-                cv2.imshow("camera", image)
-                cv2.imshow("edges", edges)
+
+                if image is not None:
+                    cv2.imshow("camera", image)
+                if edges is not None:
+                    cv2.imshow("edges", edges)
                 if cv2.waitKey(1) & 0xff == ord('q'):
                     sys.exit()
 
