@@ -22,7 +22,7 @@ Lautsprecher, um Töne abspielen zu können.
 
 Auf dem Pi wird folgende Software benötigt:
 
-* Python3
+* Python3.4
 * OpenCV
 * BrickPi Bibliotheken
 * Bluetooth/Bluez
