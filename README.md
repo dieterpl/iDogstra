@@ -26,6 +26,11 @@ Auf dem Pi wird folgende Software benötigt:
 * OpenCV
 * BrickPi Bibliotheken
 * Bluetooth/Bluez
+* NumPy
+* SciPy
+* Getch
+* tkinter
+* picamera
 
 Um Den Roboter starten zu können, ist es sinnvoll dieses Repository in das
 Home Verzeichnis des Nutzers pi zu clonen. Anschließend startet man das
@@ -43,7 +48,9 @@ nach Bluetooth Low Energy Beacons zu aktivieren) werden Root Rechte benötigt.
 Da das Ausführen als Root einige Probleme mit sich bringt, kann man folgenden
 Workaround nutzen, um das Programm als Nutzer pi auszuführen:
 
- https://github.com/home-assistant/home-assistant/issues/3897
+    sudo setcap cap_net_raw,cap_net_admin+eip /srv/hass/hass_venv/bin/python3
+
+Siehe [Referenz](https://github.com/home-assistant/home-assistant/issues/3897)
 
 ### Kamera lässt sich nicht öffnen
 
