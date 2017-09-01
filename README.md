@@ -20,6 +20,10 @@ Sensor, als auch ein nach hinten ausgerichteter Ultraschall Sensor benötigt.
 Für die Darstellung der Gesten wird ein Bildschirm benötigt, sowie ein kleiner
 Lautsprecher, um Töne abspielen zu können.
 
+Für das Bluetooth Tracking wird ein iBeacon Sender benötigt. Dazu kann man
+eine beliebige App verwenden, gute Ergebnisse hat die App "Beacon Simulator"
+für Android geliefert.
+
 Auf dem Pi wird folgende Software benötigt:
 
 * Python3.4
@@ -38,6 +42,10 @@ Programm mit folgenden Befehlen:
 
     cd iDogstra/code  # In das Root Verzeichnis des Codes wechseln
     python3 main.py default  # Die Standardlogik des Roboters starten
+
+Konfigurieren lässt sich der Roboter in folgender Datei:
+
+    code/config/config.py
 
 ## Problembehandlung
 
